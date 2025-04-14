@@ -2,3 +2,4 @@
 uploads/
 __pycache__/
 app.log
+models/
