@@ -9,6 +9,7 @@ ocrmypdf
 kraken
 calamari_ocr
 pyocr
+websockets
 # OCRopus dependencies
 opencv-python
 scikit-image
