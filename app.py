@@ -213,4 +213,4 @@ if __name__ == '__main__':
         print(f"Warning: {message}")
         print("The application will start but may not work correctly until all dependencies are installed.")
     
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8011)

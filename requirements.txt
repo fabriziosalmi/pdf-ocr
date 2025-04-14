@@ -3,7 +3,21 @@ pytesseract
 pdf2image
 python-docx
 Pillow
+easyocr
+paddleocr
+ocrmypdf
+kraken
+calamari_ocr
+pyocr
+# OCRopus dependencies
+opencv-python
+scikit-image
+scipy
 # Note: You also need to install poppler externally:
 # On macOS: brew install poppler
 # On Windows: Download from http://blog.alivate.com.au/poppler-windows/
 # On Linux: apt-get install poppler-utils
+# 
+# For Tesseract OCR languages:
+# On macOS: brew install tesseract-lang
+# On Linux: apt-get install tesseract-ocr-[lang] (replace [lang] with language code)
