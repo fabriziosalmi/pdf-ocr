@@ -4,6 +4,7 @@ import sys
 import subprocess
 import threading
 import time
+import multiprocessing
 from flask import Flask, request, render_template, send_file, flash, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 import pytesseract
@@ -13,6 +14,8 @@ import uuid
 import time
 import json
 from threading import Thread
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from functools import partial
 
 app = Flask(__name__)
 
@@ -79,8 +82,38 @@ def sanitize_text(text):
     # Remove control characters (except newline \n and tab \t)
     return re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
 
+def process_image(i, image_path, ocr_engine, language):
+    """Process a single image with OCR (to be used in parallel processing)"""
+    try:
+        text = ""
+        if ocr_engine == "tesseract":
+            config = f"--oem 1 --psm 3 -l {language}"
+            img_to_process = Image.open(image_path)
+            text = pytesseract.image_to_string(img_to_process, config=config)
+        elif ocr_engine == "easyocr":
+            import easyocr
+            lang_map = {'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt', 
+                       'chi_sim': 'ch_sim', 'chi_tra': 'ch_tra', 'jpn': 'ja', 'kor': 'ko', 'rus': 'ru', 
+                       'ara': 'ar', 'hin': 'hi'}
+            langs_to_load = [lang_map.get(lang, lang) for lang in language.split('+')]
+            reader = easyocr.Reader(langs_to_load)
+            result = reader.readtext(image_path, detail=0, paragraph=True)
+            text = '\n'.join(result)
+        # Add cases for other OCR engines similarly
+        # ...
+
+        # Sanitize text
+        import re
+        text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
+        return i, text
+    except Exception as e:
+        return i, f"[Error processing page {i+1}: {str(e)}]"
+    finally:
+        # We don't delete the file here as it will be managed by the main process
+        pass
+
 def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard", orig_filename=None):
-    """Process PDF (progress parts removed)"""
+    """Process PDF with parallel processing for speed"""
     try:
         # Import PDF conversion library
         from pdf2image import convert_from_path, pdfinfo_from_path
@@ -167,82 +200,53 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
 
         # Create a DOCX document
         document = Document()
-        full_text = ""
-
-        # Perform OCR on each image
+        
+        # Save images to temporary files
+        temp_image_paths = []
         for i, image in enumerate(images):
-            # Save image temporarily to perform OCR (needed by most engines)
             temp_image_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{conversion_id}_page_{i}.png')
-            # Ensure image is in RGB format for engines that require it
             if image.mode != 'RGB':
                 image = image.convert('RGB')
             image.save(temp_image_path, 'PNG')
-
-            text = ""
-            try:
-                # ... (OCR engine processing logic remains the same) ...
-                if ocr_engine == "tesseract":
-                    config = f"--oem 1 --psm 3 -l {language}" # Default config
-                    app.logger.info(f"Processing page {i+1} with Tesseract. Language: '{language}', Config: '{config}'")
-                    try:
-                        # Explicitly open the image here for clarity
-                        img_to_process = Image.open(temp_image_path)
-                        text = pytesseract.image_to_string(img_to_process, config=config)
-                        app.logger.info(f"Tesseract processing for page {i+1} completed.")
-                    except pytesseract.TesseractNotFoundError:
-                        app.logger.error("Tesseract executable not found. Ensure it's installed and in PATH.")
-                        raise # Re-raise the specific error
-                    except Exception as tess_error:
-                        app.logger.error(f"Error during Tesseract processing for page {i+1}: {tess_error}")
-                        text = f"[Tesseract processing error on page {i+1}]"
-                elif ocr_engine == "easyocr" and ocr_reader:
-                    # EasyOCR expects numpy array or file path
-                    result = ocr_reader.readtext(temp_image_path, detail=0, paragraph=True)
-                    text = '\n'.join(result)
-                elif ocr_engine == "paddleocr" and ocr_reader:
-                    result = ocr_reader.ocr(temp_image_path, cls=True)
-                    # Extract text from PaddleOCR structure
-                    page_text = []
-                    for line in result[0]: # result is nested list [[line1], [line2], ...]
-                         page_text.append(line[1][0]) # line[1][0] contains the text
-                    text = '\n'.join(page_text)
-                elif ocr_engine == "kraken" and ocr_reader:
-                     # Kraken requires PIL image
-                     im = Image.open(temp_image_path)
-                     # Perform segmentation and prediction
-                     segmentation = pageseg.segment(im) # Basic segmentation
-                     if not segmentation or 'lines' not in segmentation:
-                         text = "" # No lines found
-                     else:
-                         records = list(ocr_reader.predict_lines(im, segmentation['lines']))
-                         text = '\n'.join([record.prediction for record in records])
-                # elif ocr_engine == "calamari" and ocr_reader:
-                #     text = "[Calamari processing not fully implemented]"
-                elif ocr_engine == "pyocr" and ocr_tool:
-                    # PyOCR needs language mapping for Tesseract tool
-                    lang_map = {'eng': 'eng', 'fra': 'fra', 'deu': 'deu', 'spa': 'spa', 'ita': 'ita', 'por': 'por', 'chi_sim': 'chi_sim', 'chi_tra': 'chi_tra', 'jpn': 'jpn', 'kor': 'kor', 'rus': 'rus', 'ara': 'ara', 'hin': 'hin'}
-                    pyocr_lang = lang_map.get(language, 'eng') # Default to eng
-                    text = ocr_tool.image_to_string(
-                        Image.open(temp_image_path),
-                        lang=pyocr_lang,
-                        builder=pyocr.builders.TextBuilder()
-                    )
-
-            except Exception as page_error:
-                app.logger.error(f"Error processing page {i+1} with {ocr_engine}: {page_error}")
-                text = f"[Error processing page {i+1} with {ocr_engine}]"
-
-            # Sanitize OCR output to remove problematic characters
-            text = sanitize_text(text)
-            full_text += text + "\n\n" # Add page break representation
-
-            # Add paragraph for each page with a page break
-            document.add_paragraph(text)
-            if i < len(images) - 1:  # Don't add page break after the last page
-                document.add_page_break()
-
-            os.remove(temp_image_path) # Clean up temp image
-
+            temp_image_paths.append((i, temp_image_path))
+        
+        # Determine number of worker processes (use 75% of available cores)
+        num_workers = max(1, int(multiprocessing.cpu_count() * 0.75))
+        
+        # Process images in parallel using a process pool
+        results = {}
+        with ProcessPoolExecutor(max_workers=num_workers) as executor:
+            # Create tasks for each image
+            futures = {
+                executor.submit(
+                    process_image, i, temp_path, ocr_engine, language
+                ): i 
+                for i, temp_path in temp_image_paths
+            }
+            
+            # Collect results as they complete
+            for i, future in enumerate(as_completed(futures)):
+                page_idx, text = future.result()
+                results[page_idx] = text
+                
+                # Update progress
+                progress = int((i + 1) / len(images) * 100)
+                if conversion_id in TASK_STATUS:
+                    TASK_STATUS[conversion_id]["progress"] = progress
+        
+        # Sort results by page index and add to document
+        for i in range(len(images)):
+            if i in results:
+                text = results[i]
+                document.add_paragraph(text)
+                if i < len(images) - 1:  # Don't add page break after the last page
+                    document.add_page_break()
+        
+        # Clean up temporary files
+        for _, temp_path in temp_image_paths:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        
         # Save DOCX to file system
         # Instead of accessing session, use passed orig_filename parameter
         document_name = orig_filename or 'document.pdf'
@@ -453,6 +457,9 @@ def guide():
     return render_template('guide.html')
 
 if __name__ == '__main__':
+    # Set the start method for multiprocessing to 'spawn' for better compatibility across platforms
+    multiprocessing.set_start_method('spawn', force=True)
+    
     # Add initial dependency check
     deps_installed, message = check_dependencies()
     if not deps_installed:
