@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  ocr-pdf-docx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocr-pdf-docx
+    ports:
+      - "8011:8011"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - DOCKER_ENV=true
+      - PORT=8011
+      # Uncomment the following line for development mode
+      # - FLASK_ENV=development
+    restart: unless-stopped
+    # Increase memory limit if needed for larger documents
+    deploy:
+      resources:
+        limits:
+          memory: 2G

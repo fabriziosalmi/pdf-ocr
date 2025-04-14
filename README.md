@@ -2,8 +2,6 @@
 
 A web application that converts PDF documents to editable DOCX files using Optical Character Recognition (OCR). This tool is useful for extracting text from scanned documents, making them searchable and editable.
 
-![PDF to DOCX OCR Converter](https://via.placeholder.com/800x400?text=PDF+to+DOCX+OCR+Converter)
-
 ## Features
 
 - Convert PDF documents to editable DOCX or TXT files
