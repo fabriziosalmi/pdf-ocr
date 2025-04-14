@@ -1,330 +1,494 @@
-2025-04-14 20:55:07,629 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-04-14 21:13:46,642 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8011
  * Running on http://192.168.100.3:8011
-2025-04-14 20:55:07,629 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-04-14 20:55:14,916 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:14] "GET / HTTP/1.1" 200 -
-2025-04-14 20:55:15,046 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:15] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:55:16,024 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:16] "GET / HTTP/1.1" 200 -
-2025-04-14 20:55:16,581 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:16] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:55:27,211 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=easyocr, lang=eng, quality=standard
-2025-04-14 20:55:27,223 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:27] "[32mPOST /upload HTTP/1.1[0m" 302 -
-2025-04-14 20:55:27,231 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:27] "GET /status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:27,369 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:27] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:27,371 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:27] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:55:28,397 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:28] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:29,404 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:29] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:30,414 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:30] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:31,420 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:31] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:32,426 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:32] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:33,437 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:33] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:34,446 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:34] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:35,454 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:35] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:36,160 - __main__ - INFO - Processing PDF with 8 workers, quality: standard, engine: easyocr
-2025-04-14 20:55:36,462 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:36] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:36,661 - __mp_main__ - ERROR - Error processing page 1: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_0.png'
-2025-04-14 20:55:36,661 - __mp_main__ - ERROR - Error processing page 2: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_1.png'
-2025-04-14 20:55:36,661 - __mp_main__ - ERROR - Error processing page 3: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_2.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 4: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_3.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 5: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_4.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 6: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_5.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 7: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_6.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 8: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_7.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 9: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_8.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 10: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_9.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 11: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_10.png'
-2025-04-14 20:55:36,662 - __mp_main__ - ERROR - Error processing page 12: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_swfc21zm/page_11.png'
-2025-04-14 20:55:36,831 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 0.68s, Pages/sec: 17.72
-2025-04-14 20:55:37,472 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:37] "GET /api/task_status/51f53e72-b412-4870-8721-2200cd86b494 HTTP/1.1" 200 -
-2025-04-14 20:55:38,500 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:38] "GET /success HTTP/1.1" 200 -
-2025-04-14 20:55:38,632 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:38] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:55:41,087 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:41] "GET /download HTTP/1.1" 200 -
-2025-04-14 20:55:55,805 - __main__ - INFO - Cleaned up DOCX file: uploads/51f53e72-b412-4870-8721-2200cd86b494_Incendi_1.docx
-2025-04-14 20:55:55,806 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:55] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
-2025-04-14 20:55:55,878 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:55] "GET / HTTP/1.1" 200 -
-2025-04-14 20:55:56,033 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:55:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:56:20,827 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard
-2025-04-14 20:56:20,834 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:20] "[32mPOST /upload HTTP/1.1[0m" 302 -
-2025-04-14 20:56:20,839 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:20] "GET /status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:20,965 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:20] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:20,969 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:56:21,977 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:21] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:22,995 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:22] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:24,000 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:24] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:25,009 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:25] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:26,016 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:26] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:27,025 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:27] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:28,034 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:28] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:29,043 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:29] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:29,833 - __main__ - INFO - Processing PDF with 8 workers, quality: standard, engine: tesseract
-2025-04-14 20:56:30,050 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:30] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:30,509 - __mp_main__ - ERROR - Error processing page 1: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_0.png'
-2025-04-14 20:56:30,509 - __mp_main__ - ERROR - Error processing page 2: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_1.png'
-2025-04-14 20:56:30,511 - __mp_main__ - ERROR - Error processing page 4: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_3.png'
-2025-04-14 20:56:30,510 - __mp_main__ - ERROR - Error processing page 3: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_2.png'
-2025-04-14 20:56:30,511 - __mp_main__ - ERROR - Error processing page 5: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_4.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 6: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_5.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 7: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_6.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 8: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_7.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 9: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_8.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 10: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_9.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 11: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_10.png'
-2025-04-14 20:56:30,520 - __mp_main__ - ERROR - Error processing page 12: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_hgpps062/page_11.png'
-2025-04-14 20:56:30,680 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 0.85s, Pages/sec: 14.11
-2025-04-14 20:56:31,061 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:31] "GET /api/task_status/30044851-c789-49a7-9509-eb52d3744e21 HTTP/1.1" 200 -
-2025-04-14 20:56:32,084 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:32] "GET /success HTTP/1.1" 200 -
-2025-04-14 20:56:32,206 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:32] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:56:33,275 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:33] "GET /download HTTP/1.1" 200 -
-2025-04-14 20:56:59,584 - __main__ - INFO - Cleaned up DOCX file: uploads/30044851-c789-49a7-9509-eb52d3744e21_Incendi_1.docx
-2025-04-14 20:56:59,587 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:59] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
-2025-04-14 20:56:59,632 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:59] "GET / HTTP/1.1" 200 -
-2025-04-14 20:56:59,762 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:56:59] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:57:02,627 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:57:02] "GET /guide HTTP/1.1" 200 -
-2025-04-14 20:57:02,790 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:57:02] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:57:04,491 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:57:04] "GET /api/check-dependency?name=poppler HTTP/1.1" 200 -
-2025-04-14 20:57:05,475 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:57:05] "GET /api/check-dependency?name=tesseract HTTP/1.1" 200 -
-2025-04-14 20:57:18,982 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:57:18] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:58:55,038 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-04-14 21:13:46,642 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:13:50,213 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:50] "[32mGET /success HTTP/1.1[0m" 302 -
+2025-04-14 21:13:50,241 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:50] "GET / HTTP/1.1" 200 -
+2025-04-14 21:13:50,485 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:50] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:13:56,107 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:13:56,107 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:13:56,112 - __main__ - INFO - Saved uploaded file to uploads/56f8fcc5-d21c-444f-80f6-0798507d1980_Incendi_1.pdf
+2025-04-14 21:13:56,117 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:56] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:13:56,126 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:56] "GET /status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:13:56,267 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:56] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:13:56,270 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:13:57,278 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:57] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:13:58,286 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:58] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:13:59,298 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:13:59] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:00,308 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:00] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:01,318 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:01] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:02,444 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:02] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:03,452 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:03] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:04,511 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:04] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:05,043 - __main__ - INFO - Processing PDF with 8 workers, quality: standard, engine: tesseract
+2025-04-14 21:14:05,457 - __mp_main__ - ERROR - File not found error processing page 1: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_0.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_0.png'
+2025-04-14 21:14:05,460 - __mp_main__ - ERROR - File not found error processing page 2: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_1.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_1.png'
+2025-04-14 21:14:05,460 - __mp_main__ - ERROR - File not found error processing page 3: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_2.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_2.png'
+2025-04-14 21:14:05,460 - __mp_main__ - ERROR - File not found error processing page 4: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_3.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_3.png'
+2025-04-14 21:14:05,460 - __mp_main__ - ERROR - File not found error processing page 5: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_4.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_4.png'
+2025-04-14 21:14:05,460 - __mp_main__ - ERROR - File not found error processing page 6: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_5.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_5.png'
+2025-04-14 21:14:05,460 - __mp_main__ - ERROR - File not found error processing page 7: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_6.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_6.png'
+2025-04-14 21:14:05,461 - __mp_main__ - ERROR - File not found error processing page 8: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_7.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_7.png'
+2025-04-14 21:14:05,461 - __mp_main__ - ERROR - File not found error processing page 9: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_8.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_8.png'
+2025-04-14 21:14:05,461 - __mp_main__ - ERROR - File not found error processing page 10: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_9.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_9.png'
+2025-04-14 21:14:05,461 - __mp_main__ - ERROR - File not found error processing page 11: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_10.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_10.png'
+2025-04-14 21:14:05,461 - __mp_main__ - ERROR - File not found error processing page 12: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_11.png'
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+    img_to_process = Image.open(image_path)
+  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_pj5ehpz8/page_11.png'
+2025-04-14 21:14:05,519 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:05] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:05,663 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 0.62s, Pages/sec: 19.23
+2025-04-14 21:14:06,536 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:06] "GET /api/task_status/56f8fcc5-d21c-444f-80f6-0798507d1980 HTTP/1.1" 200 -
+2025-04-14 21:14:07,567 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:07] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:14:07,697 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:07] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:14:10,446 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:14:10] "GET /download HTTP/1.1" 200 -
+2025-04-14 21:15:00,837 - __main__ - INFO - Cleaned up DOCX file: uploads/56f8fcc5-d21c-444f-80f6-0798507d1980_Incendi_1.docx
+2025-04-14 21:15:00,838 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:15:00] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:15:00,864 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:15:00] "GET / HTTP/1.1" 200 -
+2025-04-14 21:15:00,995 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:15:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:15:56,232 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8011
  * Running on http://192.168.100.3:8011
-2025-04-14 20:58:55,038 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-04-14 20:58:56,020 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:58:56] "GET / HTTP/1.1" 200 -
-2025-04-14 20:58:56,224 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:58:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:59:00,276 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard
-2025-04-14 20:59:00,286 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:00] "[32mPOST /upload HTTP/1.1[0m" 302 -
-2025-04-14 20:59:00,296 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:00] "GET /status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:00,479 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:00] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:00,481 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:59:01,494 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:01] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:02,504 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:02] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:03,514 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:03] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:04,520 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:04] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:05,526 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:05] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:06,535 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:06] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:07,580 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:07] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:08,645 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:08] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:09,428 - __main__ - INFO - Processing PDF with 8 workers, quality: standard, engine: tesseract
-2025-04-14 20:59:09,654 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:09] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:09,946 - __mp_main__ - ERROR - Error processing page 1 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_0.png'
+2025-04-14 21:15:56,232 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:15:57,397 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:15:57] "GET / HTTP/1.1" 200 -
+2025-04-14 21:15:57,566 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:15:57] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:16:00,678 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:16:00,678 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:16:00,683 - __main__ - INFO - Saved uploaded file to uploads/b64cc718-e60d-4815-b527-99a23fd52c35_Incendi_1.pdf
+2025-04-14 21:16:00,684 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8
+2025-04-14 21:16:00,688 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:00] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:16:00,696 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:00] "GET /status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:00,834 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:00] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:00,836 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:16:01,844 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:01] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:02,849 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:02] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:03,859 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:03] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:04,869 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:04] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:05,884 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:05] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:06,896 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:06] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:07,908 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:07] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:08,914 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:08] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:09,767 - __main__ - INFO - Converted PDF to images in: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8
+2025-04-14 21:16:09,770 - __main__ - INFO - Processing PDF with 8 workers, quality: standard, engine: tesseract
+2025-04-14 21:16:09,922 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:09] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:10,211 - __mp_main__ - ERROR - File not found error processing page 1: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_0.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_0.png'
-2025-04-14 20:59:09,948 - __mp_main__ - ERROR - Error processing page 2 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_1.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_0.png'
+2025-04-14 21:16:10,211 - __mp_main__ - ERROR - File not found error processing page 2: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_1.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_1.png'
-2025-04-14 20:59:09,948 - __mp_main__ - ERROR - Error processing page 3 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_2.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_1.png'
+2025-04-14 21:16:10,211 - __mp_main__ - ERROR - File not found error processing page 3: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_2.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_2.png'
-2025-04-14 20:59:09,948 - __mp_main__ - ERROR - Error processing page 4 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_3.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_2.png'
+2025-04-14 21:16:10,211 - __mp_main__ - ERROR - File not found error processing page 5: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_4.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_3.png'
-2025-04-14 20:59:09,948 - __mp_main__ - ERROR - Error processing page 5 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_4.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_4.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 6: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_5.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_4.png'
-2025-04-14 20:59:09,948 - __mp_main__ - ERROR - Error processing page 6 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_5.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_5.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 7: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_6.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_5.png'
-2025-04-14 20:59:09,948 - __mp_main__ - ERROR - Error processing page 7 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_6.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_6.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 4: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_3.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_6.png'
-2025-04-14 20:59:09,949 - __mp_main__ - ERROR - Error processing page 8 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_7.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_3.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 8: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_7.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_7.png'
-2025-04-14 20:59:09,950 - __mp_main__ - ERROR - Error processing page 9 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_8.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_7.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 9: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_8.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_8.png'
-2025-04-14 20:59:09,950 - __mp_main__ - ERROR - Error processing page 12 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_11.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_8.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 11: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_10.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_11.png'
-2025-04-14 20:59:09,950 - __mp_main__ - ERROR - Error processing page 11 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_10.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_10.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 12: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_11.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_10.png'
-2025-04-14 20:59:09,950 - __mp_main__ - ERROR - Error processing page 10 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_9.png'
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_11.png'
+2025-04-14 21:16:10,212 - __mp_main__ - ERROR - File not found error processing page 10: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_9.png'
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 236, in process_image
     img_to_process = Image.open(image_path)
   File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
     fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_17_buzxb/page_9.png'
-2025-04-14 20:59:10,116 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 0.69s, Pages/sec: 17.33
-2025-04-14 20:59:10,665 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:10] "GET /api/task_status/c759c4dc-37ce-4f96-86ea-de992f7f7ac9 HTTP/1.1" 200 -
-2025-04-14 20:59:11,696 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:11] "GET /success HTTP/1.1" 200 -
-2025-04-14 20:59:11,823 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 20:59:12,691 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 20:59:12] "GET /download HTTP/1.1" 200 -
-2025-04-14 21:00:56,423 - __main__ - INFO - Cleaned up DOCX file: uploads/c759c4dc-37ce-4f96-86ea-de992f7f7ac9_Incendi_1.docx
-2025-04-14 21:00:56,426 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:00:56] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
-2025-04-14 21:00:56,474 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:00:56] "GET / HTTP/1.1" 200 -
-2025-04-14 21:00:56,609 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:00:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 21:03:06,858 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8/page_9.png'
+2025-04-14 21:16:10,379 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 0.61s, Pages/sec: 19.59
+2025-04-14 21:16:10,380 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_mek6nnn8
+2025-04-14 21:16:10,934 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:10] "GET /api/task_status/b64cc718-e60d-4815-b527-99a23fd52c35 HTTP/1.1" 200 -
+2025-04-14 21:16:11,959 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:11] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:16:12,092 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:12] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:16:46,431 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8011
  * Running on http://192.168.100.3:8011
-2025-04-14 21:03:06,858 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-04-14 21:03:09,448 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:03:09] "GET / HTTP/1.1" 200 -
-2025-04-14 21:03:09,685 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:03:09] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 21:06:02,191 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-04-14 21:16:46,431 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:16:48,392 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:48] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:16:48,423 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:48] "GET / HTTP/1.1" 200 -
+2025-04-14 21:16:48,545 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:48] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:16:50,729 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:50] "GET / HTTP/1.1" 200 -
+2025-04-14 21:16:50,922 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:50] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:16:53,650 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:16:53,650 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:16:53,654 - __main__ - INFO - Saved uploaded file to uploads/19f0dd76-9779-4202-aa84-b3c3fa6ecfce_Incendi_1.pdf
+2025-04-14 21:16:53,655 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_w97qzhw2
+2025-04-14 21:16:53,658 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:53] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:16:53,665 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:53] "GET /status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:53,822 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:53] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:53,828 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:53] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:16:54,831 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:54] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:55,840 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:55] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:56,848 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:56] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:57,855 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:57] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:58,865 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:58] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:16:59,874 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:16:59] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:00,879 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:00] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:01,884 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:01] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:02,715 - __main__ - INFO - Converted PDF to images in: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_w97qzhw2
+2025-04-14 21:17:02,897 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:02] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:03,905 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:03] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:05,918 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:05] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:07,926 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:07] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:09,934 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:09] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:11,943 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:11] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:12,797 - __main__ - ERROR - Error during PDF processing: Image file not found after conversion: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_w97qzhw2/page_0.png
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 504, in process_pdf_with_progress
+    raise FileNotFoundError(f"Image file not found after conversion: {image_path}")
+FileNotFoundError: Image file not found after conversion: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_w97qzhw2/page_0.png
+2025-04-14 21:17:12,799 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_w97qzhw2
+2025-04-14 21:17:13,954 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:13] "GET /api/task_status/19f0dd76-9779-4202-aa84-b3c3fa6ecfce HTTP/1.1" 200 -
+2025-04-14 21:17:14,999 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:14] "GET / HTTP/1.1" 200 -
+2025-04-14 21:17:15,139 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:15] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:17:52,566 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8011
  * Running on http://192.168.100.3:8011
-2025-04-14 21:06:02,192 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-04-14 21:06:03,730 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:03] "GET / HTTP/1.1" 200 -
-2025-04-14 21:06:03,910 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:03] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 21:06:07,184 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
-2025-04-14 21:06:07,185 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
-2025-04-14 21:06:07,192 - __main__ - INFO - Saved uploaded file to uploads/4fdb62c9-b6f9-43d3-b553-908ddf45461f_Incendi_1.pdf
-2025-04-14 21:06:07,197 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:07] "[32mPOST /upload HTTP/1.1[0m" 302 -
-2025-04-14 21:06:07,207 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:07] "GET /status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:07,426 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:07] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:07,429 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:07] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 21:06:08,433 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:08] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:09,440 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:09] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:10,538 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:10] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:11,550 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:11] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:12,557 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:12] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:13,567 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:13] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:14,572 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:14] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:15,583 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:15] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:16,593 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:16] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:16,593 - __main__ - INFO - Processing PDF with 8 workers, quality: standard, engine: tesseract
-2025-04-14 21:06:17,172 - __mp_main__ - ERROR - Error processing page 1 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_0.png'
+2025-04-14 21:17:52,566 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:17:54,695 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:54] "GET / HTTP/1.1" 200 -
+2025-04-14 21:17:54,819 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:54] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:17:55,446 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:55] "GET / HTTP/1.1" 200 -
+2025-04-14 21:17:55,614 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:55] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:17:58,838 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:17:58,838 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:17:58,842 - __main__ - INFO - Saved uploaded file to uploads/ae6f11ed-7b60-45ce-8762-06b206773e06_Incendi_1.pdf
+2025-04-14 21:17:58,843 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_3gntuea4
+2025-04-14 21:17:58,846 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:58] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:17:58,854 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:58] "GET /status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:17:58,991 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:58] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:17:58,997 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:17:58] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:18:00,014 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:00] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:01,023 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:01] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:02,033 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:02] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:03,158 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:03] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:04,166 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:04] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:05,175 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:05] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:06,182 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:06] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:07,190 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:07] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:07,911 - __main__ - INFO - Converted PDF to images in: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_3gntuea4
+2025-04-14 21:18:08,202 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:08] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:09,213 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:09] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:11,372 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:11] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:13,384 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:13] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:15,395 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:15] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:17,402 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:17] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:19,414 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:19] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:21,426 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:21] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:23,435 - __main__ - ERROR - Error during PDF processing: Image file not found after conversion (waited 15.5s): /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_3gntuea4/page_0.png
 Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_0.png'
-2025-04-14 21:06:17,172 - __mp_main__ - ERROR - Error processing page 3 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_2.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_2.png'
-2025-04-14 21:06:17,173 - __mp_main__ - ERROR - Error processing page 4 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_3.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_3.png'
-2025-04-14 21:06:17,173 - __mp_main__ - ERROR - Error processing page 7 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_6.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_6.png'
-2025-04-14 21:06:17,172 - __mp_main__ - ERROR - Error processing page 2 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_1.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_1.png'
-2025-04-14 21:06:17,173 - __mp_main__ - ERROR - Error processing page 6 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_5.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_5.png'
-2025-04-14 21:06:17,173 - __mp_main__ - ERROR - Error processing page 5 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_4.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_4.png'
-2025-04-14 21:06:17,173 - __mp_main__ - ERROR - Error processing page 9 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_8.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_8.png'
-2025-04-14 21:06:17,174 - __mp_main__ - ERROR - Error processing page 12 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_11.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_11.png'
-2025-04-14 21:06:17,173 - __mp_main__ - ERROR - Error processing page 8 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_7.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_7.png'
-2025-04-14 21:06:17,174 - __mp_main__ - ERROR - Error processing page 11 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_10.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_10.png'
-2025-04-14 21:06:17,174 - __mp_main__ - ERROR - Error processing page 10 with tesseract: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_9.png'
-Traceback (most recent call last):
-  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 235, in process_image
-    img_to_process = Image.open(image_path)
-  File "/opt/homebrew/lib/python3.13/site-packages/PIL/Image.py", line 3465, in open
-    fp = builtins.open(filename, "rb")
-FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_uvc4f7n_/page_9.png'
-2025-04-14 21:06:17,339 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 0.75s, Pages/sec: 15.99
-2025-04-14 21:06:17,604 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:17] "GET /api/task_status/4fdb62c9-b6f9-43d3-b553-908ddf45461f HTTP/1.1" 200 -
-2025-04-14 21:06:18,709 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:18] "GET /success HTTP/1.1" 200 -
-2025-04-14 21:06:18,858 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:18] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 21:06:20,338 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:06:20] "GET /download HTTP/1.1" 200 -
-2025-04-14 21:07:17,985 - __main__ - INFO - Cleaned up DOCX file: uploads/4fdb62c9-b6f9-43d3-b553-908ddf45461f_Incendi_1.docx
-2025-04-14 21:07:17,987 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:07:17] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
-2025-04-14 21:07:18,018 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:07:18] "GET / HTTP/1.1" 200 -
-2025-04-14 21:07:18,159 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:07:18] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-04-14 21:07:34,271 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 511, in process_pdf_with_progress
+    raise FileNotFoundError(f"Image file not found after conversion (waited {elapsed_time}s): {image_path}")
+FileNotFoundError: Image file not found after conversion (waited 15.5s): /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_3gntuea4/page_0.png
+2025-04-14 21:18:23,438 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_3gntuea4
+2025-04-14 21:18:23,515 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:23] "GET /api/task_status/ae6f11ed-7b60-45ce-8762-06b206773e06 HTTP/1.1" 200 -
+2025-04-14 21:18:24,557 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:24] "GET / HTTP/1.1" 200 -
+2025-04-14 21:18:24,694 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:24] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:18:57,372 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8011
  * Running on http://192.168.100.3:8011
-2025-04-14 21:07:34,272 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:18:57,372 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:18:58,982 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:58] "GET / HTTP/1.1" 200 -
+2025-04-14 21:18:59,144 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:18:59] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:19:02,275 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:19:02,276 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:19:02,281 - __main__ - INFO - Saved uploaded file to uploads/2c5c634b-62aa-4410-9a8e-3d42467fcf08_Incendi_1.pdf
+2025-04-14 21:19:02,282 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4
+2025-04-14 21:19:02,286 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:02] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:19:02,296 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:02] "GET /status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:02,438 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:02] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:02,442 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:02] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:19:03,464 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:03] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:04,474 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:04] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:05,479 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:05] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:06,490 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:06] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:07,498 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:07] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:08,507 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:08] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:09,516 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:09] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:10,524 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:10] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:11,402 - __main__ - INFO - Converted PDF to images in: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_0.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_1.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_2.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_3.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_4.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_5.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_6.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_7.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_8.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_9.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_10.png
+2025-04-14 21:19:11,402 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_11.png
+2025-04-14 21:19:11,402 - __main__ - ERROR - Error during PDF processing: Missing image files after conversion: ['/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_0.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_1.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_2.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_3.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_4.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_5.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_6.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_7.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_8.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_9.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_10.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_11.png']
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 503, in process_pdf_with_progress
+    raise FileNotFoundError(f"Missing image files after conversion: {missing_images}")
+FileNotFoundError: Missing image files after conversion: ['/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_0.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_1.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_2.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_3.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_4.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_5.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_6.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_7.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_8.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_9.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_10.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4/page_11.png']
+2025-04-14 21:19:11,403 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_l2qiwzw4
+2025-04-14 21:19:11,636 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:11] "GET /api/task_status/2c5c634b-62aa-4410-9a8e-3d42467fcf08 HTTP/1.1" 200 -
+2025-04-14 21:19:12,668 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:12] "GET / HTTP/1.1" 200 -
+2025-04-14 21:19:12,802 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:19:12] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:20:27,581 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 21:20:27,581 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:20:29,776 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:29] "GET / HTTP/1.1" 200 -
+2025-04-14 21:20:29,898 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:20:33,135 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:20:33,135 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:20:33,140 - __main__ - INFO - Saved uploaded file to uploads/b3d2bec5-95c6-40ff-92cf-bc14e81bb843_Incendi_1.pdf
+2025-04-14 21:20:33,141 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr
+2025-04-14 21:20:33,145 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:33] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:20:33,153 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:33] "GET /status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:33,274 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:33] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:33,281 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:33] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:20:34,323 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:34] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:35,329 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:35] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:36,334 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:36] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:37,343 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:37] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:38,351 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:38] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:39,357 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:39] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:40,364 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:40] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:41,374 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:41] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:42,382 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:42] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:43,389 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:43] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:45,399 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:45] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:47,407 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:47] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:47,568 - __main__ - INFO - Converted PDF to images in: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_0.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_1.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_2.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_3.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_4.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_5.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_6.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_7.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_8.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_9.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_10.png
+2025-04-14 21:20:47,568 - __main__ - WARNING - Image file missing: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_11.png
+2025-04-14 21:20:47,568 - __main__ - ERROR - Error during PDF processing: Missing image files after conversion: ['/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_0.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_1.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_2.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_3.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_4.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_5.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_6.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_7.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_8.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_9.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_10.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_11.png']
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 506, in process_pdf_with_progress
+    raise FileNotFoundError(f"Missing image files after conversion: {missing_images}")
+FileNotFoundError: Missing image files after conversion: ['/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_0.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_1.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_2.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_3.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_4.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_5.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_6.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_7.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_8.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_9.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_10.png', '/var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr/page_11.png']
+2025-04-14 21:20:47,569 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0mydd_tr
+2025-04-14 21:20:49,418 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:49] "GET /api/task_status/b3d2bec5-95c6-40ff-92cf-bc14e81bb843 HTTP/1.1" 200 -
+2025-04-14 21:20:50,456 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:50] "GET / HTTP/1.1" 200 -
+2025-04-14 21:20:50,594 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:20:50] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:23:32,660 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 21:23:32,660 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:23:35,219 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:35] "GET / HTTP/1.1" 200 -
+2025-04-14 21:23:35,388 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:35] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:23:43,661 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:23:43,661 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:23:43,666 - __main__ - INFO - Saved uploaded file to uploads/9143189a-d98d-4c0b-b85f-218ad09f60ce_Incendi_1.pdf
+2025-04-14 21:23:43,666 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741
+2025-04-14 21:23:43,671 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:43] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:23:43,678 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:43] "GET /status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:43,686 - __main__ - INFO - Starting PDF conversion with DPI=300
+2025-04-14 21:23:43,802 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:43] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:43,806 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:43] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:23:44,823 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:44] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:45,833 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:45] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:46,842 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:46] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:47,855 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:47] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:48,861 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:48] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:49,870 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:49] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:50,878 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:50] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:51,887 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:51] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:52,894 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:52] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:53,902 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:53] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:56,011 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:56] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:58,021 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:23:58] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:23:59,498 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 21:23:59,498 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_0.png
+2025-04-14 21:23:59,659 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_1.png
+2025-04-14 21:23:59,807 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_2.png
+2025-04-14 21:23:59,975 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_3.png
+2025-04-14 21:24:00,028 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:00] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:00,139 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_4.png
+2025-04-14 21:24:00,285 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_5.png
+2025-04-14 21:24:00,406 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_6.png
+2025-04-14 21:24:00,508 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_7.png
+2025-04-14 21:24:00,630 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_8.png
+2025-04-14 21:24:00,764 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_9.png
+2025-04-14 21:24:00,879 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_10.png
+2025-04-14 21:24:00,993 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741/page_11.png
+2025-04-14 21:24:01,092 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 21:24:01,096 - __main__ - INFO - Processing PDF with 1 worker, quality: standard, engine: tesseract
+2025-04-14 21:24:01,368 - __mp_main__ - INFO - Processing page 1 with OCR engine: tesseract
+2025-04-14 21:24:01,376 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:01,376 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:02,037 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:02] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:03,439 - __mp_main__ - INFO - Processing page 2 with OCR engine: tesseract
+2025-04-14 21:24:03,448 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:03,448 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:04,045 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:04] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:05,838 - __mp_main__ - INFO - Processing page 3 with OCR engine: tesseract
+2025-04-14 21:24:05,845 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:05,845 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:06,053 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:06] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:08,062 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:08] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:08,261 - __mp_main__ - INFO - Processing page 4 with OCR engine: tesseract
+2025-04-14 21:24:08,268 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:08,268 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:10,071 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:10] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:10,605 - __mp_main__ - INFO - Processing page 5 with OCR engine: tesseract
+2025-04-14 21:24:10,612 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:10,613 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:12,079 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:12] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:12,904 - __mp_main__ - INFO - Processing page 6 with OCR engine: tesseract
+2025-04-14 21:24:12,912 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:12,912 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:14,087 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:14] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:14,225 - __mp_main__ - INFO - Processing page 7 with OCR engine: tesseract
+2025-04-14 21:24:14,233 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:14,233 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:15,020 - __mp_main__ - INFO - Processing page 8 with OCR engine: tesseract
+2025-04-14 21:24:15,027 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:15,027 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:16,033 - __mp_main__ - INFO - Processing page 9 with OCR engine: tesseract
+2025-04-14 21:24:16,040 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:16,041 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:17,095 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:17] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:17,264 - __mp_main__ - INFO - Processing page 10 with OCR engine: tesseract
+2025-04-14 21:24:17,272 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:17,272 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300

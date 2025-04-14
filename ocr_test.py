@@ -9,6 +9,45 @@ import subprocess
 import platform
 from PIL import Image, ImageDraw, ImageFont
 
+# ANSI color codes
+RED = '\033[91m'
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+BLUE = '\033[94m'
+MAGENTA = '\033[95m'
+CYAN = '\033[96m'
+RESET = '\033[0m'
+
+# Logging levels
+DEBUG = 0
+INFO = 1
+WARNING = 2
+ERROR = 3
+LOG_LEVEL = INFO  # Set default log level
+
+def log(message, level=INFO):
+    """Print a formatted log message with color and level."""
+    if level < LOG_LEVEL:
+        return
+    
+    if level == DEBUG:
+        color = CYAN
+        level_str = "DEBUG"
+    elif level == INFO:
+        color = GREEN
+        level_str = "INFO"
+    elif level == WARNING:
+        color = YELLOW
+        level_str = "WARNING"
+    elif level == ERROR:
+        color = RED
+        level_str = "ERROR"
+    else:
+        color = RESET
+        level_str = "UNKNOWN"
+    
+    print(f"{color}[{level_str}]{RESET} {message}")
+
 def print_header(message):
     """Print a formatted header message"""
     print("=" * 60)
@@ -17,32 +56,32 @@ def print_header(message):
 
 def test_tesseract():
     """Test if Tesseract OCR is working properly"""
-    print("Testing Tesseract OCR installation...")
+    log("Testing Tesseract OCR installation...", INFO)
     
     try:
         # First, check if pytesseract is installed
         try:
             import pytesseract
-            print(f"✓ pytesseract module is installed")
+            log(f"{GREEN}✓{RESET} pytesseract module is installed", INFO)
         except ImportError:
-            print("✗ pytesseract module is not installed. Install it with: pip install pytesseract")
+            log(f"{RED}✗{RESET} pytesseract module is not installed. Install it with: pip install pytesseract", ERROR)
             return False
             
         # Check Tesseract version
         try:
             version = pytesseract.get_tesseract_version()
-            print(f"✓ Tesseract version: {version}")
+            log(f"{GREEN}✓{RESET} Tesseract version: {version}", INFO)
         except Exception as e:
-            print(f"✗ Failed to get Tesseract version: {e}")
-            print("\nThis usually means Tesseract is not installed or not in your PATH.")
+            log(f"{RED}✗{RESET} Failed to get Tesseract version: {e}", ERROR)
+            log("\nThis usually means Tesseract is not installed or not in your PATH.", WARNING)
             system = platform.system().lower()
             if system == "darwin":
-                print("  - macOS: Install with 'brew install tesseract'")
+                log("  - macOS: Install with 'brew install tesseract'", WARNING)
             elif system == "linux":
-                print("  - Linux: Install with 'sudo apt-get install tesseract-ocr'")
+                log("  - Linux: Install with 'sudo apt-get install tesseract-ocr'", WARNING)
             elif system == "windows":
-                print("  - Windows: Install from https://github.com/UB-Mannheim/tesseract/wiki")
-                print("    Make sure to check 'Add to PATH' during installation")
+                log("  - Windows: Install from https://github.com/UB-Mannheim/tesseract/wiki", WARNING)
+                log("    Make sure to check 'Add to PATH' during installation", WARNING)
             return False
         
         # Try to get list of available languages
@@ -50,13 +89,13 @@ def test_tesseract():
             result = subprocess.run(['tesseract', '--list-langs'], 
                                   capture_output=True, text=True)
             if result.returncode == 0:
-                print("✓ Available languages:")
+                log(f"{GREEN}✓{RESET} Available languages:", INFO)
                 for lang in result.stdout.strip().split('\n')[1:]:
-                    print(f"  - {lang}")
+                    log(f"  - {lang}", INFO)
             else:
-                print(f"✗ Error getting languages: {result.stderr}")
+                log(f"{YELLOW}✗{RESET} Error getting languages: {result.stderr}", WARNING)
         except Exception as e:
-            print(f"✗ Error checking languages: {e}")
+            log(f"{YELLOW}✗{RESET} Error checking languages: {e}", WARNING)
             
         # Create a simple test image with text
         try:
@@ -101,62 +140,62 @@ def test_tesseract():
             
             # Save the image
             img.save("test_ocr.png")
-            print("✓ Created test image: test_ocr.png")
+            log(f"{GREEN}✓{RESET} Created test image: test_ocr.png", INFO)
             
             # Try OCR on the image
             text = pytesseract.image_to_string(Image.open("test_ocr.png"))
-            print(f"OCR result: '{text.strip()}'")
+            log(f"OCR result: '{text.strip()}'", DEBUG)
             
             # Attempt with explicit config for better results
             if "Tesseract OCR Test" not in text:
-                print("Trying with explicit configuration...")
+                log("Trying with explicit configuration...", INFO)
                 text = pytesseract.image_to_string(
                     Image.open("test_ocr.png"),
                     config="--psm 6 --oem 3"
                 )
-                print(f"Second OCR result: '{text.strip()}'")
+                log(f"Second OCR result: '{text.strip()}'", DEBUG)
             
             if "Tesseract OCR Test" in text:
-                print("✅ OCR TEST PASSED: Text was correctly recognized")
+                log(f"{GREEN}✅{RESET} OCR TEST PASSED: Text was correctly recognized", INFO)
             else:
-                print("❌ OCR TEST FAILED: Text was not correctly recognized")
-                print("\nTroubleshooting tips:")
-                print("1. Make sure you have a newer version of Tesseract (4.0+)")
-                print("2. Install additional languages if needed")
-                print("3. Try running 'tesseract test_ocr.png stdout' directly in terminal")
+                log(f"{RED}❌{RESET} OCR TEST FAILED: Text was not correctly recognized", ERROR)
+                log("\nTroubleshooting tips:", WARNING)
+                log("1. Make sure you have a newer version of Tesseract (4.0+)", WARNING)
+                log("2. Install additional languages if needed", WARNING)
+                log("3. Try running 'tesseract test_ocr.png stdout' directly in terminal", WARNING)
                 
             # Keep the image for investigation
-            print(f"Test image saved as 'test_ocr.png' for your reference")
+            log(f"Test image saved as 'test_ocr.png' for your reference", INFO)
             
             return "Tesseract OCR Test" in text
         except Exception as e:
-            print(f"✗ Error during image creation test: {e}")
+            log(f"{RED}✗{RESET} Error during image creation test: {e}", ERROR)
             return False
         
     except Exception as e:
-        print(f"❌ Tesseract OCR test failed: {e}")
-        print("\nPossible solutions:")
-        print("1. Make sure Tesseract is installed:")
-        print("   - macOS: brew install tesseract")
-        print("   - Ubuntu/Debian: sudo apt-get install tesseract-ocr")
-        print("   - Windows: Install from https://github.com/UB-Mannheim/tesseract/wiki")
-        print("2. Verify it's in your PATH by running 'tesseract --version' in terminal")
-        print("3. Check that pytesseract is correctly installed: pip install pytesseract")
+        log(f"{RED}❌{RESET} Tesseract OCR test failed: {e}", ERROR)
+        log("\nPossible solutions:", WARNING)
+        log("1. Make sure Tesseract is installed:", WARNING)
+        log("   - macOS: brew install tesseract", WARNING)
+        log("   - Ubuntu/Debian: sudo apt-get install tesseract-ocr", WARNING)
+        log("   - Windows: Install from https://github.com/UB-Mannheim/tesseract/wiki", WARNING)
+        log("2. Verify it's in your PATH by running 'tesseract --version' in terminal", WARNING)
+        log("3. Check that pytesseract is correctly installed: pip install pytesseract", WARNING)
         return False
 
 def test_pdf_to_image():
     """Test PDF to image conversion with pdf2image"""
-    print("\nTesting PDF to image conversion...")
+    log("\nTesting PDF to image conversion...", INFO)
     
     try:
         try:
             # Check if pdf2image is installed
             try:
                 import pdf2image
-                print(f"✓ pdf2image module is installed")
+                log(f"{GREEN}✓{RESET} pdf2image module is installed", INFO)
             except ImportError:
-                print("✗ pdf2image module is not installed. Install it with: pip install pdf2image")
-                print("  Then run the script again to complete the test.")
+                log(f"{RED}✗{RESET} pdf2image module is not installed. Install it with: pip install pdf2image", ERROR)
+                log("  Then run the script again to complete the test.", WARNING)
                 return False
             
             # Check Poppler
@@ -171,58 +210,58 @@ def test_pdf_to_image():
                 # Try to get info using pdf2image
                 try:
                     pdf2image.pdfinfo_from_path(test_pdf_path)
-                    print("✓ Poppler is installed and working")
+                    log(f"{GREEN}✓{RESET} Poppler is installed and working", INFO)
                     
                     # Try to convert a page
                     try:
                         images = pdf2image.convert_from_path(test_pdf_path, dpi=72)
                         if images and len(images) > 0:
-                            print(f"✓ Successfully converted PDF to {len(images)} image(s)")
+                            log(f"{GREEN}✓{RESET} Successfully converted PDF to {len(images)} image(s)", INFO)
                             # Save the first image for reference
                             images[0].save("test_pdf_conversion.png")
-                            print("✓ Saved converted image as 'test_pdf_conversion.png'")
+                            log(f"{GREEN}✓{RESET} Saved converted image as 'test_pdf_conversion.png'", INFO)
                         else:
-                            print("✗ PDF conversion failed - no images returned")
+                            log(f"{RED}✗{RESET} PDF conversion failed - no images returned", ERROR)
                             return False
                     except Exception as e:
-                        print(f"✗ PDF conversion failed: {e}")
+                        log(f"{RED}✗{RESET} PDF conversion failed: {e}", ERROR)
                         return False
                         
                 except PDFInfoNotInstalledError:
-                    print("✗ Poppler is not installed or not in PATH")
+                    log(f"{RED}✗{RESET} Poppler is not installed or not in PATH", ERROR)
                     system = platform.system().lower()
                     if system == "darwin":
-                        print("  - macOS: Install with 'brew install poppler'")
+                        log("  - macOS: Install with 'brew install poppler'", WARNING)
                     elif system == "linux":
-                        print("  - Linux: Install with 'sudo apt-get install poppler-utils'")
+                        log("  - Linux: Install with 'sudo apt-get install poppler-utils'", WARNING)
                     elif system == "windows":
-                        print("  - Windows: Download from https://github.com/oschwartz10612/poppler-windows/releases")
-                        print("    and add the bin directory to your PATH")
+                        log("  - Windows: Download from https://github.com/oschwartz10612/poppler-windows/releases", WARNING)
+                        log("    and add the bin directory to your PATH", WARNING)
                     return False
                 except Exception as e:
-                    print(f"✗ Error testing Poppler: {e}")
+                    log(f"{RED}✗{RESET} Error testing Poppler: {e}", ERROR)
                     return False
                 
                 # Clean up
                 try:
                     os.remove(test_pdf_path)
                     os.remove("test_pdf_conversion.png")
-                except:
-                    pass
+                except OSError as e:
+                    log(f"{YELLOW}✗{RESET} Could not clean up temporary files: {e}", WARNING)
                 
                 return True
                 
             except ImportError:
-                print("✗ Could not properly test Poppler installation")
+                log(f"{RED}✗{RESET} Could not properly test Poppler installation", ERROR)
                 return False
                 
         except Exception as e:
-            print(f"✗ Error importing pdf2image: {e}")
-            print("  Make sure you have installed all dependencies: pip install pdf2image")
+            log(f"{RED}✗{RESET} Error importing pdf2image: {e}", ERROR)
+            log("  Make sure you have installed all dependencies: pip install pdf2image", WARNING)
             return False
             
     except Exception as e:
-        print(f"✗ PDF to image test failed: {e}")
+        log(f"{RED}✗{RESET} PDF to image test failed: {e}", ERROR)
         return False
 
 def test_dependencies():
@@ -233,8 +272,12 @@ def test_dependencies():
     pdf_result = test_pdf_to_image()
     
     print("\nTest Summary:")
-    print(f"Tesseract OCR: {'✅ Passed' if tesseract_result else '❌ Failed'}")
-    print(f"PDF to Image: {'✅ Passed' if pdf_result else '❌ Failed'}")
+    print(f"Tesseract OCR: {GREEN}✅ Passed{RESET} "
+          f"if {GREEN if tesseract_result else RED}{tesseract_result}{RESET} else "
+          f"{RED}❌ Failed{RESET}")
+    print(f"PDF to Image: {GREEN}✅ Passed{RESET} "
+          f"if {GREEN if pdf_result else RED}{pdf_result}{RESET} else "
+          f"{RED}❌ Failed{RESET}")
     
     # Give combined advice
     if not (tesseract_result and pdf_result):

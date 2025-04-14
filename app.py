@@ -232,7 +232,9 @@ def process_image(i, image_path, ocr_engine, language, preprocess=False):
     try:
         text = ""
         # Open image
+        logger.debug(f"Attempting to open image: {image_path}")  # Debugging log
         img_to_process = Image.open(image_path)
+        logger.debug(f"Image opened successfully: {image_path}")  # Debugging log
         
         # Preprocess image if requested
         if preprocess:
@@ -267,121 +269,137 @@ def process_image(i, image_path, ocr_engine, language, preprocess=False):
                 return i, f"[Error with Tesseract OCR: {str(e)}]"
         
         elif ocr_engine == "easyocr":
-            import easyocr
-            # Map common 3-letter ISO codes to 2-letter EasyOCR codes
-            lang_map = {
-                'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt', 
-                'chi_sim': 'ch_sim', 'chi_tra': 'ch_tra', 'jpn': 'ja', 'kor': 'ko', 'rus': 'ru', 
-                'ara': 'ar', 'hin': 'hi'
-            }
-            
-            # Parse and map languages (handling multiple languages separated by +)
-            langs_to_load = []
-            for lang in language.split('+'):
-                if lang in lang_map:
-                    langs_to_load.append(lang_map[lang])
-                else:
-                    langs_to_load.append(lang)
-            
-            # Initialize reader with all requested languages
-            reader = easyocr.Reader(langs_to_load)
-            
-            # Process with EasyOCR (using the file path directly)
-            result = reader.readtext(image_path, detail=0, paragraph=True)
-            text = '\n'.join(result) if result else ""
+            try:
+                import easyocr
+                # Map common 3-letter ISO codes to 2-letter EasyOCR codes
+                lang_map = {
+                    'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt', 
+                    'chi_sim': 'ch_sim', 'chi_tra': 'ch_tra', 'jpn': 'ja', 'kor': 'ko', 'rus': 'ru', 
+                    'ara': 'ar', 'hin': 'hi'
+                }
+                
+                # Parse and map languages (handling multiple languages separated by +)
+                langs_to_load = []
+                for lang in language.split('+'):
+                    if lang in lang_map:
+                        langs_to_load.append(lang_map[lang])
+                    else:
+                        langs_to_load.append(lang)
+                
+                # Initialize reader with all requested languages
+                reader = easyocr.Reader(langs_to_load)
+                
+                # Process with EasyOCR (using the file path directly)
+                result = reader.readtext(image_path, detail=0, paragraph=True)
+                text = '\n'.join(result) if result else ""
+            except Exception as e:
+                logger.error(f"EasyOCR error: {str(e)}", exc_info=True)
+                return i, f"[Error with EasyOCR: {str(e)}]"
         
         elif ocr_engine == "paddleocr":
-            from paddleocr import PaddleOCR
-            
-            # Map language codes for PaddleOCR
-            paddle_lang_map = {
-                'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt',
-                'chi_sim': 'ch', 'chi_tra': 'chinese_cht', 'jpn': 'japan', 'kor': 'korean',
-                'rus': 'ru', 'ara': 'ar', 'hin': 'hi'
-            }
-            
-            # Get first language for PaddleOCR (it doesn't support multiple languages at once)
-            first_lang = language.split('+')[0]
-            paddle_lang = paddle_lang_map.get(first_lang, 'en')
-            
-            # Initialize PaddleOCR with the language and angle classifier
-            ocr = PaddleOCR(use_angle_cls=True, lang=paddle_lang)
-            
-            # Process the image
-            result = ocr.ocr(image_path, cls=True)
-            
-            # Extract text from result (PaddleOCR has a complex nested result structure)
-            if result and result[0]:
-                text_lines = []
-                for line in result[0]:
-                    # Each item is [[[x1,y1],[x2,y2],[x3,y3],[x4,y4]], [text, confidence]]
-                    if isinstance(line, list) and len(line) >= 2 and isinstance(line[1], list):
-                        text_lines.append(line[1][0])  # Extract the text part
-                text = '\n'.join(text_lines)
-            else:
-                text = ""
+            try:
+                from paddleocr import PaddleOCR
+                
+                # Map language codes for PaddleOCR
+                paddle_lang_map = {
+                    'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt',
+                    'chi_sim': 'ch', 'chi_tra': 'chinese_cht', 'jpn': 'japan', 'kor': 'korean',
+                    'rus': 'ru', 'ara': 'ar', 'hin': 'hi'
+                }
+                
+                # Get first language for PaddleOCR (it doesn't support multiple languages at once)
+                first_lang = language.split('+')[0]
+                paddle_lang = paddle_lang_map.get(first_lang, 'en')
+                
+                # Initialize PaddleOCR with the language and angle classifier
+                ocr = PaddleOCR(use_angle_cls=True, lang=paddle_lang)
+                
+                # Process the image
+                result = ocr.ocr(image_path, cls=True)
+                
+                # Extract text from result (PaddleOCR has a complex nested result structure)
+                if result and result[0]:
+                    text_lines = []
+                    for line in result[0]:
+                        # Each item is [[[x1,y1],[x2,y2],[x3,y3],[x4,y4]], [text, confidence]]
+                        if isinstance(line, list) and len(line) >= 2 and isinstance(line[1], list):
+                            text_lines.append(line[1][0])  # Extract the text part
+                    text = '\n'.join(text_lines)
+                else:
+                    text = ""
+            except Exception as e:
+                logger.error(f"PaddleOCR error: {str(e)}", exc_info=True)
+                return i, f"[Error with PaddleOCR: {str(e)}]"
         
         elif ocr_engine == "kraken":
-            # Import kraken modules
-            from kraken import binarization
-            from kraken.pageseg import segment
-            from kraken import rpred
-            
-            # Convert PIL image to image file if needed
-            if preprocess:
-                # Save enhanced image to a temporary file
-                temp_enhanced = f"{image_path}_enhanced.png"
-                img_to_process.save(temp_enhanced)
-                use_image_path = temp_enhanced
-            else:
-                use_image_path = image_path
-            
-            # Binarize the image (convert to black and white)
-            bw_img = binarization.nlbin(Image.open(use_image_path))
-            
-            # Segment the page into lines
-            res = segment(bw_img)
-            
-            # Recognize text using default model (can be customized for languages)
-            # Kraken doesn't have explicit language support like Tesseract
-            # For production, you'd use specific models for different languages
-            pred_args = {'text_direction': 'horizontal-lr'}
-            result = rpred.rpred(network='en_best', im=bw_img, 
-                                baseline=res['baselines'], 
-                                lines=res['lines'],
-                                **pred_args)
-            
-            # Extract text from result
-            text = result['text']
-            
-            # Clean up temporary file if created
-            if preprocess and os.path.exists(temp_enhanced):
-                try:
-                    os.remove(temp_enhanced)
-                except:
-                    pass
+            try:
+                # Import kraken modules
+                from kraken import binarization
+                from kraken.pageseg import segment
+                from kraken import rpred
+                
+                # Convert PIL image to image file if needed
+                if preprocess:
+                    # Save enhanced image to a temporary file
+                    temp_enhanced = f"{image_path}_enhanced.png"
+                    img_to_process.save(temp_enhanced)
+                    use_image_path = temp_enhanced
+                else:
+                    use_image_path = image_path
+                
+                # Binarize the image (convert to black and white)
+                bw_img = binarization.nlbin(Image.open(use_image_path))
+                
+                # Segment the page into lines
+                res = segment(bw_img)
+                
+                # Recognize text using default model (can be customized for languages)
+                # Kraken doesn't have explicit language support like Tesseract
+                # For production, you'd use specific models for different languages
+                pred_args = {'text_direction': 'horizontal-lr'}
+                result = rpred.rpred(network='en_best', im=bw_img, 
+                                    baseline=res['baselines'], 
+                                    lines=res['lines'],
+                                    **pred_args)
+                
+                # Extract text from result
+                text = result['text']
+                
+                # Clean up temporary file if created
+                if preprocess and os.path.exists(temp_enhanced):
+                    try:
+                        os.remove(temp_enhanced)
+                    except:
+                        pass
+            except Exception as e:
+                logger.error(f"Kraken error: {str(e)}", exc_info=True)
+                return i, f"[Error with Kraken: {str(e)}]"
         
         elif ocr_engine == "pyocr":
-            import pyocr
-            import pyocr.builders
-            
-            # Get available tools (should be Tesseract or Cuneiform)
-            tools = pyocr.get_available_tools()
-            if len(tools) == 0:
-                return i, "[Error: No OCR tool found for PyOCR. Install Tesseract or Cuneiform.]"
-            
-            # Use the first available tool (typically Tesseract)
-            tool = tools[0]
-            
-            # Map Tesseract language codes to PyOCR
-            # PyOCR uses the same language codes as Tesseract
-            
-            # Perform OCR
-            text = tool.image_to_string(
-                img_to_process,
-                lang=language,
-                builder=pyocr.builders.TextBuilder()
-            )
+            try:
+                import pyocr
+                import pyocr.builders
+                
+                # Get available tools (should be Tesseract or Cuneiform)
+                tools = pyocr.get_available_tools()
+                if len(tools) == 0:
+                    return i, "[Error: No OCR tool found for PyOCR. Install Tesseract or Cuneiform.]"
+                
+                # Use the first available tool (typically Tesseract)
+                tool = tools[0]
+                
+                # Map Tesseract language codes to PyOCR
+                # PyOCR uses the same language codes as Tesseract
+                
+                # Perform OCR
+                text = tool.image_to_string(
+                    img_to_process,
+                    lang=language,
+                    builder=pyocr.builders.TextBuilder()
+                )
+            except Exception as e:
+                logger.error(f"PyOCR error: {str(e)}", exc_info=True)
+                return i, f"[Error with PyOCR: {str(e)}]"
         
         else:
             return i, f"[Error: Unsupported OCR engine: {ocr_engine}]"
@@ -393,6 +411,9 @@ def process_image(i, image_path, ocr_engine, language, preprocess=False):
         text = fix_common_ocr_errors(text)
         
         return i, text
+    except FileNotFoundError as e:
+        logger.error(f"File not found error processing page {i+1}: {str(e)}", exc_info=True)
+        return i, f"[Error: File not found: {str(e)}. Ensure the file exists and is accessible.]"
     except Exception as e:
         logger.error(f"Error processing page {i+1} with {ocr_engine}: {str(e)}", exc_info=True)
         return i, f"[Error processing page {i+1}: {str(e)}]"
@@ -431,6 +452,7 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
     try:
         # Create a temporary directory for image files
         temp_dir = tempfile.mkdtemp(prefix="ocr_")
+        logger.info(f"Created temporary directory: {temp_dir}")  # Log temp dir creation
         
         # Import PDF conversion library
         from pdf2image import convert_from_path, pdfinfo_from_path
@@ -456,17 +478,44 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
                 "progress": 0
             })
 
-        # Use memory-efficient conversion (output_folder)
+        # Convert PDF to images but don't rely on automatic file saving
+        logger.info(f"Starting PDF conversion with DPI={dpi}")
         images = convert_from_path(
             pdf_path, 
-            dpi=dpi, 
-            output_folder=temp_dir,
-            fmt='png',
-            thread_count=2  # Limit threads to avoid memory issues
+            dpi=dpi,
+            thread_count=1,  # Use single thread to avoid concurrency issues
+            use_pdftocairo=True,  # Try to use pdftocairo which is more reliable
+            fmt='png'
+            # Removed output_folder parameter to handle file saving manually
         )
+        logger.info(f"PDF conversion returned {len(images)} images")
 
         if total_pages == 0:
             total_pages = len(images)
+            
+        # Manually save each image with explicit naming
+        image_paths = []
+        for i, img in enumerate(images):
+            img_path = os.path.join(temp_dir, f'page_{i}.png')
+            logger.info(f"Saving image {i+1}/{len(images)} to {img_path}")
+            try:
+                img.save(img_path, 'PNG')
+                # Verify the file was created and has content
+                if os.path.exists(img_path) and os.path.getsize(img_path) > 0:
+                    image_paths.append((i, img_path))
+                else:
+                    logger.error(f"Failed to save image or file is empty: {img_path}")
+            except Exception as e:
+                logger.error(f"Error saving image {i}: {str(e)}", exc_info=True)
+        
+        # Check if we have all the images
+        if len(image_paths) == 0:
+            raise FileNotFoundError(f"No images were successfully saved from the PDF conversion")
+        
+        if len(image_paths) < len(images):
+            logger.warning(f"Only saved {len(image_paths)} of {len(images)} images")
+
+        logger.info(f"Successfully saved {len(image_paths)} images")
 
         # Update status to show conversion is complete
         if conversion_id in TASK_STATUS:
@@ -475,47 +524,24 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
                 "progress": 10  # 10% progress after conversion
             })
 
-        # Initialize OCR engine reader/tool
-        # ...existing code...
-        
         # Record start time for performance monitoring
         start_time = time.time()
 
         # Create a DOCX document
         document = Document()
         
-        # Paths to temporary image files
-        temp_image_paths = []
-        for i in range(len(images)):
-            temp_image_path = os.path.join(temp_dir, f'page_{i}.png')
-            temp_image_paths.append((i, temp_image_path))
+        logger.info(f"Processing PDF with 1 worker, quality: {quality}, engine: {ocr_engine}")
         
-        # Calculate optimal number of worker processes based on system resources
-        # Use fewer processes for high quality to avoid memory issues
-        cpu_count = multiprocessing.cpu_count()
-        if quality == "high":
-            num_workers = max(1, min(cpu_count // 2, 4))  # At most 4 workers for high quality
-        else:
-            num_workers = max(1, min(cpu_count - 1, 8))  # At most 8 workers, leave 1 CPU free
-        
-        # Check if engine requires special handling
-        if ocr_engine in ["kraken", "paddleocr", "easyocr"]:
-            # These engines may have high memory usage or initialization overhead
-            # So limit workers further to prevent memory issues
-            num_workers = max(1, min(2, num_workers))
-            logger.info(f"Using limited workers ({num_workers}) for memory-intensive engine: {ocr_engine}")
-        
-        logger.info(f"Processing PDF with {num_workers} workers, quality: {quality}, engine: {ocr_engine}")
-        
-        # Process images in parallel using a process pool
+        # Process images in parallel using a process pool - using only 1 worker for reliability
+        num_workers = 1 # Force single worker to avoid race conditions
         results = {}
         with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            # Create tasks for each image
+            # Create tasks for each image - using our saved image paths
             futures = {
                 executor.submit(
-                    process_image, i, temp_path, ocr_engine, language, preprocess
+                    process_image, i, img_path, ocr_engine, language, preprocess
                 ): i 
-                for i, temp_path in temp_image_paths
+                for i, img_path in image_paths
             }
             
             # Collect results as they complete
@@ -526,7 +552,7 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
                 
                 # Update progress (allocate 10-90% for OCR process)
                 completed += 1
-                progress = 10 + int((completed / len(images)) * 80)
+                progress = 10 + int((completed / len(image_paths)) * 80)
                 if conversion_id in TASK_STATUS:
                     TASK_STATUS[conversion_id]["progress"] = progress
         
@@ -538,11 +564,11 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
             })
             
         # Sort results by page index and add to document
-        for i in range(len(images)):
+        for i in range(len(image_paths)):
             if i in results:
                 text = results[i]
                 document.add_paragraph(text)
-                if i < len(images) - 1:  # Don't add page break after the last page
+                if i < len(image_paths) - 1:  # Don't add page break after the last page
                     document.add_page_break()
         
         # Save DOCX to file system
@@ -582,6 +608,7 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         if temp_dir and os.path.exists(temp_dir):
             try:
                 shutil.rmtree(temp_dir)
+                logger.info(f"Cleaned up temporary directory: {temp_dir}") # Log temp dir cleanup
             except Exception as e:
                 logger.error(f"Error cleaning up temporary directory: {e}")
 
@@ -782,7 +809,7 @@ def new_conversion():
     """Start a new conversion, cleaning up any existing files."""
     # Clean up session data and files
     pdf_path = session.pop('pdf_path', None)
-    if pdf_path and os.path.exists(pdf_path):
+    if (pdf_path and os.path.exists(pdf_path)):
         try:
             os.remove(pdf_path)
             logger.info(f"Cleaned up PDF file: {pdf_path}")
@@ -790,7 +817,7 @@ def new_conversion():
             logger.warning(f"Could not remove PDF file {pdf_path}: {e}")
 
     docx_path = session.pop('docx_path', None)
-    if docx_path and os.path.exists(docx_path):
+    if (docx_path and os.path.exists(docx_path)):
          try:
             os.remove(docx_path)
             logger.info(f"Cleaned up DOCX file: {docx_path}")
