@@ -11,8 +11,8 @@ from docx import Document
 from PIL import Image
 import uuid
 import time
-
-# Removed ProgressManager and websocket_server imports
+import json
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -26,11 +26,13 @@ app.secret_key = os.environ.get('SECRET_KEY', 'MSlCVqRL7LEbkeriYRLc4jNE7LSWUaWt'
 # Docker-specific configuration
 DOCKER_ENV = os.environ.get('DOCKER_ENV', 'false').lower() == 'true'
 
-# Removed ProgressManager instance and WebSocket thread start
-
 # Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+# Add storage for background tasks
+TASK_STATUS = {}  # Store task status updates
+TASK_RESULTS = {}  # Store task results
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -83,8 +85,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         # Import PDF conversion library
         from pdf2image import convert_from_path, pdfinfo_from_path
 
-        # Removed progress update
-
         # Get total page count (optional, less critical now)
         total_pages = 0
         try:
@@ -103,8 +103,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
 
         if total_pages == 0:
             total_pages = len(images)
-
-        # Removed progress update
 
         # Initialize OCR engine reader/tool (outside the loop for efficiency)
         ocr_reader = None
@@ -164,7 +162,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
             init_error_msg = f"Error initializing {ocr_engine}: {str(e)}"
 
         if not engine_initialized:
-            # Removed progress update
             if os.path.exists(pdf_path): os.remove(pdf_path) # Clean up uploaded file
             return False, None, init_error_msg or f"Failed to initialize OCR engine '{ocr_engine}'."
 
@@ -174,8 +171,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
 
         # Perform OCR on each image
         for i, image in enumerate(images):
-            # Removed progress update
-
             # Save image temporarily to perform OCR (needed by most engines)
             temp_image_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{conversion_id}_page_{i}.png')
             # Ensure image is in RGB format for engines that require it
@@ -236,7 +231,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
             except Exception as page_error:
                 app.logger.error(f"Error processing page {i+1} with {ocr_engine}: {page_error}")
                 text = f"[Error processing page {i+1} with {ocr_engine}]"
-                # Removed progress update
 
             # Sanitize OCR output to remove problematic characters
             text = sanitize_text(text)
@@ -249,8 +243,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
 
             os.remove(temp_image_path) # Clean up temp image
 
-        # Removed progress update
-
         # Save DOCX to file system
         orig_filename = session.get('orig_filename', 'document.pdf') # Get original filename from session
         output_filename = os.path.splitext(orig_filename)[0] + '.docx'
@@ -260,8 +252,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         # Store path in session for download
         session['docx_path'] = docx_path
         session['output_filename'] = output_filename
-
-        # Removed final progress update
 
         # Clean up original PDF after successful conversion
         if os.path.exists(pdf_path):
@@ -273,28 +263,43 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         # Handle missing pdf2image or other core imports
         error_message = f"Core dependency missing: {e}. Please ensure pdf2image and its requirements (like Poppler) are installed."
         app.logger.error(error_message)
-        # Removed progress update
         if 'pdf_path' in locals() and os.path.exists(pdf_path): os.remove(pdf_path)
         return False, None, error_message
     except NotImplementedError as e:
         error_message = str(e)
         app.logger.error(f"NotImplementedError during processing: {error_message}")
-        # Removed progress update
         if 'pdf_path' in locals() and os.path.exists(pdf_path): os.remove(pdf_path)
         return False, None, error_message
     except Exception as e:
         import traceback
         error_message = f"An unexpected error occurred: {str(e)}"
         app.logger.error(f"Error during PDF processing: {traceback.format_exc()}")
-        # Removed progress update
-        # Clean up potentially created files
         if 'pdf_path' in locals() and os.path.exists(pdf_path): os.remove(pdf_path)
-        # Clean up temp images if loop was interrupted
         for i in range(total_pages if 'total_pages' in locals() else 0):
              temp_image_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{conversion_id}_page_{i}.png')
              if os.path.exists(temp_image_path):
                  os.remove(temp_image_path)
         return False, None, error_message
+
+def run_task_in_background(func, task_id, *args, **kwargs):
+    """Run a function in a background thread and track its status"""
+    def task_wrapper():
+        try:
+            TASK_STATUS[task_id] = {"status": "processing", "progress": 0}
+            result = func(*args, **kwargs)
+            TASK_RESULTS[task_id] = result
+            TASK_STATUS[task_id] = {"status": "completed", "progress": 100}
+        except Exception as e:
+            import traceback
+            error_msg = str(e)
+            tb = traceback.format_exc()
+            app.logger.error(f"Background task error: {error_msg}\n{tb}")
+            TASK_STATUS[task_id] = {"status": "failed", "error": error_msg, "progress": 0}
+    
+    thread = Thread(target=task_wrapper)
+    thread.daemon = True
+    thread.start()
+    return task_id
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -336,42 +341,54 @@ def upload_file():
         # Keep pdf_path in session for potential cleanup on error or new conversion
         session['pdf_path'] = pdf_path
 
-        # Removed progress initialization
-
-        # Process synchronously
-        try:
-            success, result_path, output_or_error = process_pdf_with_progress(
-                pdf_path, conversion_id, ocr_engine, language, quality)
-
-            if success:
-                # result_path is docx_path, output_or_error is output_filename
-                # Session variables 'docx_path' and 'output_filename' are set within process_pdf_with_progress
-                return redirect(url_for('success'))
-            else:
-                # output_or_error contains the error message
-                flash(f"Conversion failed: {output_or_error}", 'error')
-                # Clean up the uploaded PDF if it still exists
-                if os.path.exists(pdf_path):
-                    os.remove(pdf_path)
-                session.pop('pdf_path', None) # Remove from session too
-                return redirect(url_for('index'))
-
-        except Exception as e:
-            # Catch unexpected errors during the synchronous call
-            app.logger.error(f"Unexpected error in /upload route: {e}")
-            flash(f"An unexpected error occurred during processing: {e}", 'error')
-            # Clean up the uploaded PDF if it still exists
-            if os.path.exists(pdf_path):
-                os.remove(pdf_path)
-            session.pop('pdf_path', None)
-            return redirect(url_for('index'))
+        # Process asynchronously to avoid Cloudflare timeout
+        task_id = run_task_in_background(
+            process_pdf_with_progress,
+            conversion_id,
+            pdf_path, 
+            conversion_id, 
+            ocr_engine, 
+            language, 
+            quality
+        )
+        
+        # Store task_id in session
+        session['task_id'] = conversion_id
+        
+        # Redirect to status page that will check for completion
+        return redirect(url_for('status', task_id=conversion_id))
 
     else:
         flash('Invalid file type. Please upload a PDF.', 'error')
         return redirect(url_for('index'))
 
-# Removed the /progress/<conversion_id> route
-# Removed the /api/progress/<conversion_id> route
+@app.route('/status/<task_id>')
+def status(task_id):
+    # Show status page with JavaScript to poll for completion
+    return render_template('status.html', task_id=task_id)
+
+@app.route('/api/task_status/<task_id>')
+def task_status(task_id):
+    """API endpoint to check task status"""
+    if task_id in TASK_STATUS:
+        status_data = TASK_STATUS[task_id]
+        
+        # If task is completed, include the path to results
+        if status_data.get("status") == "completed" and task_id in TASK_RESULTS:
+            success, result_path, output_filename = TASK_RESULTS[task_id]
+            if success:
+                # Store results in session
+                session['docx_path'] = result_path
+                session['output_filename'] = output_filename
+                status_data["redirect"] = url_for('success')
+            else:
+                # Store error
+                status_data["error"] = output_filename  # In case of failure, output_or_error contains the error
+                status_data["redirect"] = url_for('index')
+        
+        return jsonify(status_data)
+    
+    return jsonify({"status": "not_found"})
 
 @app.route('/success')
 def success():
@@ -431,7 +448,6 @@ def new_conversion():
     # Redirect to index
     return redirect(url_for('index'))
 
-# NEW: Add the guide route to render the installation guide page
 @app.route('/guide')
 def guide():
     return render_template('guide.html')

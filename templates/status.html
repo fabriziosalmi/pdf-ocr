@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing - PDF to DOCX OCR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animation for spinner */
+        @keyframes spinner {
+            to {transform: rotate(360deg);}
+        }
+        
+        .spinner {
+            animation: spinner 1s linear infinite;
+        }
+        
+        /* Progress bar animation */
+        @keyframes progress {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        .progress-indeterminate {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-indeterminate:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 30%;
+            background-color: rgba(99, 102, 241, 0.6);
+            animation: indeterminate 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes indeterminate {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4">
+        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-white">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h1 class="text-xl font-bold">Processing PDF</h1>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="flex justify-center mb-4">
+                        <svg class="spinner h-12 w-12 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-medium text-gray-900 mb-2" id="status-message">Processing document...</h2>
+                    <p class="text-sm text-gray-500" id="substatus-message">OCR processing can take some time for large documents</p>
+                </div>
+                
+                <!-- Progress bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 overflow-hidden">
+                    <div id="progress-bar" class="progress-indeterminate bg-indigo-600 h-2.5 rounded-full"></div>
+                </div>
+                
+                <div class="mt-4 text-xs text-gray-500 flex justify-center">
+                    <p>You'll be redirected automatically when processing is complete</p>
+                </div>
+                
+                <!-- Cancel button -->
+                <div class="mt-6 text-center">
+                    <a href="/" class="text-indigo-600 hover:text-indigo-800 text-sm">Cancel and return to home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Task ID from server
+        const taskId = "{{ task_id }}";
+        let checkInterval = 1000; // Start checking every second
+        let elapsed = 0;
+        let maxTime = 600000; // 10 minutes max processing time
+        
+        function updateStatusUI(data) {
+            const statusMessage = document.getElementById('status-message');
+            const substatusMessage = document.getElementById('substatus-message');
+            const progressBar = document.getElementById('progress-bar');
+            
+            if (data.status === 'processing') {
+                statusMessage.textContent = 'Processing document...';
+                
+                if (data.progress > 0) {
+                    // If we have actual progress, update progress bar
+                    progressBar.classList.remove('progress-indeterminate');
+                    progressBar.style.width = `${data.progress}%`;
+                    substatusMessage.textContent = `Processing: ${data.progress}% complete`;
+                } else {
+                    substatusMessage.textContent = "OCR processing can take some time for large documents";
+                }
+            } else if (data.status === 'completed') {
+                statusMessage.textContent = 'Processing completed!';
+                substatusMessage.textContent = 'Redirecting to download page...';
+                progressBar.classList.remove('progress-indeterminate');
+                progressBar.style.width = '100%';
+                
+                // Redirect to results page
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1000);
+            } else if (data.status === 'failed') {
+                statusMessage.textContent = 'Processing failed';
+                substatusMessage.textContent = data.error || 'An error occurred during processing';
+                progressBar.classList.remove('progress-indeterminate');
+                progressBar.style.width = '100%';
+                progressBar.style.backgroundColor = '#EF4444'; // Red color for error
+                
+                // Redirect back to the index page with error
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/';
+                }, 3000);
+            }
+        }
+        
+        function checkStatus() {
+            fetch(`/api/task_status/${taskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'not_found') {
+                        // If task not found, redirect to home
+                        window.location.href = '/';
+                        return;
+                    }
+                    
+                    updateStatusUI(data);
+                    
+                    // Continue polling if not done
+                    if (data.status === 'processing') {
+                        elapsed += checkInterval;
+                        
+                        // Gradually slow down polling to reduce server load
+                        if (elapsed > 10000) {
+                            checkInterval = 2000; // Every 2 seconds after 10 seconds
+                        }
+                        if (elapsed > 30000) {
+                            checkInterval = 3000; // Every 3 seconds after 30 seconds
+                        }
+                        if (elapsed > 60000) {
+                            checkInterval = 5000; // Every 5 seconds after a minute
+                        }
+                        
+                        // Check if we've been waiting too long
+                        if (elapsed > maxTime) {
+                            // Timeout - offer manual refresh
+                            const statusMessage = document.getElementById('status-message');
+                            const substatusMessage = document.getElementById('substatus-message');
+                            statusMessage.textContent = 'Processing taking longer than expected';
+                            substatusMessage.innerHTML = '<a href="/status/' + taskId + '" class="text-indigo-600 hover:underline">Refresh page</a> to check progress';
+                            return;
+                        }
+                        
+                        setTimeout(checkStatus, checkInterval);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking task status:', error);
+                    // Retry after delay if there's a network error
+                    setTimeout(checkStatus, 3000);
+                });
+        }
+        
+        // Start checking status
+        checkStatus();
+    </script>
+</body>
+</html>
