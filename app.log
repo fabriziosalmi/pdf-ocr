@@ -1768,3 +1768,24 @@ RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
 2025-04-14 21:58:20,404 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
 2025-04-14 21:58:22,095 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:58:22] "GET / HTTP/1.1" 200 -
 2025-04-14 21:58:22,385 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:58:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:04:05,392 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 22:04:05,392 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 22:04:06,187 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:04:06] "GET / HTTP/1.1" 200 -
+2025-04-14 22:04:06,427 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:04:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:05:32,049 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 22:05:32,049 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 22:05:32,915 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:05:32] "GET / HTTP/1.1" 200 -
+2025-04-14 22:05:33,074 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:05:33] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:06:01,365 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 22:06:01,365 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 22:06:04,943 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:06:04] "GET / HTTP/1.1" 200 -
+2025-04-14 22:06:05,107 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:06:05] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -

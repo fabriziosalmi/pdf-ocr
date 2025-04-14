@@ -603,11 +603,13 @@ def upload_file():
         orig_filename = secure_clean_filename(file.filename)
         session['orig_filename'] = orig_filename
 
-        # Get OCR options from form
-        ocr_engine = request.form.get('ocr-engine', 'tesseract')
-        language = request.form.get('language', 'eng')
-        quality = request.form.get('ocr-quality', 'standard')
-        preprocess = request.form.get('preprocess', '0') == '1'
+        # Get OCR options from form (using names from the options panel)
+        ocr_engine = request.form.get('ocr-engine', 'tesseract') # Hidden input name
+        language = request.form.get('language', 'eng') # Select name inside options
+        quality = request.form.get('ocr-quality', 'standard') # Select name inside options
+        preprocess = request.form.get('preprocess', '0') == '1' # Checkbox name inside options
+        output_format = request.form.get('output-format', 'docx') # New select name inside options
+        # Add other options from the panel as needed (e.g., preserve-paragraphs, detect-headings)
 
         # Add warnings for problematic OCR engines
         if ocr_engine == 'kraken':
@@ -616,7 +618,7 @@ def upload_file():
             flash('Warning: PaddleOCR may have compatibility issues on some systems. If conversion fails, try Tesseract.', 'warning')
 
         # Log processing request with more details for debugging
-        logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}")
+        logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}, format={output_format}")
         logger.info(f"Form data: {request.form}")
 
         # Create a temporary filename to avoid collisions
@@ -632,7 +634,7 @@ def upload_file():
 
         # Process asynchronously
         task_id = run_task_in_background(
-            process_pdf_with_progress,
+            process_pdf_with_progress, # TODO: Update this function to handle output_format etc.
             conversion_id,
             pdf_path, 
             conversion_id, 
@@ -641,6 +643,7 @@ def upload_file():
             quality,
             preprocess,
             orig_filename
+            # Pass output_format and other options here
         )
         
         # Store task_id in session
@@ -768,11 +771,6 @@ def api_check_dependency():
     
     installed, data = check_dependency(name)
     return jsonify(data)
-
-@app.route('/guide')
-def guide():
-    """Display installation guide."""
-    return render_template('guide.html')
 
 @app.route('/system-check')
 def system_check():

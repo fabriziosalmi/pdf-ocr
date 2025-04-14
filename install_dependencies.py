@@ -166,13 +166,11 @@ def install_specific_ocr_engine(engine):
         # Install based on engine name if requirements file doesn't exist
         packages = []
         if engine == "easyocr":
-            packages = ["easyocr>=1.5.0", "torch>=1.7.0", "torchvision>=0.8.1"]
-        elif engine == "paddleocr":
-            packages = ["paddleocr>=2.0.0", "paddlepaddle>=2.0.0"]
-        elif engine == "kraken":
-            packages = ["kraken>=4.0.0"]
+            # Note: PyTorch might need separate installation depending on the system/CUDA
+            packages = ["easyocr>=1.5.0"] 
         elif engine == "pyocr":
             packages = ["pyocr>=0.8.0"]
+        # Removed paddleocr and kraken
         
         if packages:
             for pkg in packages:
@@ -180,9 +178,12 @@ def install_specific_ocr_engine(engine):
                 success, output = run_command([sys.executable, "-m", "pip", "install", pkg])
                 if not success:
                     print_error(f"Failed to install {pkg}: {output}")
+                    # Optionally, add a note about manual installation (e.g., for PyTorch)
+                    if engine == "easyocr" and "torch" in pkg.lower():
+                         print_info("EasyOCR requires PyTorch. If installation fails, please install PyTorch manually following instructions at https://pytorch.org/get-started/locally/")
                     return False
         else:
-            print_error(f"No installation method defined for {engine}")
+            print_error(f"No installation method defined or requirements file found for {engine}")
             return False
     
     print_success(f"{engine} OCR engine dependencies installed successfully")
@@ -191,8 +192,9 @@ def install_specific_ocr_engine(engine):
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(description="Install dependencies for OCR PDF to DOCX converter")
-    parser.add_argument('--engine', choices=['tesseract', 'easyocr', 'paddleocr', 'kraken', 'pyocr', 'all'], 
-                        default='tesseract', help="Specify OCR engine to install dependencies for")
+    # Updated choices to reflect supported engines
+    parser.add_argument('--engine', choices=['tesseract', 'easyocr', 'pyocr', 'all'], 
+                        default='tesseract', help="Specify OCR engine to install dependencies for (tesseract is core)")
     args = parser.parse_args()
     
     print("\n\033[1;36mOCR PDF to DOCX Converter - Dependency Installer\033[0m")
@@ -216,9 +218,10 @@ def main():
     
     # Install specific OCR engine if requested
     if args.engine == 'all':
-        for engine in ['easyocr', 'paddleocr', 'kraken', 'pyocr']:
+        # Updated loop for supported optional engines
+        for engine in ['easyocr', 'pyocr']: 
             install_specific_ocr_engine(engine)
-    elif args.engine != 'tesseract':  # tesseract is part of core requirements
+    elif args.engine != 'tesseract':  # tesseract dependencies (pytesseract) are installed as core
         install_specific_ocr_engine(args.engine)
     
     print("\n\033[1;32m✓ Installation completed\033[0m")
