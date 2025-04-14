@@ -10,10 +10,14 @@ kraken
 calamari_ocr
 pyocr
 websockets
-# OCRopus dependencies
 opencv-python
 scikit-image
 scipy
+paddlepaddle
+
+
+
+
 # Note: You also need to install poppler externally:
 # On macOS: brew install poppler
 # On Windows: Download from http://blog.alivate.com.au/poppler-windows/
