@@ -492,3 +492,15 @@ FileNotFoundError: Missing image files after conversion: ['/var/folders/h8/6y192
 2025-04-14 21:24:17,264 - __mp_main__ - INFO - Processing page 10 with OCR engine: tesseract
 2025-04-14 21:24:17,272 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
 2025-04-14 21:24:17,272 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:18,241 - __mp_main__ - INFO - Processing page 11 with OCR engine: tesseract
+2025-04-14 21:24:18,248 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:18,248 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:19,416 - __mp_main__ - INFO - Processing page 12 with OCR engine: tesseract
+2025-04-14 21:24:19,425 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 21:24:19,425 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 21:24:20,103 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:20] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:20,146 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 19.05s, Pages/sec: 0.63
+2025-04-14 21:24:20,147 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_0ic48741
+2025-04-14 21:24:23,124 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:23] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
+2025-04-14 21:24:24,159 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:24] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:24:24,302 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:24] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
