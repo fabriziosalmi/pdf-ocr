@@ -79,7 +79,7 @@ def sanitize_text(text):
     # Remove control characters (except newline \n and tab \t)
     return re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
 
-def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard"):
+def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard", orig_filename=None):
     """Process PDF (progress parts removed)"""
     try:
         # Import PDF conversion library
@@ -244,14 +244,11 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
             os.remove(temp_image_path) # Clean up temp image
 
         # Save DOCX to file system
-        orig_filename = session.get('orig_filename', 'document.pdf') # Get original filename from session
-        output_filename = os.path.splitext(orig_filename)[0] + '.docx'
+        # Instead of accessing session, use passed orig_filename parameter
+        document_name = orig_filename or 'document.pdf'
+        output_filename = os.path.splitext(document_name)[0] + '.docx'
         docx_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{output_filename}")
         document.save(docx_path)
-
-        # Store path in session for download
-        session['docx_path'] = docx_path
-        session['output_filename'] = output_filename
 
         # Clean up original PDF after successful conversion
         if os.path.exists(pdf_path):
@@ -342,6 +339,7 @@ def upload_file():
         session['pdf_path'] = pdf_path
 
         # Process asynchronously to avoid Cloudflare timeout
+        # Pass the original filename as a parameter instead of accessing it from session
         task_id = run_task_in_background(
             process_pdf_with_progress,
             conversion_id,
@@ -349,7 +347,8 @@ def upload_file():
             conversion_id, 
             ocr_engine, 
             language, 
-            quality
+            quality,
+            orig_filename  # Pass this as a parameter
         )
         
         # Store task_id in session
@@ -371,20 +370,21 @@ def status(task_id):
 def task_status(task_id):
     """API endpoint to check task status"""
     if task_id in TASK_STATUS:
-        status_data = TASK_STATUS[task_id]
+        status_data = TASK_STATUS[task_id].copy()  # Create a copy to avoid modifying the original
         
         # If task is completed, include the path to results
         if status_data.get("status") == "completed" and task_id in TASK_RESULTS:
             success, result_path, output_filename = TASK_RESULTS[task_id]
             if success:
-                # Store results in session
+                # Store results in session within this request context
                 session['docx_path'] = result_path
                 session['output_filename'] = output_filename
                 status_data["redirect"] = url_for('success')
             else:
                 # Store error
-                status_data["error"] = output_filename  # In case of failure, output_or_error contains the error
+                status_data["error"] = output_filename
                 status_data["redirect"] = url_for('index')
+                flash(f"Conversion failed: {output_filename}", 'error')
         
         return jsonify(status_data)
     
