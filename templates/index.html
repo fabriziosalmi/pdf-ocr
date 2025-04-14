@@ -22,26 +22,6 @@
             background: #94a3b8;
         }
         
-        /* Debug log scrollable area */
-        .debug-log {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .debug-log::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .debug-log::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-        
-        .debug-log::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        
         /* Animation for spinner */
         @keyframes spinner {
             to {transform: rotate(360deg);}
@@ -189,15 +169,9 @@
                             </div>
                             
                             <!-- Installation Guide Link & Debug Toggle -->
-                            <div class="flex justify-between items-center text-sm mt-4">
+                            <div class="flex justify-start items-center text-sm mt-4">
                                 <button type="button" id="show-install-guide" class="text-indigo-600 hover:text-indigo-800">
                                     View installation guides
-                                </button>
-                                <button id="toggle-debug-btn" type="button" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
-                                    <span>Show Debug</span>
                                 </button>
                             </div>
                         </div>
@@ -316,20 +290,6 @@
                         </div>
                     </div> <!-- End grid -->
                 </form> <!-- End form -->
-                
-                <!-- Debug Log Section - hidden by default, appears below columns -->
-                <div id="debug-log-section" class="hidden bg-gray-800 text-gray-200 rounded-lg overflow-hidden mt-6 transition-all duration-300">
-                    <div class="flex justify-between items-center px-4 py-2 bg-gray-900">
-                        <h3 class="text-sm font-medium">Debug Log</h3>
-                        <div class="flex space-x-2">
-                            <button id="clear-log-btn" class="text-xs text-gray-400 hover:text-white">Clear</button>
-                            <button id="hide-log-btn" class="text-xs text-gray-400 hover:text-white">Hide</button>
-                        </div>
-                    </div>
-                    <div id="debug-log" class="p-4 text-xs font-mono debug-log">
-                        <div class="log-entry text-gray-400">[System] Debug log initialized...</div>
-                    </div>
-                </div>
                 
                 <!-- Info Footer -->
                 <div class="mt-8 border-t border-gray-200 pt-6 text-xs text-gray-500">
@@ -529,81 +489,14 @@
         const installGuideModal = document.getElementById('install-guide-modal');
         const closeGuideBtn = document.getElementById('close-guide');
         
-        // Debug log elements
-        const debugLogSection = document.getElementById('debug-log-section');
-        const debugLog = document.getElementById('debug-log');
-        const toggleDebugBtn = document.getElementById('toggle-debug-btn');
-        const clearLogBtn = document.getElementById('clear-log-btn');
-        const hideLogBtn = document.getElementById('hide-log-btn');
-        
-        // Debug log functions
-        function addDebugLogEntry(message, type = 'info') {
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            
-            // Format timestamp
-            const now = new Date();
-            const timestamp = now.toTimeString().split(' ')[0] + '.' + now.getMilliseconds().toString().padStart(3, '0');
-            
-            // Set text color based on message type
-            let textColorClass = 'text-gray-400';
-            let prefix = '[Info]';
-            
-            if (type === 'error') {
-                textColorClass = 'text-red-400';
-                prefix = '[Error]';
-            } else if (type === 'warning') {
-                textColorClass = 'text-yellow-400';
-                prefix = '[Warning]';
-            } else if (type === 'success') {
-                textColorClass = 'text-green-400';
-                prefix = '[Success]';
-            }
-            
-            entry.className = `log-entry ${textColorClass} mb-1`;
-            entry.textContent = `[${timestamp}] ${prefix} ${message}`;
-            
-            debugLog.appendChild(entry);
-            
-            // Auto-scroll to bottom
-            debugLog.scrollTop = debugLog.scrollHeight;
-        }
-        
-        function clearDebugLog() {
-            debugLog.innerHTML = '<div class="log-entry text-gray-400">[System] Debug log cleared...</div>';
-        }
-        
-        function toggleDebugLog() {
-            const span = toggleDebugBtn.querySelector('span');
-            if (debugLogSection.classList.contains('hidden')) {
-                debugLogSection.classList.remove('hidden');
-                span.textContent = 'Hide Debug';
-            } else {
-                debugLogSection.classList.add('hidden');
-                span.textContent = 'Show Debug';
-            }
-        }
-        
-        // Debug log event listeners
-        toggleDebugBtn.addEventListener('click', toggleDebugLog);
-        clearLogBtn.addEventListener('click', clearDebugLog);
-        hideLogBtn.addEventListener('click', toggleDebugLog);
-        
-        // Add a test debug entry when page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            addDebugLogEntry('Page loaded successfully');
-        });
-        
         // File selection handling
         fileInput.addEventListener('change', function() {
             if (this.files && this.files.length > 0) {
                 fileName.textContent = this.files[0].name;
                 fileName.classList.remove('text-gray-500');
-                addDebugLogEntry(`File selected: ${this.files[0].name} (${Math.round(this.files[0].size / 1024)} KB)`);
             } else {
                 fileName.textContent = 'No file selected';
                 fileName.classList.add('text-gray-500');
-                addDebugLogEntry('File selection canceled', 'warning');
             }
             submitBtn.disabled = !this.files.length;
         });
@@ -640,8 +533,6 @@
                 } else {
                     tesseractOptions.classList.add('hidden');
                 }
-                
-                addDebugLogEntry(`OCR engine changed to: ${engine}`);
             });
         });
         
@@ -650,11 +541,9 @@
             if (advancedOptions.classList.contains('hidden')) {
                 advancedOptions.classList.remove('hidden');
                 toggleText.textContent = 'Hide';
-                addDebugLogEntry('Advanced options expanded');
             } else {
                 advancedOptions.classList.add('hidden');
                 toggleText.textContent = 'Show';
-                addDebugLogEntry('Advanced options collapsed');
             }
         });
         
@@ -663,40 +552,6 @@
             submitBtn.disabled = true;
             btnText.textContent = 'Processing...';
             loadingIcon.classList.remove('hidden');
-            addDebugLogEntry('Form submitted, starting upload', 'success');
-            
-            // Optional: Add AJAX form submission here instead of traditional form submission
-            // This would allow you to show more detailed progress in the debug log
-            
-            /*
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            addDebugLogEntry('Uploading file to server...');
-            
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    addDebugLogEntry('Upload successful, redirecting...', 'success');
-                    window.location.href = data.redirect;
-                } else {
-                    addDebugLogEntry(`Error: ${data.error}`, 'error');
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Upload and Convert';
-                    loadingIcon.classList.add('hidden');
-                }
-            })
-            .catch(error => {
-                addDebugLogEntry(`Network error: ${error}`, 'error');
-                submitBtn.disabled = false;
-                btnText.textContent = 'Upload and Convert';
-                loadingIcon.classList.add('hidden');
-            });
-            */
         });
         
         // Installation guide modal handling

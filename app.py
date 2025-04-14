@@ -12,9 +12,7 @@ from PIL import Image
 import uuid
 import time
 
-# Import the progress manager
-from progress_manager import ProgressManager
-from websocket_server import run_websocket_server
+# Removed ProgressManager and websocket_server imports
 
 app = Flask(__name__)
 
@@ -28,12 +26,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'MSlCVqRL7LEbkeriYRLc4jNE7LSWUaWt'
 # Docker-specific configuration
 DOCKER_ENV = os.environ.get('DOCKER_ENV', 'false').lower() == 'true'
 
-# Create progress manager instance
-progress_manager = ProgressManager()
-
-# Start WebSocket server in a separate thread
-websocket_thread = threading.Thread(target=run_websocket_server, daemon=True)
-websocket_thread.start()
+# Removed ProgressManager instance and WebSocket thread start
 
 # Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
@@ -80,24 +73,21 @@ def index():
     return render_template('index.html')
 
 def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard"):
-    """Process PDF with progress tracking"""
+    """Process PDF (progress parts removed)"""
     try:
-        # Import here to avoid issues if not installed
-        from pdf2image import convert_from_path
+        # Import PDF conversion library
+        from pdf2image import convert_from_path, pdfinfo_from_path
 
-        # Update progress to starting
-        progress_manager.update_progress(conversion_id, 5, "processing", "Converting PDF to images...")
-        progress_manager.broadcast_progress(conversion_id)
+        # Removed progress update
 
-        # Get total page count for progress calculation
+        # Get total page count (optional, less critical now)
         total_pages = 0
         try:
-            from pdf2image.pdf2image import pdfinfo_from_path
             pdf_info = pdfinfo_from_path(pdf_path)
             total_pages = pdf_info["Pages"]
-        except:
+        except Exception as e:
+            app.logger.warning(f"Could not get page count via pdfinfo: {e}. Will count after conversion.")
             # Fall back to counting after conversion
-            pass
 
         # Convert PDF to images
         dpi = 300
@@ -109,9 +99,69 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         if total_pages == 0:
             total_pages = len(images)
 
-        # Update progress
-        progress_manager.update_progress(conversion_id, 20, "processing", f"PDF converted to {total_pages} images. Starting OCR...")
-        progress_manager.broadcast_progress(conversion_id)
+        # Removed progress update
+
+        # Initialize OCR engine reader/tool (outside the loop for efficiency)
+        ocr_reader = None
+        ocr_tool = None # For PyOCR
+        engine_initialized = False
+        init_error_msg = None
+
+        try:
+            # ... (Engine initialization logic remains the same) ...
+            if ocr_engine == "easyocr":
+                import easyocr
+                # Map common 3-letter codes to 2-letter if needed
+                lang_map = {'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt', 'chi_sim': 'ch_sim', 'chi_tra': 'ch_tra', 'jpn': 'ja', 'kor': 'ko', 'rus': 'ru', 'ara': 'ar', 'hin': 'hi'}
+                easyocr_lang = lang_map.get(language, language) # Use mapped or original
+                # Handle multiple languages if '+' is present (basic split)
+                langs_to_load = easyocr_lang.split('+')
+                ocr_reader = easyocr.Reader(langs_to_load)
+                engine_initialized = True
+            elif ocr_engine == "paddleocr":
+                from paddleocr import PaddleOCR
+                # PaddleOCR uses different lang codes, map common ones
+                lang_map = {'eng': 'en', 'fra': 'fr', 'deu': 'german', 'spa': 'es', 'ita': 'it', 'por': 'pt', 'chi_sim': 'ch', 'chi_tra': 'chinese_cht', 'jpn': 'japan', 'kor': 'korean', 'rus': 'ru', 'ara': 'ar', 'hin': 'hi'}
+                paddle_lang = lang_map.get(language, 'en') # Default to english if map fails
+                ocr_reader = PaddleOCR(use_angle_cls=True, lang=paddle_lang)
+                engine_initialized = True
+            elif ocr_engine == "kraken":
+                from kraken import binarization, pageseg, rpred
+                from kraken.lib import models
+                # Kraken uses model files, assumes default model for the language if not specified
+                # This is a simplified setup; real usage might need specific model selection
+                model_path = models.load_any(language + '.mlmodel') # Assumes models are available
+                if not model_path:
+                     raise ImportError(f"Kraken model for language '{language}' not found.")
+                ocr_reader = rpred.rpred(model_path, None) # None for device selection (auto)
+                engine_initialized = True
+            elif ocr_engine == "calamari":
+                raise NotImplementedError("Calamari OCR requires specific model checkpoint configuration not yet implemented.")
+                # ... calamari init placeholder ...
+            elif ocr_engine == "pyocr":
+                import pyocr
+                import pyocr.builders
+                tools = pyocr.get_available_tools()
+                if len(tools) == 0:
+                    raise ImportError("No PyOCR tools (Tesseract, Cuneiform) found. Is Tesseract installed?")
+                ocr_tool = tools[0] # Use the first available tool (likely Tesseract)
+                engine_initialized = True
+            elif ocr_engine == "ocrmypdf":
+                 raise NotImplementedError("OCRmyPDF integration requires a different processing pipeline (PDF-to-PDF).")
+            elif ocr_engine == "tesseract":
+                engine_initialized = True
+            else:
+                 raise ValueError(f"Unknown OCR engine: {ocr_engine}")
+
+        except ImportError as ie:
+            init_error_msg = f"Error initializing {ocr_engine}: Required library not installed ({ie})."
+        except Exception as e:
+            init_error_msg = f"Error initializing {ocr_engine}: {str(e)}"
+
+        if not engine_initialized:
+            # Removed progress update
+            if os.path.exists(pdf_path): os.remove(pdf_path) # Clean up uploaded file
+            return False, None, init_error_msg or f"Failed to initialize OCR engine '{ocr_engine}'."
 
         # Create a DOCX document
         document = Document()
@@ -119,31 +169,69 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
 
         # Perform OCR on each image
         for i, image in enumerate(images):
-            # Calculate current progress (20-90%)
-            page_progress = int(20 + (70 * (i / total_pages)))
-            progress_manager.update_progress(conversion_id, page_progress, "processing", f"Processing page {i+1} of {total_pages}...")
-            progress_manager.broadcast_progress(conversion_id)
+            # Removed progress update
 
-            # Save image temporarily to perform OCR
+            # Save image temporarily to perform OCR (needed by most engines)
             temp_image_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{conversion_id}_page_{i}.png')
+            # Ensure image is in RGB format for engines that require it
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
             image.save(temp_image_path, 'PNG')
 
-            # Use appropriate OCR engine based on selection
             text = ""
-            if ocr_engine == "tesseract":
-                # Use pytesseract with specified language
-                config = f"--oem 1 --psm 3 -l {language}"
-                text = pytesseract.image_to_string(Image.open(temp_image_path), config=config)
-            elif ocr_engine == "easyocr":
-                # Use EasyOCR if selected
-                import easyocr
-                reader = easyocr.Reader([language])
-                result = reader.readtext(temp_image_path, detail=0)
-                text = '\n'.join(result)
-            # ... Add other OCR engines here
-            else:
-                # Default to tesseract
-                text = pytesseract.image_to_string(Image.open(temp_image_path))
+            try:
+                # ... (OCR engine processing logic remains the same) ...
+                if ocr_engine == "tesseract":
+                    config = f"--oem 1 --psm 3 -l {language}" # Default config
+                    app.logger.info(f"Processing page {i+1} with Tesseract. Language: '{language}', Config: '{config}'")
+                    try:
+                        # Explicitly open the image here for clarity
+                        img_to_process = Image.open(temp_image_path)
+                        text = pytesseract.image_to_string(img_to_process, config=config)
+                        app.logger.info(f"Tesseract processing for page {i+1} completed.")
+                    except pytesseract.TesseractNotFoundError:
+                        app.logger.error("Tesseract executable not found. Ensure it's installed and in PATH.")
+                        raise # Re-raise the specific error
+                    except Exception as tess_error:
+                        app.logger.error(f"Error during Tesseract processing for page {i+1}: {tess_error}")
+                        text = f"[Tesseract processing error on page {i+1}]"
+                elif ocr_engine == "easyocr" and ocr_reader:
+                    # EasyOCR expects numpy array or file path
+                    result = ocr_reader.readtext(temp_image_path, detail=0, paragraph=True)
+                    text = '\n'.join(result)
+                elif ocr_engine == "paddleocr" and ocr_reader:
+                    result = ocr_reader.ocr(temp_image_path, cls=True)
+                    # Extract text from PaddleOCR structure
+                    page_text = []
+                    for line in result[0]: # result is nested list [[line1], [line2], ...]
+                         page_text.append(line[1][0]) # line[1][0] contains the text
+                    text = '\n'.join(page_text)
+                elif ocr_engine == "kraken" and ocr_reader:
+                     # Kraken requires PIL image
+                     im = Image.open(temp_image_path)
+                     # Perform segmentation and prediction
+                     segmentation = pageseg.segment(im) # Basic segmentation
+                     if not segmentation or 'lines' not in segmentation:
+                         text = "" # No lines found
+                     else:
+                         records = list(ocr_reader.predict_lines(im, segmentation['lines']))
+                         text = '\n'.join([record.prediction for record in records])
+                # elif ocr_engine == "calamari" and ocr_reader:
+                #     text = "[Calamari processing not fully implemented]"
+                elif ocr_engine == "pyocr" and ocr_tool:
+                    # PyOCR needs language mapping for Tesseract tool
+                    lang_map = {'eng': 'eng', 'fra': 'fra', 'deu': 'deu', 'spa': 'spa', 'ita': 'ita', 'por': 'por', 'chi_sim': 'chi_sim', 'chi_tra': 'chi_tra', 'jpn': 'jpn', 'kor': 'kor', 'rus': 'rus', 'ara': 'ara', 'hin': 'hin'}
+                    pyocr_lang = lang_map.get(language, 'eng') # Default to eng
+                    text = ocr_tool.image_to_string(
+                        Image.open(temp_image_path),
+                        lang=pyocr_lang,
+                        builder=pyocr.builders.TextBuilder()
+                    )
+
+            except Exception as page_error:
+                app.logger.error(f"Error processing page {i+1} with {ocr_engine}: {page_error}")
+                text = f"[Error processing page {i+1} with {ocr_engine}]"
+                # Removed progress update
 
             full_text += text + "\n\n" # Add page break representation
 
@@ -154,12 +242,10 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
 
             os.remove(temp_image_path) # Clean up temp image
 
-        # Update progress
-        progress_manager.update_progress(conversion_id, 95, "finalizing", "Creating DOCX document...")
-        progress_manager.broadcast_progress(conversion_id)
+        # Removed progress update
 
         # Save DOCX to file system
-        orig_filename = session.get('orig_filename', 'document.pdf')
+        orig_filename = session.get('orig_filename', 'document.pdf') # Get original filename from session
         output_filename = os.path.splitext(orig_filename)[0] + '.docx'
         docx_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{output_filename}")
         document.save(docx_path)
@@ -168,16 +254,39 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         session['docx_path'] = docx_path
         session['output_filename'] = output_filename
 
-        # Final progress update
-        progress_manager.update_progress(conversion_id, 100, "complete", "Conversion complete!")
-        progress_manager.broadcast_progress(conversion_id)
+        # Removed final progress update
+
+        # Clean up original PDF after successful conversion
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
 
         return True, docx_path, output_filename
 
-    except Exception as e:
+    except ImportError as e:
+        # Handle missing pdf2image or other core imports
+        error_message = f"Core dependency missing: {e}. Please ensure pdf2image and its requirements (like Poppler) are installed."
+        app.logger.error(error_message)
+        # Removed progress update
+        if 'pdf_path' in locals() and os.path.exists(pdf_path): os.remove(pdf_path)
+        return False, None, error_message
+    except NotImplementedError as e:
         error_message = str(e)
-        progress_manager.update_progress(conversion_id, 0, "error", f"Error: {error_message}")
-        progress_manager.broadcast_progress(conversion_id)
+        app.logger.error(f"NotImplementedError during processing: {error_message}")
+        # Removed progress update
+        if 'pdf_path' in locals() and os.path.exists(pdf_path): os.remove(pdf_path)
+        return False, None, error_message
+    except Exception as e:
+        import traceback
+        error_message = f"An unexpected error occurred: {str(e)}"
+        app.logger.error(f"Error during PDF processing: {traceback.format_exc()}")
+        # Removed progress update
+        # Clean up potentially created files
+        if 'pdf_path' in locals() and os.path.exists(pdf_path): os.remove(pdf_path)
+        # Clean up temp images if loop was interrupted
+        for i in range(total_pages if 'total_pages' in locals() else 0):
+             temp_image_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{conversion_id}_page_{i}.png')
+             if os.path.exists(temp_image_path):
+                 os.remove(temp_image_path)
         return False, None, error_message
 
 @app.route('/upload', methods=['POST'])
@@ -201,11 +310,12 @@ def upload_file():
     if file and allowed_file(file.filename):
         # Generate unique ID for this conversion
         conversion_id = str(uuid.uuid4())
+        # Store conversion_id in session if needed for cleanup or associating files
         session['conversion_id'] = conversion_id
 
         # Save original filename for later use
         orig_filename = file.filename
-        session['orig_filename'] = orig_filename
+        session['orig_filename'] = orig_filename # Keep for success page and output naming
 
         # Get OCR options from form
         ocr_engine = request.form.get('ocr-engine', 'tesseract')
@@ -216,64 +326,45 @@ def upload_file():
         filename = f"{conversion_id}_{secure_filename(file.filename)}"
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(pdf_path)
+        # Keep pdf_path in session for potential cleanup on error or new conversion
         session['pdf_path'] = pdf_path
 
-        # Initialize progress
-        progress_manager.update_progress(conversion_id, 0, "starting", "Preparing to process...")
+        # Removed progress initialization
 
-        # Process in background thread to avoid blocking
-        def process_thread():
-            try:
-                success, docx_path, output = process_pdf_with_progress(
-                    pdf_path, conversion_id, ocr_engine, language, quality)
-                if not success and os.path.exists(pdf_path):
-                    os.remove(pdf_path)
-            except Exception as e:
+        # Process synchronously
+        try:
+            success, result_path, output_or_error = process_pdf_with_progress(
+                pdf_path, conversion_id, ocr_engine, language, quality)
+
+            if success:
+                # result_path is docx_path, output_or_error is output_filename
+                # Session variables 'docx_path' and 'output_filename' are set within process_pdf_with_progress
+                return redirect(url_for('success'))
+            else:
+                # output_or_error contains the error message
+                flash(f"Conversion failed: {output_or_error}", 'error')
+                # Clean up the uploaded PDF if it still exists
                 if os.path.exists(pdf_path):
                     os.remove(pdf_path)
-                progress_manager.update_progress(conversion_id, 0, "error", f"Error: {str(e)}")
-                progress_manager.broadcast_progress(conversion_id)
+                session.pop('pdf_path', None) # Remove from session too
+                return redirect(url_for('index'))
 
-        # Start processing thread
-        thread = threading.Thread(target=process_thread)
-        thread.daemon = True
-        thread.start()
-
-        # Redirect to progress page
-        return redirect(url_for('progress', conversion_id=conversion_id))
+        except Exception as e:
+            # Catch unexpected errors during the synchronous call
+            app.logger.error(f"Unexpected error in /upload route: {e}")
+            flash(f"An unexpected error occurred during processing: {e}", 'error')
+            # Clean up the uploaded PDF if it still exists
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+            session.pop('pdf_path', None)
+            return redirect(url_for('index'))
 
     else:
         flash('Invalid file type. Please upload a PDF.', 'error')
         return redirect(url_for('index'))
 
-@app.route('/progress/<conversion_id>')
-def progress(conversion_id):
-    """Show progress page for a specific conversion"""
-    # Make sure the conversion ID matches the one in session
-    if 'conversion_id' not in session or session['conversion_id'] != conversion_id:
-        flash('Invalid conversion session', 'error')
-        return redirect(url_for('index'))
-
-    # Get current progress
-    progress_data = progress_manager.get_progress(conversion_id)
-
-    # If conversion is complete, redirect to success page
-    if progress_data['status'] == 'complete':
-        return redirect(url_for('success'))
-
-    # Get original filename for display
-    orig_filename = session.get('orig_filename', 'document.pdf')
-
-    return render_template('progress.html',
-                          conversion_id=conversion_id,
-                          filename=orig_filename,
-                          progress=progress_data)
-
-@app.route('/api/progress/<conversion_id>')
-def get_progress(conversion_id):
-    """API endpoint to get current progress"""
-    progress_data = progress_manager.get_progress(conversion_id)
-    return jsonify(progress_data)
+# Removed the /progress/<conversion_id> route
+# Removed the /api/progress/<conversion_id> route
 
 @app.route('/success')
 def success():
@@ -309,15 +400,28 @@ def download_file():
 @app.route('/new_conversion')
 def new_conversion():
     # Clean up session data and files
-    if 'pdf_path' in session and os.path.exists(session['pdf_path']):
-        os.remove(session['pdf_path'])
+    # Use conversion_id from session if available for more specific cleanup,
+    # but general cleanup based on session paths is okay too.
+    pdf_path = session.pop('pdf_path', None)
+    if pdf_path and os.path.exists(pdf_path):
+        try:
+            os.remove(pdf_path)
+        except OSError as e:
+            app.logger.warning(f"Could not remove PDF file {pdf_path}: {e}")
 
-    if 'docx_path' in session and os.path.exists(session['docx_path']):
-        os.remove(session['docx_path'])
+    docx_path = session.pop('docx_path', None)
+    if docx_path and os.path.exists(docx_path):
+         try:
+            os.remove(docx_path)
+         except OSError as e:
+            app.logger.warning(f"Could not remove DOCX file {docx_path}: {e}")
 
-    # Clear session data
-    session.clear()
+    # Clear remaining session data relevant to a conversion
+    session.pop('conversion_id', None)
+    session.pop('orig_filename', None)
+    session.pop('output_filename', None)
 
+    # Redirect to index
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
