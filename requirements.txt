@@ -1,6 +1,6 @@
 # Core dependencies
 Flask==2.3.3
-Werkzeug==2.3.7
+Werkzeug==3.0.6
 Pillow>=9.4.0
 pytesseract>=0.3.10
 pdf2image>=1.16.3
