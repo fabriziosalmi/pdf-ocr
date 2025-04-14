@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to DOCX OCR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+            <div class="flex items-center justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h1 class="text-2xl font-bold text-gray-800">PDF to DOCX OCR</h1>
+            </div>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 rounded {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Installation Guides -->
+                    {% if "Poppler is not installed" in messages|join(' ') %}
+                        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                            <h3 class="font-semibold text-blue-800 mb-2">Installation Guide for Poppler:</h3>
+                            <div class="text-sm text-blue-700 space-y-2">
+                                <p><span class="font-semibold">macOS:</span> Open Terminal and run: <br>
+                                <code class="bg-blue-100 px-2 py-1 rounded">brew install poppler</code></p>
+                                
+                                <p>After installation, restart your application.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if "Tesseract OCR is not installed" in messages|join(' ') %}
+                        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                            <h3 class="font-semibold text-blue-800 mb-2">Installation Guide for Tesseract OCR:</h3>
+                            <div class="text-sm text-blue-700 space-y-2">
+                                <p><span class="font-semibold">macOS:</span> Open Terminal and run: <br>
+                                <code class="bg-blue-100 px-2 py-1 rounded">brew install tesseract</code></p>
+                                
+                                <p>After installation, restart your application.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="mb-6">
+                <p class="text-gray-600 text-sm">Upload a PDF file to extract text using OCR and convert it to a DOCX document.</p>
+            </div>
+            
+            <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-6">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative">
+                    <input type="file" name="file" id="file" accept="application/pdf" required
+                           class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer">
+                    <div class="space-y-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <div id="file-name" class="text-gray-500">No file selected</div>
+                        <p class="text-sm text-gray-500">Drag and drop your PDF here or click to browse</p>
+                        <span class="text-xs text-gray-400">Max file size: 64MB</span>
+                    </div>
+                </div>
+                
+                <!-- OCR Engine Selection -->
+                <div class="space-y-2">
+                    <label for="ocr-engine" class="block text-sm font-medium text-gray-700">OCR Engine</label>
+                    <select id="ocr-engine" name="ocr-engine" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="tesseract" selected>Tesseract OCR</option>
+                        <option value="ocrmypdf">OCRmyPDF</option>
+                        <option value="easyocr">EasyOCR</option>
+                        <option value="paddleocr">PaddleOCR</option>
+                    </select>
+                    <p class="text-xs text-gray-500">Select the OCR engine to use for text extraction</p>
+                    <button type="button" id="show-install-guide" class="text-xs text-indigo-600 hover:text-indigo-800 underline">
+                        Show installation guides
+                    </button>
+                </div>
+                
+                <!-- Installation Guides Modal -->
+                <div id="install-guide-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Installation Guides for OCR Tools</h3>
+                            <button type="button" id="close-guide" class="text-gray-400 hover:text-gray-500">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Core Dependencies -->
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">Core Dependencies</h4>
+                                <div class="text-sm text-blue-700 space-y-3">
+                                    <p><span class="font-semibold">Poppler</span> (Required for PDF processing)</p>
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li><strong>macOS:</strong> <code class="bg-blue-100 px-2 py-1 rounded">brew install poppler</code></li>
+                                        <li><strong>Ubuntu/Debian:</strong> <code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install poppler-utils</code></li>
+                                        <li><strong>Windows:</strong> Download from <a href="https://github.com/oschwartz10612/poppler-windows" class="underline" target="_blank">poppler-windows</a> and add to PATH</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Tesseract OCR -->
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">Tesseract OCR</h4>
+                                <div class="text-sm text-blue-700 space-y-3">
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li><strong>macOS:</strong> <code class="bg-blue-100 px-2 py-1 rounded">brew install tesseract</code></li>
+                                        <li><strong>Ubuntu/Debian:</strong> <code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr</code></li>
+                                        <li><strong>Windows:</strong> Download installer from <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="underline" target="_blank">UB-Mannheim</a></li>
+                                    </ul>
+                                    <p><strong>Language Data:</strong> For non-English languages:</p>
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li><strong>macOS:</strong> <code class="bg-blue-100 px-2 py-1 rounded">brew install tesseract-lang</code></li>
+                                        <li><strong>Ubuntu/Debian:</strong> <code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr-[lang]</code><br>
+                                        Replace [lang] with language code (e.g., fra, deu, spa)</li>
+                                        <li><strong>Windows:</strong> Additional language data files available in the installer</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- OCRmyPDF -->
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">OCRmyPDF</h4>
+                                <div class="text-sm text-blue-700 space-y-3">
+                                    <p>Requires Tesseract and Poppler to be installed first.</p>
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li><strong>macOS:</strong> <code class="bg-blue-100 px-2 py-1 rounded">brew install ocrmypdf</code></li>
+                                        <li><strong>Ubuntu/Debian:</strong> <code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install ocrmypdf</code></li>
+                                        <li><strong>Python (all systems):</strong> <code class="bg-blue-100 px-2 py-1 rounded">pip install ocrmypdf</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- EasyOCR -->
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">EasyOCR</h4>
+                                <div class="text-sm text-blue-700 space-y-3">
+                                    <p>Python-based OCR with multilingual support.</p>
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li><strong>All systems:</strong> <code class="bg-blue-100 px-2 py-1 rounded">pip install easyocr</code></li>
+                                        <li>On first use, EasyOCR will download required language models automatically</li>
+                                        <li>Requires PyTorch - will be installed as a dependency</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- PaddleOCR -->
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">PaddleOCR</h4>
+                                <div class="text-sm text-blue-700 space-y-3">
+                                    <p>High-performance OCR system from Baidu.</p>
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li><strong>All systems:</strong> <code class="bg-blue-100 px-2 py-1 rounded">pip install paddlepaddle paddleocr</code></li>
+                                        <li>For GPU support: <code class="bg-blue-100 px-2 py-1 rounded">pip install paddlepaddle-gpu</code></li>
+                                        <li>On first use, PaddleOCR will download required models automatically</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Language Selection for Tesseract -->
+                <div class="space-y-2" id="tesseract-options">
+                    <label for="language" class="block text-sm font-medium text-gray-700">OCR Language</label>
+                    <select id="language" name="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="eng" selected>English</option>
+                        <option value="fra">French</option>
+                        <option value="deu">German</option>
+                        <option value="spa">Spanish</option>
+                        <option value="ita">Italian</option>
+                        <option value="por">Portuguese</option>
+                        <option value="chi_sim">Chinese (Simplified)</option>
+                        <option value="chi_tra">Chinese (Traditional)</option>
+                        <option value="jpn">Japanese</option>
+                        <option value="kor">Korean</option>
+                        <option value="rus">Russian</option>
+                        <option value="ara">Arabic</option>
+                        <option value="hin">Hindi</option>
+                        <option value="eng+fra+deu+spa">Multiple (en+fr+de+es)</option>
+                    </select>
+                    <p class="text-xs text-gray-500">Select the language of your document to improve OCR accuracy</p>
+                </div>
+                
+                <!-- OCR Quality Options -->
+                <div class="space-y-2">
+                    <label for="ocr-quality" class="block text-sm font-medium text-gray-700">OCR Quality</label>
+                    <select id="ocr-quality" name="ocr-quality" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="standard" selected>Standard</option>
+                        <option value="high">High (Slower)</option>
+                    </select>
+                    <p class="text-xs text-gray-500">Higher quality takes longer but may be more accurate</p>
+                </div>
+                
+                <div>
+                    <button type="submit" id="submit-btn" disabled
+                            class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="btn-text">Upload and Convert</span>
+                        <svg id="loading-icon" class="animate-spin ml-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 text-xs text-gray-500">
+                <p class="mb-1">Supported by Tesseract OCR - Converts PDF documents to editable DOCX format.</p>
+                <p>Requirements: poppler (for PDF conversion), tesseract (for OCR)</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Handle file selection UI
+        const fileInput = document.getElementById('file');
+        const fileName = document.getElementById('file-name');
+        const submitBtn = document.getElementById('submit-btn');
+        const form = document.querySelector('form');
+        const btnText = document.getElementById('btn-text');
+        const loadingIcon = document.getElementById('loading-icon');
+        const ocrEngine = document.getElementById('ocr-engine');
+        const tesseractOptions = document.getElementById('tesseract-options');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileName.textContent = this.files[0].name;
+                submitBtn.disabled = false;
+            } else {
+                fileName.textContent = 'No file selected';
+                submitBtn.disabled = true;
+            }
+        });
+        
+        // Show/hide Tesseract-specific options based on selected OCR engine
+        ocrEngine.addEventListener('change', function() {
+            if (this.value === 'tesseract') {
+                tesseractOptions.classList.remove('hidden');
+            } else {
+                tesseractOptions.classList.add('hidden');
+            }
+        });
+        
+        form.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            btnText.textContent = 'Processing...';
+            loadingIcon.classList.remove('hidden');
+        });
+
+        // Installation guide modal functionality
+        const showInstallGuideBtn = document.getElementById('show-install-guide');
+        const installGuideModal = document.getElementById('install-guide-modal');
+        const closeGuideBtn = document.getElementById('close-guide');
+        
+        showInstallGuideBtn.addEventListener('click', function() {
+            installGuideModal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        });
+        
+        closeGuideBtn.addEventListener('click', function() {
+            installGuideModal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        });
+        
+        // Close modal when clicking outside of it
+        installGuideModal.addEventListener('click', function(e) {
+            if (e.target === installGuideModal) {
+                installGuideModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        });
+    </script>
+</body>
+</html>

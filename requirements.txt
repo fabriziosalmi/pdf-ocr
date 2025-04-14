@@ -1,0 +1,9 @@
+Flask
+pytesseract
+pdf2image
+python-docx
+Pillow
+# Note: You also need to install poppler externally:
+# On macOS: brew install poppler
+# On Windows: Download from http://blog.alivate.com.au/poppler-windows/
+# On Linux: apt-get install poppler-utils
