@@ -1789,3 +1789,114 @@ RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
 2025-04-14 22:06:01,365 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
 2025-04-14 22:06:04,943 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:06:04] "GET / HTTP/1.1" 200 -
 2025-04-14 22:06:05,107 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:06:05] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:08:57,208 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 22:08:57,208 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 22:08:58,274 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:08:58] "GET / HTTP/1.1" 200 -
+2025-04-14 22:08:58,477 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:08:58] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:09:36,158 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=tesseract, lang=eng, quality=high, preprocess=True, format=html
+2025-04-14 22:09:36,159 - __main__ - INFO - Form data: ImmutableMultiDict([('preprocess', '1'), ('pre-grayscale', '1'), ('pre-sharpen', '1'), ('pre-deskew', '1'), ('pre-threshold', '1'), ('pre-border-removal', '1'), ('pre-contrast', '1.5'), ('dpi', '600'), ('ocr-engine', 'tesseract'), ('language', 'eng'), ('ocr-quality', 'high'), ('output-format', 'html'), ('preserve-paragraphs', '1'), ('detect-headings', '1')])
+2025-04-14 22:09:36,162 - __main__ - INFO - Saved uploaded file to uploads/55105bf6-a97c-4422-a561-3a62b613e948_Incendi_1.pdf
+2025-04-14 22:09:36,162 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3
+2025-04-14 22:09:36,164 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:36] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 22:09:36,172 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:36] "GET /status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:36,200 - __main__ - INFO - Starting PDF conversion with DPI=600
+2025-04-14 22:09:36,292 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:36] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:36,295 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:36] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:09:37,321 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:37] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:38,329 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:38] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:39,461 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:39] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:40,470 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:40] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:41,602 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:41] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:42,609 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:42] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:43,625 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:43] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:44,663 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:44] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:45,669 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:45] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:46,676 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:46] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:48,800 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:48] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:50,811 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:50] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:52,944 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:52] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:55,011 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:55] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:57,020 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:57] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:09:59,028 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:09:59] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:01,036 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:01] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:03,044 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:03] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:05,053 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:05] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:07,060 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:07] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:10,066 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:10] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:13,076 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:13] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:16,086 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:16] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:19,097 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:19] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:22,107 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:22] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:25,117 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:25] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:28,123 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:28] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:31,132 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:31] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:34,143 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:34] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:37,076 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 22:10:37,076 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_0.png
+2025-04-14 22:10:37,149 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:37] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:37,724 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_1.png
+2025-04-14 22:10:38,364 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_2.png
+2025-04-14 22:10:39,024 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_3.png
+2025-04-14 22:10:39,665 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_4.png
+2025-04-14 22:10:40,297 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_5.png
+2025-04-14 22:10:40,792 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_6.png
+2025-04-14 22:10:41,188 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_7.png
+2025-04-14 22:10:41,663 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_8.png
+2025-04-14 22:10:42,155 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:42] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:42,187 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_9.png
+2025-04-14 22:10:42,637 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_10.png
+2025-04-14 22:10:43,104 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3/page_11.png
+2025-04-14 22:10:43,477 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 22:10:43,477 - __main__ - INFO - Processing PDF with 1 worker, quality: high, engine: tesseract, output: html
+2025-04-14 22:10:44,640 - __mp_main__ - INFO - Processing page 1 with OCR engine: tesseract
+2025-04-14 22:10:44,666 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:10:44,666 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:10:47,168 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:47] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:48,020 - __mp_main__ - INFO - Processing page 2 with OCR engine: tesseract
+2025-04-14 22:10:48,029 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:10:48,029 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:10:51,857 - __mp_main__ - INFO - Processing page 3 with OCR engine: tesseract
+2025-04-14 22:10:51,865 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:10:51,866 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:10:52,177 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:52] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:55,626 - __mp_main__ - INFO - Processing page 4 with OCR engine: tesseract
+2025-04-14 22:10:55,635 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:10:55,635 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:10:57,186 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:10:57] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:10:59,362 - __mp_main__ - INFO - Processing page 5 with OCR engine: tesseract
+2025-04-14 22:10:59,373 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:10:59,373 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:02,197 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:02] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:11:03,048 - __mp_main__ - INFO - Processing page 6 with OCR engine: tesseract
+2025-04-14 22:11:03,056 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:03,057 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:05,509 - __mp_main__ - INFO - Processing page 7 with OCR engine: tesseract
+2025-04-14 22:11:05,518 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:05,518 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:07,203 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:07] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:11:07,390 - __mp_main__ - INFO - Processing page 8 with OCR engine: tesseract
+2025-04-14 22:11:07,400 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:07,400 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:09,674 - __mp_main__ - INFO - Processing page 9 with OCR engine: tesseract
+2025-04-14 22:11:09,682 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:09,682 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:12,192 - __mp_main__ - INFO - Processing page 10 with OCR engine: tesseract
+2025-04-14 22:11:12,201 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:12,201 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:12,212 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:12] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:11:14,228 - __mp_main__ - INFO - Processing page 11 with OCR engine: tesseract
+2025-04-14 22:11:14,236 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:14,237 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:16,375 - __mp_main__ - INFO - Processing page 12 with OCR engine: tesseract
+2025-04-14 22:11:16,387 - __mp_main__ - INFO - Using Tesseract version: 5.5.0
+2025-04-14 22:11:16,387 - __mp_main__ - INFO - OCR language settings: eng, config: --oem 1 --psm 3 -l eng --dpi 300
+2025-04-14 22:11:17,223 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:17] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:11:17,456 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 33.98s, Pages/sec: 0.35, Output: uploads/55105bf6-a97c-4422-a561-3a62b613e948_Incendi_1.html
+2025-04-14 22:11:17,457 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_keakrnq3
+2025-04-14 22:11:22,233 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:22] "GET /api/task_status/55105bf6-a97c-4422-a561-3a62b613e948 HTTP/1.1" 200 -
+2025-04-14 22:11:23,259 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:23] "GET /success HTTP/1.1" 200 -
+2025-04-14 22:11:23,385 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:23] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 22:11:26,508 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 22:11:26] "GET /download HTTP/1.1" 200 -

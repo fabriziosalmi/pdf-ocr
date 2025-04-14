@@ -367,8 +367,49 @@ def fix_common_ocr_errors(text):
     
     return text
 
-def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard", preprocess=False, orig_filename=None):
-    """Process PDF with parallel processing for speed"""
+def save_as_markdown(text_results, output_path):
+    """Save the extracted text results as a Markdown file."""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for i in sorted(text_results.keys()):
+            text = text_results[i]
+            # Basic Markdown: treat paragraphs separated by double newlines
+            paragraphs = text.split('\n\n')
+            for para in paragraphs:
+                f.write(para.strip() + '\n\n') # Add double newline after each paragraph
+            # Add a horizontal rule as a page separator (optional)
+            if i < max(text_results.keys()):
+                f.write('---\n\n')
+
+def save_as_html(text_results, output_path, title="Converted Document"):
+    """Save the extracted text results as a basic HTML file."""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('<!DOCTYPE html>\n')
+        f.write('<html lang="en">\n')
+        f.write('<head>\n')
+        f.write('    <meta charset="UTF-8">\n')
+        f.write(f'    <title>{title}</title>\n')
+        f.write('    <style>body { font-family: sans-serif; line-height: 1.6; } .page-break { page-break-after: always; }</style>\n')
+        f.write('</head>\n')
+        f.write('<body>\n')
+        f.write(f'<h1>{title}</h1>\n')
+        
+        for i in sorted(text_results.keys()):
+            text = text_results[i]
+            # Basic HTML: treat paragraphs separated by double newlines
+            paragraphs = text.split('\n\n')
+            for para in paragraphs:
+                # Escape basic HTML characters
+                escaped_para = para.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                f.write(f'<p>{escaped_para.strip()}</p>\n')
+            # Add a visual separator or page break indicator
+            if i < max(text_results.keys()):
+                f.write('<hr class="page-break">\n')
+                
+        f.write('</body>\n')
+        f.write('</html>\n')
+
+def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard", preprocess=False, orig_filename=None, output_format="docx"):
+    """Process PDF with parallel processing for speed and handle different output formats"""
     temp_dir = None
     try:
         # Create a temporary directory for image files
@@ -448,10 +489,11 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         # Record start time for performance monitoring
         start_time = time.time()
 
-        # Create a DOCX document
-        document = Document()
+        # Create a DOCX document (only if needed)
+        if output_format == "docx":
+            document = Document()
         
-        logger.info(f"Processing PDF with 1 worker, quality: {quality}, engine: {ocr_engine}")
+        logger.info(f"Processing PDF with 1 worker, quality: {quality}, engine: {ocr_engine}, output: {output_format}")
         
         # Process images in parallel using a process pool - using only 1 worker for reliability
         num_workers = 1 # Force single worker to avoid race conditions
@@ -484,26 +526,39 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
                 "progress": 90
             })
             
-        # Sort results by page index and add to document
-        for i in range(len(image_paths)):
-            if i in results:
-                text = results[i]
-                document.add_paragraph(text)
-                if i < len(image_paths) - 1:  # Don't add page break after the last page
-                    document.add_page_break()
-        
-        # Save DOCX to file system
+        # Determine output filename and path
         document_name = orig_filename or 'document.pdf'
-        output_filename = os.path.splitext(document_name)[0] + '.docx'
-        # Ensure filename is secure
-        output_filename = secure_clean_filename(output_filename)
-        docx_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{output_filename}")
-        document.save(docx_path)
+        base_filename = os.path.splitext(document_name)[0]
+        output_filename = f"{secure_clean_filename(base_filename)}.{output_format}"
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{output_filename}")
+
+        # Assemble and save the document based on the format
+        if output_format == "docx":
+            for i in range(len(image_paths)):
+                if i in results:
+                    text = results[i]
+                    document.add_paragraph(text)
+                    if i < len(image_paths) - 1:
+                        document.add_page_break()
+            document.save(output_path)
+        elif output_format == "txt":
+            with open(output_path, 'w', encoding='utf-8') as f:
+                for i in sorted(results.keys()):
+                    f.write(results[i])
+                    # Add a separator between pages for clarity
+                    if i < max(results.keys()):
+                        f.write("\n\n--- Page Break ---\n\n")
+        elif output_format == "md":
+            save_as_markdown(results, output_path)
+        elif output_format == "html":
+            save_as_html(results, output_path, title=base_filename)
+        else:
+            raise ValueError(f"Unsupported output format: {output_format}")
 
         # Log performance metrics
         elapsed_time = time.time() - start_time
         pages_per_second = total_pages / elapsed_time if elapsed_time > 0 else 0
-        logger.info(f"PDF processing completed. Pages: {total_pages}, Time: {elapsed_time:.2f}s, Pages/sec: {pages_per_second:.2f}")
+        logger.info(f"PDF processing completed. Pages: {total_pages}, Time: {elapsed_time:.2f}s, Pages/sec: {pages_per_second:.2f}, Output: {output_path}")
 
         # Clean up original PDF after successful conversion
         if os.path.exists(pdf_path):
@@ -513,7 +568,7 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         if conversion_id in TASK_STATUS:
             TASK_STATUS[conversion_id]["progress"] = 100
 
-        return True, docx_path, output_filename
+        return True, output_path, output_filename # Return the actual path and filename
 
     except ImportError as e:
         # Specific handling for missing OCR engine imports
@@ -608,8 +663,10 @@ def upload_file():
         language = request.form.get('language', 'eng') # Select name inside options
         quality = request.form.get('ocr-quality', 'standard') # Select name inside options
         preprocess = request.form.get('preprocess', '0') == '1' # Checkbox name inside options
-        output_format = request.form.get('output-format', 'docx') # New select name inside options
-        # Add other options from the panel as needed (e.g., preserve-paragraphs, detect-headings)
+        output_format = request.form.get('output-format', 'docx') # Select name inside options
+        # Get preprocessing details if needed (e.g., contrast, dpi)
+        # pre_contrast = request.form.get('pre-contrast', '1.5') 
+        # dpi_setting = request.form.get('dpi', '300')
 
         # Add warnings for problematic OCR engines
         if ocr_engine == 'kraken':
@@ -634,7 +691,7 @@ def upload_file():
 
         # Process asynchronously
         task_id = run_task_in_background(
-            process_pdf_with_progress, # TODO: Update this function to handle output_format etc.
+            process_pdf_with_progress, 
             conversion_id,
             pdf_path, 
             conversion_id, 
@@ -642,8 +699,9 @@ def upload_file():
             language, 
             quality,
             preprocess,
-            orig_filename
-            # Pass output_format and other options here
+            orig_filename,
+            output_format # Pass output_format here
+            # Pass other preprocessing options if needed
         )
         
         # Store task_id in session
@@ -678,7 +736,7 @@ def task_status(task_id):
             success, result_path, output_filename = TASK_RESULTS[task_id]
             if success:
                 # Store results in session
-                session['docx_path'] = result_path
+                session['result_path'] = result_path # Use generic name
                 session['output_filename'] = output_filename
                 status_data["redirect"] = url_for('success')
             else:
@@ -695,7 +753,7 @@ def task_status(task_id):
 def success():
     """Display success page after successful conversion."""
     # Check if we have valid session data
-    if 'docx_path' not in session or 'output_filename' not in session:
+    if 'result_path' not in session or 'output_filename' not in session: # Updated session key
         flash('No conversion data found. Please upload a file first.', 'error')
         return redirect(url_for('index'))
 
@@ -705,27 +763,38 @@ def success():
 def download_file():
     """Provide the converted file for download."""
     # Check if we have valid session data
-    if 'docx_path' not in session or 'output_filename' not in session:
+    if 'result_path' not in session or 'output_filename' not in session: # Updated session key
         flash('No conversion data found. Please upload a file first.', 'error')
         return redirect(url_for('index'))
 
-    docx_path = session['docx_path']
+    result_path = session['result_path'] # Updated session key
     output_filename = session['output_filename']
 
     # Security check - ensure file exists and is within uploads directory
-    if not os.path.exists(docx_path) or not os.path.isfile(docx_path):
+    if not os.path.exists(result_path) or not os.path.isfile(result_path):
         flash('The converted file is no longer available.', 'error')
         return redirect(url_for('index'))
     
-    if not os.path.abspath(docx_path).startswith(os.path.abspath(UPLOAD_FOLDER)):
-        logger.error(f"Security issue: Attempted to access file outside uploads directory: {docx_path}")
+    if not os.path.abspath(result_path).startswith(os.path.abspath(UPLOAD_FOLDER)):
+        logger.error(f"Security issue: Attempted to access file outside uploads directory: {result_path}")
         flash('Access denied.', 'error')
         return redirect(url_for('index'))
 
+    # Determine MIME type based on file extension
+    _, ext = os.path.splitext(output_filename)
+    ext = ext.lower()
+    mime_types = {
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.txt': 'text/plain',
+        '.md': 'text/markdown',
+        '.html': 'text/html',
+    }
+    mime_type = mime_types.get(ext, 'application/octet-stream') # Default MIME type
+
     try:
         return send_file(
-            docx_path,
-            mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            result_path,
+            mimetype=mime_type, # Use determined MIME type
             as_attachment=True,
             download_name=output_filename
         )
@@ -746,13 +815,13 @@ def new_conversion():
         except OSError as e:
             logger.warning(f"Could not remove PDF file {pdf_path}: {e}")
 
-    docx_path = session.pop('docx_path', None)
-    if (docx_path and os.path.exists(docx_path)):
+    result_path = session.pop('result_path', None) # Updated session key
+    if (result_path and os.path.exists(result_path)):
          try:
-            os.remove(docx_path)
-            logger.info(f"Cleaned up DOCX file: {docx_path}")
+            os.remove(result_path)
+            logger.info(f"Cleaned up result file: {result_path}")
          except OSError as e:
-            logger.warning(f"Could not remove DOCX file {docx_path}: {e}")
+            logger.warning(f"Could not remove result file {result_path}: {e}")
 
     # Clear remaining session data
     session.pop('conversion_id', None)
