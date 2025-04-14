@@ -296,85 +296,6 @@ def process_image(i, image_path, ocr_engine, language, preprocess=False):
                 logger.error(f"EasyOCR error: {str(e)}", exc_info=True)
                 return i, f"[Error with EasyOCR: {str(e)}]"
         
-        elif ocr_engine == "paddleocr":
-            try:
-                from paddleocr import PaddleOCR
-                
-                # Map language codes for PaddleOCR
-                paddle_lang_map = {
-                    'eng': 'en', 'fra': 'fr', 'deu': 'de', 'spa': 'es', 'ita': 'it', 'por': 'pt',
-                    'chi_sim': 'ch', 'chi_tra': 'chinese_cht', 'jpn': 'japan', 'kor': 'korean',
-                    'rus': 'ru', 'ara': 'ar', 'hin': 'hi'
-                }
-                
-                # Get first language for PaddleOCR (it doesn't support multiple languages at once)
-                first_lang = language.split('+')[0]
-                paddle_lang = paddle_lang_map.get(first_lang, 'en')
-                
-                # Initialize PaddleOCR with the language and angle classifier
-                ocr = PaddleOCR(use_angle_cls=True, lang=paddle_lang)
-                
-                # Process the image
-                result = ocr.ocr(image_path, cls=True)
-                
-                # Extract text from result (PaddleOCR has a complex nested result structure)
-                if result and result[0]:
-                    text_lines = []
-                    for line in result[0]:
-                        # Each item is [[[x1,y1],[x2,y2],[x3,y3],[x4,y4]], [text, confidence]]
-                        if isinstance(line, list) and len(line) >= 2 and isinstance(line[1], list):
-                            text_lines.append(line[1][0])  # Extract the text part
-                    text = '\n'.join(text_lines)
-                else:
-                    text = ""
-            except Exception as e:
-                logger.error(f"PaddleOCR error: {str(e)}", exc_info=True)
-                return i, f"[Error with PaddleOCR: {str(e)}]"
-        
-        elif ocr_engine == "kraken":
-            try:
-                # Import kraken modules
-                from kraken import binarization
-                from kraken.pageseg import segment
-                from kraken import rpred
-                
-                # Convert PIL image to image file if needed
-                if preprocess:
-                    # Save enhanced image to a temporary file
-                    temp_enhanced = f"{image_path}_enhanced.png"
-                    img_to_process.save(temp_enhanced)
-                    use_image_path = temp_enhanced
-                else:
-                    use_image_path = image_path
-                
-                # Binarize the image (convert to black and white)
-                bw_img = binarization.nlbin(Image.open(use_image_path))
-                
-                # Segment the page into lines
-                res = segment(bw_img)
-                
-                # Recognize text using default model (can be customized for languages)
-                # Kraken doesn't have explicit language support like Tesseract
-                # For production, you'd use specific models for different languages
-                pred_args = {'text_direction': 'horizontal-lr'}
-                result = rpred.rpred(network='en_best', im=bw_img, 
-                                    baseline=res['baselines'], 
-                                    lines=res['lines'],
-                                    **pred_args)
-                
-                # Extract text from result
-                text = result['text']
-                
-                # Clean up temporary file if created
-                if preprocess and os.path.exists(temp_enhanced):
-                    try:
-                        os.remove(temp_enhanced)
-                    except:
-                        pass
-            except Exception as e:
-                logger.error(f"Kraken error: {str(e)}", exc_info=True)
-                return i, f"[Error with Kraken: {str(e)}]"
-        
         elif ocr_engine == "pyocr":
             try:
                 import pyocr
@@ -687,6 +608,12 @@ def upload_file():
         language = request.form.get('language', 'eng')
         quality = request.form.get('ocr-quality', 'standard')
         preprocess = request.form.get('preprocess', '0') == '1'
+
+        # Add warnings for problematic OCR engines
+        if ocr_engine == 'kraken':
+            flash('Warning: Kraken OCR may have protobuf compatibility issues. If conversion fails, try Tesseract.', 'warning')
+        elif ocr_engine == 'paddleocr':
+            flash('Warning: PaddleOCR may have compatibility issues on some systems. If conversion fails, try Tesseract.', 'warning')
 
         # Log processing request with more details for debugging
         logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}")

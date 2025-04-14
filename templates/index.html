@@ -190,14 +190,6 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /> </svg>
                                         <span class="text-xs font-medium text-gray-800 text-center">EasyOCR</span>
                                     </div>
-                                    <div data-engine="paddleocr" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /> </svg>
-                                        <span class="text-xs font-medium text-gray-800 text-center">PaddleOCR</span>
-                                    </div>
-                                    <div data-engine="kraken" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> </svg>
-                                        <span class="text-xs font-medium text-gray-800 text-center">Kraken</span>
-                                    </div>
                                     <div data-engine="pyocr" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> </svg>
                                         <span class="text-xs font-medium text-gray-800 text-center">PyOCR</span>
@@ -475,7 +467,7 @@
                     tesseractOptions.classList.add('hidden');
                     
                     // Show appropriate warning for other engines
-                    if (engine === 'easyocr' || engine === 'paddleocr' || engine === 'kraken' || engine === 'pyocr') {
+                    if (engine === 'easyocr' || engine === 'pyocr') {
                         showEngineWarning(engine);
                     } else {
                         hideEngineWarning();
@@ -497,8 +489,6 @@
             
             const engineNames = {
                 'easyocr': 'EasyOCR',
-                'paddleocr': 'PaddleOCR',
-                'kraken': 'Kraken',
                 'pyocr': 'PyOCR'
             };
             

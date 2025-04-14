@@ -504,3 +504,1163 @@ FileNotFoundError: Missing image files after conversion: ['/var/folders/h8/6y192
 2025-04-14 21:24:23,124 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:23] "GET /api/task_status/9143189a-d98d-4c0b-b85f-218ad09f60ce HTTP/1.1" 200 -
 2025-04-14 21:24:24,159 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:24] "GET /success HTTP/1.1" 200 -
 2025-04-14 21:24:24,302 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:24:24] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:25:00,019 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:00] "GET /download HTTP/1.1" 200 -
+2025-04-14 21:25:20,072 - __main__ - INFO - Cleaned up DOCX file: uploads/9143189a-d98d-4c0b-b85f-218ad09f60ce_Incendi_1.docx
+2025-04-14 21:25:20,073 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:20] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:25:20,121 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:20] "GET / HTTP/1.1" 200 -
+2025-04-14 21:25:20,259 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:20] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:25:39,938 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 21:25:39,938 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:25:41,695 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:41] "GET / HTTP/1.1" 200 -
+2025-04-14 21:25:41,867 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:25:49,303 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=easyocr, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:25:49,303 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'easyocr'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:25:49,308 - __main__ - INFO - Saved uploaded file to uploads/0a0029d8-b29f-4a45-8b19-77e5b302cb25_Incendi_1.pdf
+2025-04-14 21:25:49,308 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d
+2025-04-14 21:25:49,312 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:49] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:25:49,320 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:49] "GET /status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:49,342 - __main__ - INFO - Starting PDF conversion with DPI=300
+2025-04-14 21:25:49,440 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:49] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:49,449 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:49] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:25:50,483 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:50] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:51,492 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:51] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:52,501 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:52] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:53,508 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:53] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:54,516 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:54] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:55,523 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:55] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:56,650 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:56] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:57,656 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:57] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:58,666 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:58] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:25:59,674 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:25:59] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:01,682 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:01] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:03,691 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:03] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:03,997 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 21:26:03,997 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_0.png
+2025-04-14 21:26:04,162 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_1.png
+2025-04-14 21:26:04,311 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_2.png
+2025-04-14 21:26:04,480 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_3.png
+2025-04-14 21:26:04,642 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_4.png
+2025-04-14 21:26:04,787 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_5.png
+2025-04-14 21:26:04,909 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_6.png
+2025-04-14 21:26:05,009 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_7.png
+2025-04-14 21:26:05,131 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_8.png
+2025-04-14 21:26:05,267 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_9.png
+2025-04-14 21:26:05,383 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_10.png
+2025-04-14 21:26:05,499 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d/page_11.png
+2025-04-14 21:26:05,598 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 21:26:05,603 - __main__ - INFO - Processing PDF with 1 worker, quality: standard, engine: easyocr
+2025-04-14 21:26:05,701 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:05] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:05,877 - __mp_main__ - INFO - Processing page 1 with OCR engine: easyocr
+2025-04-14 21:26:07,709 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:07] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:09,727 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:09] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:11,772 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:11] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:13,792 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:13] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:15,800 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:15] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:16,937 - __mp_main__ - INFO - Processing page 2 with OCR engine: easyocr
+2025-04-14 21:26:17,806 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:17] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:19,817 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:19] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:22,826 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:22] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:24,419 - __mp_main__ - INFO - Processing page 3 with OCR engine: easyocr
+2025-04-14 21:26:25,833 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:25] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:28,943 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:28] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:31,955 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:31] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:32,368 - __mp_main__ - INFO - Processing page 4 with OCR engine: easyocr
+2025-04-14 21:26:34,973 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:34] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:37,982 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:37] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:40,031 - __mp_main__ - INFO - Processing page 5 with OCR engine: easyocr
+2025-04-14 21:26:40,992 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:40] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:44,010 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:44] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:47,022 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:47] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:47,790 - __mp_main__ - INFO - Processing page 6 with OCR engine: easyocr
+2025-04-14 21:26:50,029 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:50] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:53,165 - __mp_main__ - INFO - Processing page 7 with OCR engine: easyocr
+2025-04-14 21:26:55,055 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:26:55] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:26:57,331 - __mp_main__ - INFO - Processing page 8 with OCR engine: easyocr
+2025-04-14 21:27:00,071 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:00] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:27:02,356 - __mp_main__ - INFO - Processing page 9 with OCR engine: easyocr
+2025-04-14 21:27:05,086 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:05] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:27:07,438 - __mp_main__ - INFO - Processing page 10 with OCR engine: easyocr
+2025-04-14 21:27:10,095 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:10] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:27:12,080 - __mp_main__ - INFO - Processing page 11 with OCR engine: easyocr
+2025-04-14 21:27:15,116 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:15] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:27:17,054 - __mp_main__ - INFO - Processing page 12 with OCR engine: easyocr
+2025-04-14 21:27:20,129 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:20] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:27:21,390 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 75.79s, Pages/sec: 0.16
+2025-04-14 21:27:21,393 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_ewcfo79d
+2025-04-14 21:27:25,141 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:25] "GET /api/task_status/0a0029d8-b29f-4a45-8b19-77e5b302cb25 HTTP/1.1" 200 -
+2025-04-14 21:27:26,198 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:26] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:27:26,374 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:26] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:27:28,427 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:28] "GET /download HTTP/1.1" 200 -
+2025-04-14 21:27:43,100 - __main__ - INFO - Cleaned up DOCX file: uploads/0a0029d8-b29f-4a45-8b19-77e5b302cb25_Incendi_1.docx
+2025-04-14 21:27:43,102 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:43] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:27:43,155 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:43] "GET / HTTP/1.1" 200 -
+2025-04-14 21:27:43,294 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:27:43] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:28:02,619 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 21:28:02,619 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:28:06,508 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:06] "GET / HTTP/1.1" 200 -
+2025-04-14 21:28:06,704 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:28:10,829 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=paddleocr, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:28:10,829 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'paddleocr'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:28:10,833 - __main__ - INFO - Saved uploaded file to uploads/c4d8aaa6-edc8-46e2-838a-ab10163463ed_Incendi_1.pdf
+2025-04-14 21:28:10,834 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l
+2025-04-14 21:28:10,839 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:10] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:28:10,846 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:10] "GET /status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:10,872 - __main__ - INFO - Starting PDF conversion with DPI=300
+2025-04-14 21:28:10,974 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:10] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:10,976 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:10] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:28:11,989 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:11] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:13,000 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:13] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:14,009 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:14] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:15,016 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:15] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:16,025 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:16] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:17,035 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:17] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:18,043 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:18] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:19,049 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:19] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:20,058 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:20] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:21,067 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:21] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:23,166 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:23] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:25,172 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:25] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:26,190 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 21:28:26,190 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_0.png
+2025-04-14 21:28:26,358 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_1.png
+2025-04-14 21:28:26,514 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_2.png
+2025-04-14 21:28:26,687 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_3.png
+2025-04-14 21:28:26,855 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_4.png
+2025-04-14 21:28:27,003 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_5.png
+2025-04-14 21:28:27,125 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_6.png
+2025-04-14 21:28:27,179 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:27] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:27,228 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_7.png
+2025-04-14 21:28:27,354 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_8.png
+2025-04-14 21:28:27,492 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_9.png
+2025-04-14 21:28:27,609 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_10.png
+2025-04-14 21:28:27,725 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l/page_11.png
+2025-04-14 21:28:27,827 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 21:28:27,837 - __main__ - INFO - Processing PDF with 1 worker, quality: standard, engine: paddleocr
+2025-04-14 21:28:28,124 - __mp_main__ - INFO - Processing page 1 with OCR engine: paddleocr
+2025-04-14 21:28:29,190 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:29] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:31,198 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:31] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:33,208 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:33] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:34,749 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:28:35,217 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:35] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:37,230 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:37] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:39,241 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:39] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:40,924 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:28:41,250 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:41] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:44,260 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:44] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:45,214 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:28:47,270 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:47] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:49,408 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:28:50,638 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:50] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:53,649 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:53] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:56,658 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:56] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:28:57,862 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:28:59,665 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:28:59] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:00,103 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:29:02,676 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:02] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:05,881 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:05] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:08,891 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:08] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:10,083 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:29:11,900 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:11] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:14,177 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:29:16,907 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:16] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:17,469 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:29:21,547 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:29:21,918 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:21] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:24,905 - __mp_main__ - ERROR - PaddleOCR error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 318, in process_image
+    result = ocr.ocr(image_path, cls=True)
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:29:25,408 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 57.58s, Pages/sec: 0.21
+2025-04-14 21:29:25,410 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_gr8nyp2l
+2025-04-14 21:29:26,933 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:26] "GET /api/task_status/c4d8aaa6-edc8-46e2-838a-ab10163463ed HTTP/1.1" 200 -
+2025-04-14 21:29:27,967 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:27] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:29:28,106 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:29:31,206 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:31] "GET /download HTTP/1.1" 200 -
+2025-04-14 21:29:58,717 - __main__ - INFO - Cleaned up DOCX file: uploads/c4d8aaa6-edc8-46e2-838a-ab10163463ed_Incendi_1.docx
+2025-04-14 21:29:58,718 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:58] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:29:58,765 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:58] "GET / HTTP/1.1" 200 -
+2025-04-14 21:29:58,902 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:29:58] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:30:08,631 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=kraken, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:30:08,631 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'kraken'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:30:08,636 - __main__ - INFO - Saved uploaded file to uploads/0da99fa9-88f1-43b6-94f4-3fe4eae046e4_Incendi_1.pdf
+2025-04-14 21:30:08,637 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix
+2025-04-14 21:30:08,642 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:08] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:30:08,646 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:08] "GET /status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:08,673 - __main__ - INFO - Starting PDF conversion with DPI=300
+2025-04-14 21:30:08,766 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:08] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:08,774 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:08] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:30:09,811 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:09] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:10,821 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:10] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:11,827 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:11] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:12,838 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:12] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:13,850 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:13] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:14,857 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:14] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:15,898 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:15] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:16,903 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:16] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:17,908 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:17] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:18,917 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:18] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:20,925 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:20] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:22,932 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:22] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:23,888 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 21:30:23,888 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_0.png
+2025-04-14 21:30:24,054 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_1.png
+2025-04-14 21:30:24,205 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_2.png
+2025-04-14 21:30:24,376 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_3.png
+2025-04-14 21:30:24,541 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_4.png
+2025-04-14 21:30:24,688 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_5.png
+2025-04-14 21:30:24,811 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_6.png
+2025-04-14 21:30:24,913 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_7.png
+2025-04-14 21:30:24,941 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:24] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:25,037 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_8.png
+2025-04-14 21:30:25,173 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_9.png
+2025-04-14 21:30:25,289 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_10.png
+2025-04-14 21:30:25,407 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix/page_11.png
+2025-04-14 21:30:25,509 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 21:30:25,513 - __main__ - INFO - Processing PDF with 1 worker, quality: standard, engine: kraken
+2025-04-14 21:30:25,882 - __mp_main__ - INFO - Processing page 1 with OCR engine: kraken
+2025-04-14 21:30:26,950 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:26] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:27,018 - coremltools - WARNING - scikit-learn version 1.6.1 is not supported. Minimum required version: 0.17. Maximum required version: 1.5.1. Disabling scikit-learn conversion API.
+2025-04-14 21:30:27,018 - coremltools - WARNING - Torch version 2.6.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.5.0 is the most recent version that has been tested.
+2025-04-14 21:30:27,755 - coremltools - WARNING - Failed to load _MLModelProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,755 - coremltools - WARNING - Failed to load _MLCPUComputeDeviceProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,755 - coremltools - WARNING - Failed to load _MLGPUComputeDeviceProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,755 - coremltools - WARNING - Failed to load _MLNeuralEngineComputeDeviceProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,755 - coremltools - WARNING - Failed to load _MLModelProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,755 - coremltools - WARNING - Failed to load _MLComputePlanProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,836 - coremltools - WARNING - Fail to import BlobReader from libmilstoragepython. No module named 'coremltools.libmilstoragepython'
+2025-04-14 21:30:27,849 - coremltools - WARNING - Failed to load _MLModelProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,850 - coremltools - WARNING - Failed to load _MLModelAssetProxy: No module named 'coremltools.libcoremlpython'
+2025-04-14 21:30:27,888 - coremltools - WARNING - Fail to import BlobWriter from libmilstoragepython. No module named 'coremltools.libmilstoragepython'
+2025-04-14 21:30:27,892 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,893 - __mp_main__ - INFO - Processing page 2 with OCR engine: kraken
+2025-04-14 21:30:27,894 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,895 - __mp_main__ - INFO - Processing page 3 with OCR engine: kraken
+2025-04-14 21:30:27,895 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,896 - __mp_main__ - INFO - Processing page 4 with OCR engine: kraken
+2025-04-14 21:30:27,896 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,896 - __mp_main__ - INFO - Processing page 5 with OCR engine: kraken
+2025-04-14 21:30:27,897 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,897 - __mp_main__ - INFO - Processing page 6 with OCR engine: kraken
+2025-04-14 21:30:27,898 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,898 - __mp_main__ - INFO - Processing page 7 with OCR engine: kraken
+2025-04-14 21:30:27,899 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,899 - __mp_main__ - INFO - Processing page 8 with OCR engine: kraken
+2025-04-14 21:30:27,899 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,900 - __mp_main__ - INFO - Processing page 9 with OCR engine: kraken
+2025-04-14 21:30:27,900 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,901 - __mp_main__ - INFO - Processing page 10 with OCR engine: kraken
+2025-04-14 21:30:27,902 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,902 - __mp_main__ - INFO - Processing page 11 with OCR engine: kraken
+2025-04-14 21:30:27,903 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:27,903 - __mp_main__ - INFO - Processing page 12 with OCR engine: kraken
+2025-04-14 21:30:27,903 - __mp_main__ - ERROR - Kraken error: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 338, in process_image
+    from kraken.pageseg import segment
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/pageseg.py", line 34, in <module>
+    from kraken.lib import models
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/models.py", line 17, in <module>
+    from kraken.lib.vgsl import TorchVGSLModel
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/vgsl.py", line 20, in <module>
+    from kraken.lib import clstm_pb2
+  File "/opt/homebrew/lib/python3.13/site-packages/kraken/lib/clstm_pb2.py", line 35, in <module>
+    _descriptor.FieldDescriptor(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+      name='key', full_name='clstm.KeyValue.key', index=0,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+      is_extension=False, extension_scope=None,
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      options=None),
+      ^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/google/protobuf/descriptor.py", line 621, in __new__
+    _message.Message._CheckCalledFromGeneratedFile()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: Descriptors cannot be created directly.
+If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc >= 3.19.0.
+If you cannot immediately regenerate your protos, some other possible workarounds are:
+ 1. Downgrade the protobuf package to 3.20.x or lower.
+ 2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).
+
+More information: https://developers.google.com/protocol-buffers/docs/news/2022-05-06#python-updates
+2025-04-14 21:30:28,259 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 2.75s, Pages/sec: 4.36
+2025-04-14 21:30:28,260 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_42jqc2ix
+2025-04-14 21:30:28,958 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:28] "GET /api/task_status/0da99fa9-88f1-43b6-94f4-3fe4eae046e4 HTTP/1.1" 200 -
+2025-04-14 21:30:29,976 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:29] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:30:30,100 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:30] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:30:49,401 - __main__ - INFO - Cleaned up DOCX file: uploads/0da99fa9-88f1-43b6-94f4-3fe4eae046e4_Incendi_1.docx
+2025-04-14 21:30:49,401 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:49] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:30:49,439 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:49] "GET / HTTP/1.1" 200 -
+2025-04-14 21:30:49,566 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:30:49] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:31:11,745 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=pyocr, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:31:11,746 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'pyocr'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:31:11,751 - __main__ - INFO - Saved uploaded file to uploads/3548eba8-b590-4a72-9c42-b45a58aef762_Incendi_1.pdf
+2025-04-14 21:31:11,751 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v
+2025-04-14 21:31:11,756 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:11] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:31:11,761 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:11] "GET /status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:11,771 - __main__ - INFO - Starting PDF conversion with DPI=300
+2025-04-14 21:31:11,884 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:11] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:11,886 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:31:12,919 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:12] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:13,928 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:13] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:14,938 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:14] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:15,943 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:15] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:16,950 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:16] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:17,956 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:17] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:18,967 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:18] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:19,977 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:19] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:20,986 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:20] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:21,996 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:21] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:24,133 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:24] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:26,140 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:26] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:26,758 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 21:31:26,758 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_0.png
+2025-04-14 21:31:26,923 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_1.png
+2025-04-14 21:31:27,074 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_2.png
+2025-04-14 21:31:27,245 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_3.png
+2025-04-14 21:31:27,408 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_4.png
+2025-04-14 21:31:27,556 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_5.png
+2025-04-14 21:31:27,678 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_6.png
+2025-04-14 21:31:27,780 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_7.png
+2025-04-14 21:31:27,903 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_8.png
+2025-04-14 21:31:28,039 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_9.png
+2025-04-14 21:31:28,155 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_10.png
+2025-04-14 21:31:28,261 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:28] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:28,272 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v/page_11.png
+2025-04-14 21:31:28,373 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 21:31:28,376 - __main__ - INFO - Processing PDF with 1 worker, quality: standard, engine: pyocr
+2025-04-14 21:31:28,649 - __mp_main__ - INFO - Processing page 1 with OCR engine: pyocr
+2025-04-14 21:31:30,271 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:30] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:30,610 - __mp_main__ - INFO - Processing page 2 with OCR engine: pyocr
+2025-04-14 21:31:32,285 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:32] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:32,893 - __mp_main__ - INFO - Processing page 3 with OCR engine: pyocr
+2025-04-14 21:31:34,291 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:34] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:35,191 - __mp_main__ - INFO - Processing page 4 with OCR engine: pyocr
+2025-04-14 21:31:36,300 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:36] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:37,403 - __mp_main__ - INFO - Processing page 5 with OCR engine: pyocr
+2025-04-14 21:31:38,308 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:38] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:39,572 - __mp_main__ - INFO - Processing page 6 with OCR engine: pyocr
+2025-04-14 21:31:40,317 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:40] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:40,701 - __mp_main__ - INFO - Processing page 7 with OCR engine: pyocr
+2025-04-14 21:31:41,338 - __mp_main__ - INFO - Processing page 8 with OCR engine: pyocr
+2025-04-14 21:31:42,278 - __mp_main__ - INFO - Processing page 9 with OCR engine: pyocr
+2025-04-14 21:31:42,325 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:42] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:43,286 - __mp_main__ - INFO - Processing page 10 with OCR engine: pyocr
+2025-04-14 21:31:44,003 - __mp_main__ - INFO - Processing page 11 with OCR engine: pyocr
+2025-04-14 21:31:45,019 - __mp_main__ - INFO - Processing page 12 with OCR engine: pyocr
+2025-04-14 21:31:45,340 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:45] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:45,573 - __main__ - INFO - PDF processing completed. Pages: 12, Time: 17.20s, Pages/sec: 0.70
+2025-04-14 21:31:45,574 - __main__ - INFO - Cleaned up temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_svd26i6v
+2025-04-14 21:31:48,351 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:48] "GET /api/task_status/3548eba8-b590-4a72-9c42-b45a58aef762 HTTP/1.1" 200 -
+2025-04-14 21:31:49,504 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:49] "GET /success HTTP/1.1" 200 -
+2025-04-14 21:31:49,624 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:49] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:31:51,877 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:31:51] "GET /download HTTP/1.1" 200 -
+2025-04-14 21:32:00,393 - __main__ - INFO - Cleaned up DOCX file: uploads/3548eba8-b590-4a72-9c42-b45a58aef762_Incendi_1.docx
+2025-04-14 21:32:00,394 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:32:00] "[32mGET /new_conversion HTTP/1.1[0m" 302 -
+2025-04-14 21:32:00,431 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:32:00] "GET / HTTP/1.1" 200 -
+2025-04-14 21:32:00,558 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:32:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:35:13,383 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8011
+ * Running on http://192.168.100.3:8011
+2025-04-14 21:35:13,384 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-14 21:35:15,031 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:15] "GET / HTTP/1.1" 200 -
+2025-04-14 21:35:15,227 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:15] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:35:21,865 - __main__ - INFO - Processing request: file=Incendi_1.pdf, engine=paddleocr, lang=eng, quality=standard, preprocess=False
+2025-04-14 21:35:21,865 - __main__ - INFO - Form data: ImmutableMultiDict([('ocr-engine', 'paddleocr'), ('language', 'eng'), ('ocr-quality', 'standard'), ('dpi', '300'), ('output-format', 'docx')])
+2025-04-14 21:35:21,870 - __main__ - INFO - Saved uploaded file to uploads/f157e1a6-734d-4f76-b26b-f3561cb58496_Incendi_1.pdf
+2025-04-14 21:35:21,870 - __main__ - INFO - Created temporary directory: /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl
+2025-04-14 21:35:21,875 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:21] "[32mPOST /upload HTTP/1.1[0m" 302 -
+2025-04-14 21:35:21,883 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:21] "GET /status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:21,892 - __main__ - INFO - Starting PDF conversion with DPI=300
+2025-04-14 21:35:22,006 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:22] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:22,010 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-14 21:35:23,044 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:23] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:24,056 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:24] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:25,064 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:25] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:26,073 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:26] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:27,081 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:27] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:28,180 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:28] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:29,189 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:29] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:30,196 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:30] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:31,200 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:31] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:32,206 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:32] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:34,213 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:34] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:36,221 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:36] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:36,856 - __main__ - INFO - PDF conversion returned 12 images
+2025-04-14 21:35:36,857 - __main__ - INFO - Saving image 1/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_0.png
+2025-04-14 21:35:37,020 - __main__ - INFO - Saving image 2/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_1.png
+2025-04-14 21:35:37,170 - __main__ - INFO - Saving image 3/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_2.png
+2025-04-14 21:35:37,340 - __main__ - INFO - Saving image 4/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_3.png
+2025-04-14 21:35:37,503 - __main__ - INFO - Saving image 5/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_4.png
+2025-04-14 21:35:37,658 - __main__ - INFO - Saving image 6/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_5.png
+2025-04-14 21:35:37,781 - __main__ - INFO - Saving image 7/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_6.png
+2025-04-14 21:35:37,884 - __main__ - INFO - Saving image 8/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_7.png
+2025-04-14 21:35:38,008 - __main__ - INFO - Saving image 9/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_8.png
+2025-04-14 21:35:38,146 - __main__ - INFO - Saving image 10/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_9.png
+2025-04-14 21:35:38,227 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:38] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:38,265 - __main__ - INFO - Saving image 11/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_10.png
+2025-04-14 21:35:38,381 - __main__ - INFO - Saving image 12/12 to /var/folders/h8/6y19287n1sx6t9r4nmxwmpgw0000gn/T/ocr_oqg1nyvl/page_11.png
+2025-04-14 21:35:38,483 - __main__ - INFO - Successfully saved 12 images
+2025-04-14 21:35:38,487 - __main__ - INFO - Processing PDF with 1 worker, quality: standard, engine: paddleocr
+2025-04-14 21:35:38,860 - __mp_main__ - INFO - Processing page 1 with OCR engine: paddleocr
+2025-04-14 21:35:40,234 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:40] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:42,245 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:42] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:44,254 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:44] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:45,141 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:35:46,259 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:46] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:48,266 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:48] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:50,272 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:50] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:50,563 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:35:52,280 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:52] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:54,253 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:35:55,289 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:55] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:35:57,886 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:35:58,297 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:35:58] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:01,379 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:01] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:04,650 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:04] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:05,534 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:36:07,481 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:36:07,662 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:07] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:10,672 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:10] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:13,685 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:13] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:16,694 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:16] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:17,372 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:36:19,703 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:19] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:21,241 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+2025-04-14 21:36:22,713 - werkzeug - INFO - 127.0.0.1 - - [14/Apr/2025 21:36:22] "GET /api/task_status/f157e1a6-734d-4f76-b26b-f3561cb58496 HTTP/1.1" 200 -
+2025-04-14 21:36:24,302 - __mp_main__ - ERROR - PaddleOCR runtime error: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]
+Traceback (most recent call last):
+  File "/Users/fab/GitHub/ocr-pdf-docx/app.py", line 321, in process_image
+    result = ocr.ocr(image_path, cls=False)  # Disable angle classification
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/paddleocr.py", line 766, in ocr
+    dt_boxes, rec_res, _ = self.__call__(img, cls, slice)
+                           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_system.py", line 144, in __call__
+    rec_res, elapse = self.text_recognizer(img_crop_list)
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/paddleocr/tools/infer/predict_rec.py", line 793, in __call__
+    self.predictor.run()
+    ~~~~~~~~~~~~~~~~~~^^
+RuntimeError: (NotFound) No allocator found for the place, Place(undefined:0)
+  [Hint: Expected iter != allocators.end(), but received iter == allocators.end().] (at /Users/paddle/xly/workspace/7b5bf7ed-f223-4c37-9311-a1c9d604457b/Paddle/paddle/phi/core/memory/allocation/allocator_facade.cc:381)
+  [operator < matmul > error]

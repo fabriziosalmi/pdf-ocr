@@ -1,19 +1,27 @@
-# Web Framework
-Flask>=2.0.0
-werkzeug>=2.0.0
-
-# Core OCR Tools
-pytesseract>=0.3.8
-pdf2image>=1.16.0
+# Core dependencies
+Flask==2.3.3
+Werkzeug==2.3.7
+Pillow>=9.4.0
+pytesseract>=0.3.10
+pdf2image>=1.16.3
 python-docx>=0.8.11
-Pillow>=8.0.0
 
-# Additional OCR Engines
-easyocr>=1.5.0
-paddleocr>=2.0.0
-paddlepaddle>=2.0.0  # Required by paddleocr
-kraken>=4.0.0
-pyocr>=0.8.0
+# Tesseract wrapper (always works)
+pytesseract>=0.3.10
+
+# EasyOCR (optional)
+easyocr>=1.7.0
+
+# PaddleOCR (optional - may have compatibility issues)
+# paddlepaddle==2.4.2  # CPU version
+# paddleocr==2.6.0.3
+
+# Kraken (optional - requires specific protobuf version)
+# kraken==4.3.0
+# protobuf<=3.20.0  # Required for Kraken compatibility
+
+# PyOCR (optional)
+# pyocr>=0.8.3
 
 # Image Processing
 opencv-python>=4.5.0
