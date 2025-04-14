@@ -15,7 +15,7 @@ A web application that converts PDF documents to editable DOCX files using Optic
 - Background processing for large documents
 - Progress tracking
 
-![screenshot]()
+![screenshot](https://github.com/fabriziosalmi/ocr-pdf-docx/blob/main/screenshot.png?raw=true)
 
 ## Installation
 
