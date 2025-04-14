@@ -1,0 +1,9 @@
+# Requirements for PaddleOCR engine
+Flask>=2.0.0
+werkzeug>=2.0.0
+pdf2image>=1.16.0
+python-docx>=0.8.11
+Pillow>=8.0.0
+paddleocr>=2.0.0
+paddlepaddle>=2.0.0
+opencv-python>=4.5.0

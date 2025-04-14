@@ -1,0 +1,11 @@
+# Requirements for EasyOCR engine
+Flask>=2.0.0
+werkzeug>=2.0.0
+pdf2image>=1.16.0
+python-docx>=0.8.11
+Pillow>=8.0.0
+easyocr>=1.5.0
+torch>=1.7.0
+torchvision>=0.8.1
+opencv-python>=4.5.0
+scikit-image>=0.18.0

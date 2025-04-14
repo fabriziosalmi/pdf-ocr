@@ -68,9 +68,56 @@
                     <p class="text-sm text-gray-500" id="substatus-message">OCR processing can take some time for large documents</p>
                 </div>
                 
+                <!-- Processing stages icons -->
+                <div class="flex justify-between items-center mb-6">
+                    <div id="stage-convert" class="flex flex-col items-center opacity-40">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
+                            </svg>
+                        </div>
+                        <span class="text-xs text-gray-500">Converting</span>
+                    </div>
+                    <div class="w-1/4 h-0.5 bg-gray-200" id="line-1"></div>
+                    <div id="stage-ocr" class="flex flex-col items-center opacity-40">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs text-gray-500">OCR Processing</span>
+                    </div>
+                    <div class="w-1/4 h-0.5 bg-gray-200" id="line-2"></div>
+                    <div id="stage-assemble" class="flex flex-col items-center opacity-40">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs text-gray-500">Assembling</span>
+                    </div>
+                </div>
+                
                 <!-- Progress bar -->
+                <div class="mb-2 flex justify-between text-xs">
+                    <span id="progress-percentage" class="text-indigo-600 font-medium">0%</span>
+                    <span id="time-remaining" class="text-gray-500"></span>
+                </div>
                 <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 overflow-hidden">
                     <div id="progress-bar" class="progress-indeterminate bg-indigo-600 h-2.5 rounded-full"></div>
+                </div>
+                
+                <div id="error-container" class="hidden mt-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                    <div class="flex">
+                        <svg class="h-5 w-5 mr-2 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p class="font-medium">Processing Error</p>
+                            <p id="error-message" class="text-sm mt-1"></p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="mt-4 text-xs text-gray-500 flex justify-center">
@@ -91,6 +138,111 @@
         let checkInterval = 1000; // Start checking every second
         let elapsed = 0;
         let maxTime = 600000; // 10 minutes max processing time
+        let startTime = Date.now();
+        let lastProgress = 0;
+        let estimatedTimeRemaining = null;
+        
+        // Elements
+        const stageConvert = document.getElementById('stage-convert');
+        const stageOcr = document.getElementById('stage-ocr');
+        const stageAssemble = document.getElementById('stage-assemble');
+        const line1 = document.getElementById('line-1');
+        const line2 = document.getElementById('line-2');
+        const progressPercentage = document.getElementById('progress-percentage');
+        const timeRemaining = document.getElementById('time-remaining');
+        const errorContainer = document.getElementById('error-container');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Format time remaining
+        function formatTimeRemaining(seconds) {
+            if (seconds < 60) {
+                return `${Math.round(seconds)} seconds remaining`;
+            } else if (seconds < 3600) {
+                return `${Math.round(seconds / 60)} minutes remaining`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.round((seconds % 3600) / 60);
+                return `${hours}h ${minutes}m remaining`;
+            }
+        }
+        
+        // Estimate time remaining based on progress
+        function updateTimeRemaining(progress) {
+            if (progress <= 0 || progress >= 100) {
+                timeRemaining.textContent = '';
+                return;
+            }
+            
+            const now = Date.now();
+            const timeElapsed = (now - startTime) / 1000; // in seconds
+            
+            if (progress > lastProgress) {
+                // Only update estimate when progress increases
+                const progressDelta = progress - lastProgress;
+                const timePerProgress = timeElapsed / progress;
+                const estimatedTotal = timePerProgress * 100;
+                estimatedTimeRemaining = estimatedTotal - timeElapsed;
+                
+                lastProgress = progress;
+                
+                if (estimatedTimeRemaining > 0) {
+                    timeRemaining.textContent = formatTimeRemaining(estimatedTimeRemaining);
+                }
+            } else if (estimatedTimeRemaining !== null) {
+                // Countdown remaining time
+                estimatedTimeRemaining = Math.max(0, estimatedTimeRemaining - (checkInterval / 1000));
+                if (estimatedTimeRemaining > 0) {
+                    timeRemaining.textContent = formatTimeRemaining(estimatedTimeRemaining);
+                } else {
+                    timeRemaining.textContent = 'Finishing up...';
+                }
+            }
+        }
+        
+        // Update stage indicators
+        function updateStages(step, progress) {
+            // Reset all stages
+            [stageConvert, stageOcr, stageAssemble, line1, line2].forEach(el => {
+                el.classList.add('opacity-40');
+                if (el === line1 || el === line2) {
+                    el.classList.remove('bg-indigo-500');
+                    el.classList.add('bg-gray-200');
+                }
+            });
+            
+            if (progress >= 100) {
+                // All complete
+                [stageConvert, stageOcr, stageAssemble, line1, line2].forEach(el => {
+                    el.classList.remove('opacity-40');
+                    if (el === line1 || el === line2) {
+                        el.classList.add('bg-indigo-500');
+                        el.classList.remove('bg-gray-200');
+                    }
+                });
+                return;
+            }
+            
+            // Update based on step
+            if (step === 'converting' || progress < 10) {
+                stageConvert.classList.remove('opacity-40');
+            } else if (step === 'ocr' || (progress >= 10 && progress < 90)) {
+                stageConvert.classList.remove('opacity-40');
+                line1.classList.remove('opacity-40');
+                line1.classList.add('bg-indigo-500');
+                line1.classList.remove('bg-gray-200');
+                stageOcr.classList.remove('opacity-40');
+            } else if (step === 'assembling' || progress >= 90) {
+                stageConvert.classList.remove('opacity-40');
+                line1.classList.remove('opacity-40');
+                line1.classList.add('bg-indigo-500');
+                line1.classList.remove('bg-gray-200');
+                stageOcr.classList.remove('opacity-40');
+                line2.classList.remove('opacity-40');
+                line2.classList.add('bg-indigo-500');
+                line2.classList.remove('bg-gray-200');
+                stageAssemble.classList.remove('opacity-40');
+            }
+        }
         
         function updateStatusUI(data) {
             const statusMessage = document.getElementById('status-message');
@@ -98,21 +250,46 @@
             const progressBar = document.getElementById('progress-bar');
             
             if (data.status === 'processing') {
-                statusMessage.textContent = 'Processing document...';
+                // Update progress percentage
+                const progress = data.progress || 0;
+                progressPercentage.textContent = `${progress}%`;
                 
-                if (data.progress > 0) {
+                // Update stage indicators
+                updateStages(data.step || 'converting', progress);
+                
+                // Update time remaining
+                updateTimeRemaining(progress);
+                
+                // Update status messages based on step
+                if (data.step === 'converting') {
+                    statusMessage.textContent = 'Converting PDF to images...';
+                    substatusMessage.textContent = 'Preparing for OCR processing';
+                } else if (data.step === 'ocr') {
+                    statusMessage.textContent = 'Performing OCR...';
+                    substatusMessage.textContent = `Processing: ${progress}% complete`;
+                } else if (data.step === 'assembling') {
+                    statusMessage.textContent = 'Assembling document...';
+                    substatusMessage.textContent = 'Creating your DOCX file';
+                } else {
+                    statusMessage.textContent = 'Processing document...';
+                    substatusMessage.textContent = "OCR processing can take some time for large documents";
+                }
+                
+                if (progress > 0) {
                     // If we have actual progress, update progress bar
                     progressBar.classList.remove('progress-indeterminate');
-                    progressBar.style.width = `${data.progress}%`;
-                    substatusMessage.textContent = `Processing: ${data.progress}% complete`;
-                } else {
-                    substatusMessage.textContent = "OCR processing can take some time for large documents";
+                    progressBar.style.width = `${progress}%`;
                 }
             } else if (data.status === 'completed') {
                 statusMessage.textContent = 'Processing completed!';
                 substatusMessage.textContent = 'Redirecting to download page...';
                 progressBar.classList.remove('progress-indeterminate');
                 progressBar.style.width = '100%';
+                progressPercentage.textContent = '100%';
+                timeRemaining.textContent = '';
+                
+                // Update all stages to complete
+                updateStages('done', 100);
                 
                 // Redirect to results page
                 setTimeout(() => {
@@ -120,21 +297,32 @@
                 }, 1000);
             } else if (data.status === 'failed') {
                 statusMessage.textContent = 'Processing failed';
-                substatusMessage.textContent = data.error || 'An error occurred during processing';
+                substatusMessage.textContent = 'An error occurred during processing';
                 progressBar.classList.remove('progress-indeterminate');
                 progressBar.style.width = '100%';
                 progressBar.style.backgroundColor = '#EF4444'; // Red color for error
+                progressPercentage.textContent = '';
+                timeRemaining.textContent = '';
                 
-                // Redirect back to the index page with error
+                // Show error message
+                errorContainer.classList.remove('hidden');
+                errorMessage.textContent = data.error || 'Unknown error occurred';
+                
+                // Redirect back to the index page with error after a delay
                 setTimeout(() => {
                     window.location.href = data.redirect || '/';
-                }, 3000);
+                }, 5000);
             }
         }
         
         function checkStatus() {
             fetch(`/api/task_status/${taskId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.status === 'not_found') {
                         // If task not found, redirect to home
@@ -174,8 +362,16 @@
                 })
                 .catch(error => {
                     console.error('Error checking task status:', error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'mt-4 p-3 bg-yellow-50 text-yellow-700 rounded text-sm';
+                    errorDiv.textContent = `Connection error: ${error.message}. Retrying...`;
+                    document.querySelector('.p-6').appendChild(errorDiv);
+                    
                     // Retry after delay if there's a network error
-                    setTimeout(checkStatus, 3000);
+                    setTimeout(() => {
+                        errorDiv.remove();
+                        checkStatus();
+                    }, 5000);
                 });
         }
         

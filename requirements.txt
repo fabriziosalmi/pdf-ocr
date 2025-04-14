@@ -1,28 +1,34 @@
-Flask
-pytesseract
-pdf2image
-python-docx
-Pillow
-easyocr
-paddleocr
-ocrmypdf
-kraken
-calamari_ocr
-pyocr
-websockets
-opencv-python
-scikit-image
-scipy
-paddlepaddle
+# Web Framework
+Flask>=2.0.0
+werkzeug>=2.0.0
 
+# Core OCR Tools
+pytesseract>=0.3.8
+pdf2image>=1.16.0
+python-docx>=0.8.11
+Pillow>=8.0.0
 
+# Additional OCR Engines
+easyocr>=1.5.0
+paddleocr>=2.0.0
+paddlepaddle>=2.0.0  # Required by paddleocr
+kraken>=4.0.0
+pyocr>=0.8.0
 
+# Image Processing
+opencv-python>=4.5.0
+scikit-image>=0.18.0
+scipy>=1.7.0
+
+# Security and Performance
+gunicorn>=20.1.0  # WSGI production server
+python-dotenv>=0.19.0  # Environment variable management
 
 # Note: You also need to install poppler externally:
 # On macOS: brew install poppler
-# On Windows: Download from http://blog.alivate.com.au/poppler-windows/
+# On Windows: Download from https://github.com/oschwartz10612/poppler-windows/releases
 # On Linux: apt-get install poppler-utils
 # 
 # For Tesseract OCR languages:
 # On macOS: brew install tesseract-lang
-# On Linux: apt-get install tesseract-ocr-[lang] (replace [lang] with language code)
+# On Linux: apt-get install tesseract-ocr-[lang] (replace [lang] with language code) or tesseract-ocr-all

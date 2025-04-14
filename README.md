@@ -136,6 +136,26 @@ The application supports multiple OCR engines, each with different strengths:
 - **Kraken OCR**: Specialized for historical documents
 - **PyOCR**: Python wrapper for Tesseract and Cuneiform
 
+### Engine-Specific Installation
+
+For convenience, separate requirement files are provided for each engine:
+
+```bash
+# For basic Tesseract OCR (recommended for most users)
+pip install -r requirements-tesseract.txt
+
+# For EasyOCR
+pip install -r requirements-easyocr.txt
+
+# For PaddleOCR
+pip install -r requirements-paddleocr.txt
+
+# For all engines
+pip install -r requirements.txt
+```
+
+Note: Each OCR engine has different memory requirements and performance characteristics. Tesseract offers the best balance of speed and accuracy for most use cases. EasyOCR and PaddleOCR are more resource-intensive but may provide better results for certain languages or document types.
+
 ## Additional Language Support
 
 For Tesseract OCR, you can install additional language packs:
