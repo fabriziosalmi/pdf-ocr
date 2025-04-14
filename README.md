@@ -1,223 +1,137 @@
-# PDF to DOCX OCR Converter
+# PDF to DOCX/TXT/MD/HTML OCR Converter
 
-A web application that converts PDF documents to editable DOCX files using Optical Character Recognition (OCR). This tool is useful for extracting text from scanned documents, making them searchable and editable.
+[![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-![PDF to DOCX OCR Converter](https://via.placeholder.com/800x400?text=PDF+to+DOCX+OCR+Converter)
+A web-based application built with Flask to convert PDF documents into editable formats (DOCX, TXT, Markdown, HTML) using Optical Character Recognition (OCR). It supports multiple OCR engines and provides options for image preprocessing to improve accuracy.
+
+![Screenshot](placeholder.png) <!-- Add a relevant screenshot here -->
 
 ## Features
 
-- Convert PDF documents to editable DOCX or TXT files
-- Multiple OCR engine support (Tesseract, EasyOCR, PaddleOCR, Kraken, PyOCR)
-- Multi-language support
-- Adjustable quality settings
-- Preprocessing options for improved accuracy
-- Web-based interface
-- Background processing for large documents
-- Progress tracking
-
-![screenshot](https://github.com/fabriziosalmi/ocr-pdf-docx/blob/main/screenshot.png?raw=true)
+*   **Web Interface:** Simple drag-and-drop or browse interface for uploading PDF files.
+*   **Multiple Output Formats:** Convert PDFs to:
+    *   Microsoft Word (`.docx`)
+    *   Plain Text (`.txt`)
+    *   Markdown (`.md`)
+    *   HTML (`.html`)
+*   **Multiple OCR Engines:** Choose between:
+    *   **Tesseract:** (Default) Widely used, supports many languages.
+    *   **EasyOCR:** Often good for complex layouts or noisy images.
+    *   **PyOCR:** A wrapper that can use Tesseract or Cuneiform.
+*   **Language Support:** Select the document language for better Tesseract accuracy (including multi-language support).
+*   **Image Preprocessing:** Enhance image quality before OCR with options like:
+    *   Grayscale conversion
+    *   Sharpening
+    *   Denoising
+    *   Deskewing (straightening tilted text)
+    *   Thresholding (creating high-contrast images)
+    *   Border removal
+    *   Contrast adjustment
+    *   DPI selection (300 or 600 DPI)
+    *   Preset profiles for common scenarios (scanned documents, low quality, etc.).
+*   **Quality Settings:** Choose between standard (faster) and high quality (slower, potentially more accurate) OCR processing.
+*   **Background Processing:** Handles conversions asynchronously, allowing users to monitor progress.
+*   **Progress Tracking:** Real-time status updates during conversion.
+*   **Dependency Checker:** Includes a script to help install necessary system and Python dependencies.
+*   **In-App Installation Guide:** Provides installation instructions directly within the web interface via a modal.
+*   **Automatic Cleanup:** Periodically removes old uploaded and converted files.
 
 ## Installation
 
 ### Prerequisites
 
-The application requires the following dependencies:
+1.  **Python:** Version 3.7 or higher.
+2.  **pip:** Python package installer (usually comes with Python).
+3.  **Tesseract OCR Engine:**
+    *   **macOS:** `brew install tesseract tesseract-lang`
+    *   **Ubuntu/Debian:** `sudo apt-get update && sudo apt-get install tesseract-ocr libtesseract-dev tesseract-ocr-all` (Install desired language packs, e.g., `tesseract-ocr-fra`)
+    *   **Windows:** Download installer from [UB Mannheim Tesseract Wiki](https://github.com/UB-Mannheim/tesseract/wiki). **Ensure Tesseract is added to your system's PATH.**
+4.  **Poppler PDF Rendering Library:**
+    *   **macOS:** `brew install poppler`
+    *   **Ubuntu/Debian:** `sudo apt-get update && sudo apt-get install poppler-utils`
+    *   **Windows:** Download latest binaries from [Poppler for Windows Releases](https://github.com/oschwartz10612/poppler-windows/releases/). Extract and add the `bin/` directory to your system's PATH.
 
-- Python 3.7+
-- Flask
-- Poppler (for PDF conversion)
-- Tesseract OCR (for text recognition)
+### Using the Installer Script (Recommended)
 
-### Platform-specific Installation
-
-#### macOS
-
-```bash
-# Install Homebrew if not already installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install Poppler
-brew install poppler
-
-# Install Tesseract OCR
-brew install tesseract
-
-# Install Python dependencies
-pip install -r requirements.txt
-```
-
-#### Ubuntu/Debian
+The easiest way to install Python dependencies and check system prerequisites is using the provided script:
 
 ```bash
-# Install Poppler
-sudo apt-get update
-sudo apt-get install poppler-utils
-
-# Install Tesseract OCR
-sudo apt-get install tesseract-ocr
-
-# For additional languages (optional)
-sudo apt-get install tesseract-ocr-all
-# Or for specific languages (e.g., French)
-sudo apt-get install tesseract-ocr-fra
-
-# Install Python dependencies
-pip install -r requirements.txt
-```
-
-#### Windows
-
-1. **Install Poppler**:
-   - Download from [poppler-windows](https://github.com/oschwartz10612/poppler-windows/releases)
-   - Extract and add the `bin` directory to your PATH
-
-2. **Install Tesseract OCR**:
-   - Download the installer from [UB-Mannheim](https://github.com/UB-Mannheim/tesseract/wiki)
-   - During installation, check "Add to PATH"
-
-3. **Install Python dependencies**:
-   ```
-   pip install -r requirements.txt
-   ```
-
-### Docker Installation (Recommended)
-
-The easiest way to run this application is using Docker, which bundles all dependencies together:
-
-```bash
-# Clone the repository
-git clone https://github.com/fabriziosalmi/ocr-pdf-docx.git
+# Clone the repository (if you haven't already)
+git clone https://github.com/your-username/ocr-pdf-docx.git # Replace with your repo URL
 cd ocr-pdf-docx
 
-# Using docker-compose (recommended)
-docker-compose up -d
+# Run the installer script
+python install_dependencies.py
 
-# Alternatively, build and run the Docker image manually
-docker build -t ocr-pdf-docx .
-docker run -p 8011:8011 -v ./uploads:/app/uploads -e DOCKER_ENV=true ocr-pdf-docx
+# To install optional OCR engines (EasyOCR, PyOCR):
+# python install_dependencies.py --engine easyocr
+# python install_dependencies.py --engine pyocr
+# python install_dependencies.py --engine all
 ```
 
-The Docker image includes:
-- All required system dependencies (Poppler, Tesseract)
-- Multiple language packs for Tesseract OCR
-- All Python dependencies
+The script will:
+*   Check your Python version.
+*   Install core Python packages (`Flask`, `pytesseract`, `python-docx`, `pdf2image`, `Pillow`, etc.).
+*   Check if Tesseract and Poppler are accessible via the system PATH.
+*   Optionally install dependencies for EasyOCR and PyOCR.
 
-Once the container is running, access the application at http://localhost:8011
+### Manual Installation
 
-#### Docker Configuration Options
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/ocr-pdf-docx.git # Replace with your repo URL
+    cd ocr-pdf-docx
+    ```
 
-You can customize the Docker deployment by:
-- Editing environment variables in the `docker-compose.yml` file
-- Mounting a volume for persistent storage with `-v ./uploads:/app/uploads`
-- Increasing container memory (2GB recommended for processing large documents)
+2.  **Install core Python dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **(Optional) Install dependencies for other OCR engines:**
+    ```bash
+    # For EasyOCR (may require manual PyTorch installation first - see https://pytorch.org/)
+    pip install -r requirements-easyocr.txt
+
+    # For PyOCR
+    pip install -r requirements-pyocr.txt
+    ```
+
+4.  **Verify System Dependencies:** Ensure Tesseract and Poppler are installed and accessible in your system's PATH.
 
 ## Usage
 
-1. Start the application:
-   ```bash
-   python app.py
-   ```
+1.  **Start the Flask application:**
+    ```bash
+    python app.py
+    ```
+    The application will be available at `http://127.0.0.1:8011` (or the configured host/port).
 
-2. Open your web browser and navigate to `http://localhost:8011`
+2.  **Open the web interface:** Navigate to the URL in your web browser.
 
-3. Upload a PDF file and select your preferred OCR engine and settings
+3.  **Upload PDF:** Drag and drop a PDF file onto the designated area or click to browse.
 
-4. Click "Upload and Convert" and wait for the process to complete
+4.  **Configure Options (Optional):**
+    *   Click the "Show" button next to "Options" to expand the settings panel.
+    *   **Preprocessing:** Enable and configure image enhancement options or select a preset profile. Adjust DPI if needed.
+    *   **Processing:** Select the desired OCR Engine (Tesseract, EasyOCR, PyOCR), Document Language (for Tesseract), and OCR Quality.
+    *   **Output:** Choose the desired Output Format (DOCX, TXT, MD, HTML).
 
-5. Download the resulting DOCX file
+5.  **Convert:** Click the "Upload and Convert" button.
 
-## OCR Engines
+6.  **Monitor Progress:** You will be redirected to a status page showing the conversion progress.
 
-The application supports multiple OCR engines, each with different strengths:
+7.  **Download:** Once complete, click the "Download" button on the success page.
 
-- **Tesseract OCR**: Fast and supports many languages
-- **EasyOCR**: Good for complex layouts and multiple languages
-- **PaddleOCR**: High accuracy for Asian languages
-- **Kraken OCR**: Specialized for historical documents
-- **PyOCR**: Python wrapper for Tesseract and Cuneiform
+8.  **Convert Another:** Click "Convert Another File" to return to the upload page.
 
-### Engine-Specific Installation
+## Configuration
 
-For convenience, separate requirement files are provided for each engine:
+The application can be configured using environment variables (e.g., in a `.env` file):
 
-```bash
-# For basic Tesseract OCR (recommended for most users)
-pip install -r requirements-tesseract.txt
+*   `FLASK_ENV`: Set to `development` for debug mode, `production` otherwise.
+*   `SECRET_KEY`: A strong, random secret key for session management. If not set, a temporary one is generated.
+*   `PORT`: The port the application runs on (default: `8011`).
 
-# For EasyOCR
-pip install -r requirements-easyocr.txt
-
-# For PaddleOCR
-pip install -r requirements-paddleocr.txt
-
-# For all engines
-pip install -r requirements.txt
-```
-
-Note: Each OCR engine has different memory requirements and performance characteristics. Tesseract offers the best balance of speed and accuracy for most use cases. EasyOCR and PaddleOCR are more resource-intensive but may provide better results for certain languages or document types.
-
-## Additional Language Support
-
-For Tesseract OCR, you can install additional language packs:
-
-- **Docker**: Already includes multiple languages (English, French, German, Spanish, Italian, Portuguese, Japanese, Chinese, Korean, Russian, Arabic, Hindi)
-- **macOS**: `brew install tesseract-lang`
-- **Linux**: `sudo apt-get install tesseract-ocr-[lang]` (replace [lang] with language code)
-- **Windows**: During Tesseract installation, select additional languages
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"Poppler is not installed" error**:
-   - Ensure Poppler is installed and added to your PATH
-   - For detailed installation guide, click "View installation guides" on the home page
-
-2. **"Tesseract OCR is not installed" error**:
-   - Ensure Tesseract is installed and added to your PATH
-   - Check if the correct version is installed using `tesseract --version`
-
-3. **Slow processing for large files**:
-   - Try using standard quality instead of high quality
-   - Consider splitting large PDFs into smaller files
-
-### Docker Troubleshooting
-
-1. **Container starts but application is not accessible**:
-   - Check container logs with `docker logs ocr-pdf-docx`
-   - Ensure port 8011 is not already in use on your host machine
-
-2. **Out of memory errors when processing large documents**:
-   - Increase container memory limit in docker-compose.yml:
-     ```yaml
-     deploy:
-       resources:
-         limits:
-           memory: 4G
-     ```
-
-3. **Slow performance in Docker**:
-   - Make sure you've allocated enough CPU resources to Docker
-   - Consider mounting a volume for the uploads directory for better performance
-
-### Advanced Configuration
-
-You can modify the following environment variables:
-
-- `PORT`: Change the default port (default: 8011)
-- `FLASK_ENV`: Set to "development" for debug mode
-- `SECRET_KEY`: Set a custom secret key for session management
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)
-- [EasyOCR](https://github.com/JaidedAI/EasyOCR)
-- [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)
-- [pdf2image](https://github.com/Belval/pdf2image)
-- [python-docx](https://github.com/python-openxml/python-docx)
-- [Flask](https://flask.palletsprojects.com/)
-- [TailwindCSS](https://tailwindcss.com/)
+Example `.env` file:

@@ -1,42 +1,41 @@
 # Core dependencies
-Flask==2.3.3
-Werkzeug==2.3.7
-Pillow>=9.4.0
-pytesseract>=0.3.10
-pdf2image>=1.16.3
-python-docx>=0.8.11
+Flask>=2.0.0
+Werkzeug>=2.1.0
+Pillow>=9.0.0 # Image handling
+pytesseract>=0.3.8 # Tesseract wrapper
+pdf2image>=1.16.0 # PDF to image conversion
+python-docx>=0.8.11 # DOCX creation
 
-# Tesseract wrapper (always works)
-pytesseract>=0.3.10
-
-# EasyOCR (optional)
-easyocr>=1.7.0
-
-# PaddleOCR (optional - may have compatibility issues)
-# paddlepaddle==2.4.2  # CPU version
-# paddleocr==2.6.0.3
-
-# Kraken (optional - requires specific protobuf version)
-# kraken==4.3.0
-# protobuf<=3.20.0  # Required for Kraken compatibility
-
-# PyOCR (optional)
-# pyocr>=0.8.3
-
-# Image Processing
-opencv-python>=4.5.0
-scikit-image>=0.18.0
-scipy>=1.7.0
+# Image Preprocessing (Optional but used by enhance_image)
+# Pillow also handles some basic enhancements
+# Add others if specific preprocessing functions require them, e.g.:
+# opencv-python>=4.5.0
+# scikit-image>=0.18.0
+# scipy>=1.7.0
 
 # Security and Performance
-gunicorn>=20.1.0  # WSGI production server
-python-dotenv>=0.19.0  # Environment variable management
+gunicorn>=20.1.0 # WSGI production server (Recommended for deployment)
+python-dotenv>=0.19.0 # Environment variable management
 
+# --- Optional OCR Engine Dependencies ---
+# Install these separately if needed, e.g., using install_dependencies.py script
+# or requirements-*.txt files
+
+# For EasyOCR (see requirements-easyocr.txt)
+# easyocr>=1.7.0
+# torch>=1.7.0 # Check PyTorch website for specific installation instructions
+# torchvision>=0.8.1
+
+# For PyOCR (see requirements-pyocr.txt)
+# pyocr>=0.8.3
+
+# --- External System Dependencies (Not installed via pip) ---
 # Note: You also need to install poppler externally:
 # On macOS: brew install poppler
 # On Windows: Download from https://github.com/oschwartz10612/poppler-windows/releases
 # On Linux: apt-get install poppler-utils
 # 
-# For Tesseract OCR languages:
-# On macOS: brew install tesseract-lang
-# On Linux: apt-get install tesseract-ocr-[lang] (replace [lang] with language code) or tesseract-ocr-all
+# Note: You also need to install Tesseract OCR engine externally:
+# On macOS: brew install tesseract tesseract-lang
+# On Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
+# On Linux: apt-get install tesseract-ocr tesseract-ocr-all (or specific languages)
