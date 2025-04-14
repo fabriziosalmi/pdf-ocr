@@ -242,30 +242,245 @@
                                         <span id="toggle-text">Show</span>
                                     </button>
                                 </div>
-                                <div id="advanced-options" class="hidden bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-                                    <!-- Pre-processing Options -->
-                                    <div>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="preprocess" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">Apply image preprocessing</span>
-                                        </label>
-                                        <p class="ml-6 text-xs text-gray-500">Improve image quality before OCR</p>
+                                <div id="advanced-options" class="hidden bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                                    <!-- Section navigation -->
+                                    <div class="flex border-b border-gray-200 pb-2 mb-4">
+                                        <button type="button" data-section="preprocessing" class="section-nav-btn mr-4 px-3 py-1 text-sm font-medium rounded-md bg-indigo-100 text-indigo-700">Preprocessing</button>
+                                        <button type="button" data-section="processing" class="section-nav-btn mr-4 px-3 py-1 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100">Processing</button>
+                                        <button type="button" data-section="output" class="section-nav-btn px-3 py-1 text-sm font-medium rounded-md text-gray-500 hover:bg-gray-100">Output</button>
                                     </div>
-                                    <!-- DPI Settings -->
-                                    <div>
-                                        <label for="dpi" class="block text-sm font-medium text-gray-700 mb-1">DPI (Resolution)</label>
-                                        <select id="dpi" name="dpi" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
-                                            <option value="300" selected>300 DPI (Standard)</option>
-                                            <option value="600">600 DPI (High)</option>
-                                        </select>
+                                    
+                                    <!-- 1. Preprocessing Section -->
+                                    <div id="preprocessing-section" class="options-section space-y-6">
+                                        <h4 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd" />
+                                            </svg>
+                                            Image Preprocessing
+                                        </h4>
+                                        
+                                        <!-- Pre-processing Options - Enhanced -->
+                                        <div>
+                                            <div class="flex items-start">
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" id="preprocess-toggle" name="preprocess" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                    <span class="ml-2 text-sm text-gray-700 font-medium">Apply image preprocessing</span>
+                                                </label>
+                                                <button type="button" id="toggle-preprocess-options" class="ml-2 text-xs text-indigo-600 hover:text-indigo-800 mt-0.5">
+                                                    <span id="preprocess-toggle-text">Show Options</span>
+                                                </button>
+                                            </div>
+                                            <p class="ml-6 text-xs text-gray-500">Improve image quality before OCR</p>
+                                            
+                                            <!-- Preprocessing Options Panel -->
+                                            <div id="preprocessing-options" class="mt-3 ml-6 hidden space-y-4 border-t border-gray-200 pt-4">
+                                                <!-- Preset Profiles - Moved to top for better UX -->
+                                                <div>
+                                                    <label for="preprocessing-profile" class="block text-sm text-gray-700 mb-1">Preset Profiles</label>
+                                                    <select id="preprocessing-profile" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
+                                                        <option value="custom" selected>Custom</option>
+                                                        <option value="default">Default</option>
+                                                        <option value="text-heavy">Text-heavy Document</option>
+                                                        <option value="scanned">Scanned Document</option>
+                                                        <option value="low-quality">Low Quality Image</option>
+                                                        <option value="printed">Printed Text</option>
+                                                        <option value="handwriting">Handwriting</option>
+                                                    </select>
+                                                    <p class="text-xs text-gray-500 mt-1">Select a preset or customize options below</p>
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <!-- Grayscale -->
+                                                    <div>
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" name="pre-grayscale" value="1" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                            <span class="ml-2 text-sm text-gray-700">Grayscale</span>
+                                                        </label>
+                                                        <p class="ml-6 text-xs text-gray-500">Convert to black and white</p>
+                                                    </div>
+                                                    
+                                                    <!-- Sharpen -->
+                                                    <div>
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" name="pre-sharpen" value="1" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                            <span class="ml-2 text-sm text-gray-700">Sharpen</span>
+                                                        </label>
+                                                        <p class="ml-6 text-xs text-gray-500">Improve text edges</p>
+                                                    </div>
+                                                    
+                                                    <!-- Denoise -->
+                                                    <div>
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" name="pre-denoise" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                            <span class="ml-2 text-sm text-gray-700">Denoise</span>
+                                                        </label>
+                                                        <p class="ml-6 text-xs text-gray-500">Remove image noise</p>
+                                                    </div>
+                                                    
+                                                    <!-- Deskew -->
+                                                    <div>
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" name="pre-deskew" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                            <span class="ml-2 text-sm text-gray-700">Deskew</span>
+                                                        </label>
+                                                        <p class="ml-6 text-xs text-gray-500">Straighten tilted text</p>
+                                                    </div>
+                                                    
+                                                    <!-- Threshold -->
+                                                    <div>
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" name="pre-threshold" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                            <span class="ml-2 text-sm text-gray-700">Threshold</span>
+                                                        </label>
+                                                        <p class="ml-6 text-xs text-gray-500">Create high-contrast binary image</p>
+                                                    </div>
+                                                    
+                                                    <!-- Border Removal -->
+                                                    <div>
+                                                        <label class="flex items-center">
+                                                            <input type="checkbox" name="pre-border-removal" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                            <span class="ml-2 text-sm text-gray-700">Border Removal</span>
+                                                        </label>
+                                                        <p class="ml-6 text-xs text-gray-500">Remove page edges/borders</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Contrast Slider -->
+                                                <div>
+                                                    <label for="pre-contrast" class="block text-sm text-gray-700">Contrast Adjustment</label>
+                                                    <div class="flex items-center mt-1">
+                                                        <input type="range" min="0.5" max="2.5" step="0.1" value="1.5" name="pre-contrast" id="pre-contrast" 
+                                                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                        <span id="contrast-value" class="ml-2 text-xs text-gray-600 w-8 text-right">1.5</span>
+                                                    </div>
+                                                    <p class="text-xs text-gray-500 mt-1">Higher values increase contrast (1.0 = normal)</p>
+                                                </div>
+                                                
+                                                <!-- DPI Settings -->
+                                                <div>
+                                                    <label for="dpi" class="block text-sm text-gray-700 mb-1">DPI (Resolution)</label>
+                                                    <select id="dpi" name="dpi" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
+                                                        <option value="300" selected>300 DPI (Standard)</option>
+                                                        <option value="600">600 DPI (High)</option>
+                                                    </select>
+                                                    <p class="text-xs text-gray-500 mt-1">Higher DPI provides more detail but slower processing</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <!-- Output Format -->
-                                    <div>
-                                        <label for="output-format" class="block text-sm font-medium text-gray-700 mb-1">Output Format</label>
-                                        <select id="output-format" name="output-format" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
-                                            <option value="docx" selected>DOCX (Microsoft Word)</option>
-                                            <option value="txt">TXT (Plain Text)</option>
-                                        </select>
+                                    
+                                    <!-- 2. Processing Section -->
+                                    <div id="processing-section" class="options-section hidden space-y-6">
+                                        <h4 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                                            </svg>
+                                            OCR Processing
+                                        </h4>
+                                        
+                                        <!-- Processing options -->
+                                        <div class="space-y-4">
+                                            <!-- OCR Engine Selection (Advanced) -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">OCR Engine</label>
+                                                <div class="flex space-x-3 mb-1 overflow-x-auto pb-2">
+                                                    <!-- Adjusted min-width and padding for tighter fit -->
+                                                    <div data-engine="tesseract" class="ocr-engine-option-adv flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center bg-indigo-50 border-indigo-300 min-w-[90px]">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> </svg>
+                                                        <span class="text-xs font-medium text-indigo-700 text-center">Tesseract</span>
+                                                    </div>
+                                                    <div data-engine="easyocr" class="ocr-engine-option-adv flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /> </svg>
+                                                        <span class="text-xs font-medium text-gray-800 text-center">EasyOCR</span>
+                                                    </div>
+                                                    <div data-engine="pyocr" class="ocr-engine-option-adv flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> </svg>
+                                                        <span class="text-xs font-medium text-gray-800 text-center">PyOCR</span>
+                                                    </div>
+                                                </div>
+                                                <div id="engine-warning-adv" class="mt-2"></div> <!-- Placeholder for warnings -->
+                                            </div>
+                                            
+                                            <!-- Language Selection (Advanced) -->
+                                            <div id="tesseract-options-adv">
+                                                <label for="language-adv" class="block text-sm font-medium text-gray-700 mb-1">Document Language</label>
+                                                <select id="language-adv" name="language-adv" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
+                                                    <option value="eng" selected>English</option>
+                                                    <option value="fra">French</option>
+                                                    <option value="deu">German</option>
+                                                    <option value="spa">Spanish</option>
+                                                    <option value="ita">Italian</option>
+                                                    <option value="por">Portuguese</option>
+                                                    <option value="chi_sim">Chinese (Simplified)</option>
+                                                    <option value="chi_tra">Chinese (Traditional)</option>
+                                                    <option value="jpn">Japanese</option>
+                                                    <option value="kor">Korean</option>
+                                                    <option value="rus">Russian</option>
+                                                    <option value="ara">Arabic</option>
+                                                    <option value="hin">Hindi</option>
+                                                    <option value="eng+fra+deu+spa">Multiple (en+fr+de+es)</option>
+                                                </select>
+                                                <p class="mt-1 text-xs text-gray-500">Select language for more accurate results (Tesseract only)</p>
+                                            </div>
+                                            
+                                            <!-- OCR Quality (Advanced) -->
+                                            <div>
+                                                <label for="ocr-quality-adv" class="block text-sm font-medium text-gray-700 mb-1">OCR Quality</label>
+                                                <select id="ocr-quality-adv" name="ocr-quality-adv" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
+                                                    <option value="standard" selected>Standard - Faster processing</option>
+                                                    <option value="high">High Quality - Better accuracy (slower)</option>
+                                                </select>
+                                                <p class="mt-1 text-xs text-gray-500">Higher quality is more accurate but takes longer</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 3. Output Section -->
+                                    <div id="output-section" class="options-section hidden space-y-6">
+                                        <h4 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd" />
+                                            </svg>
+                                            Output Settings
+                                        </h4>
+                                        
+                                        <!-- Output format options -->
+                                        <div class="space-y-4">
+                                            <!-- Output Format -->
+                                            <div>
+                                                <label for="output-format" class="block text-sm font-medium text-gray-700 mb-1">Output Format</label>
+                                                <select id="output-format" name="output-format" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-lg">
+                                                    <option value="docx" selected>DOCX (Microsoft Word)</option>
+                                                    <option value="txt">TXT (Plain Text)</option>
+                                                </select>
+                                                <p class="text-xs text-gray-500 mt-1">Select your preferred output format</p>
+                                            </div>
+                                            
+                                            <!-- Text Formatting -->
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Text Formatting (DOCX only)</label>
+                                                <div class="space-y-2">
+                                                    <label class="flex items-center">
+                                                        <input type="checkbox" name="preserve-paragraphs" value="1" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                        <span class="ml-2 text-sm text-gray-700">Preserve Paragraphs</span>
+                                                    </label>
+                                                    <label class="flex items-center">
+                                                        <input type="checkbox" name="detect-headings" value="1" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                                        <span class="ml-2 text-sm text-gray-700">Detect Headings (Experimental)</span>
+                                                    </label>
+                                                </div>
+                                                <p class="text-xs text-gray-500 mt-1">Enhance document structure in the output file</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section navigation controls -->
+                                    <div class="pt-4 flex justify-between items-center border-t border-gray-200 text-sm">
+                                        <button type="button" id="prev-section" class="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Previous</button>
+                                        <div class="text-gray-500">
+                                            Step <span id="current-step">1</span> of <span id="total-steps">3</span>
+                                        </div>
+                                        <button type="button" id="next-section" class="px-3 py-1 rounded-md border border-transparent bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
                                     </div>
                                 </div>
                             </div>
@@ -311,221 +526,486 @@
                             We've created an automatic installer script to set up all dependencies correctly.
                         </p>
                         <pre class="bg-green-100 p-3 rounded overflow-x-auto"><code>python install_dependencies.py</code></pre>
-                        <p class="text-green-600 text-sm mt-1">This will install Python dependencies including pdf2image and pytesseract.</p>
                     </div>
                     
                     <!-- Python Dependencies -->
-                    <div>
-                        <h4 class="font-medium text-lg text-gray-900 mb-3">Python Dependencies</h4>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-blue-50 rounded-lg">
-                                <h5 class="font-medium text-blue-700 mb-2">Required Python Packages</h5>
-                                <pre class="bg-blue-100 p-3 rounded overflow-x-auto"><code>pip install pdf2image pytesseract Pillow python-docx Flask</code></pre>
-                                <p class="text-xs text-blue-600 mt-2">If pdf2image is not working, make sure Poppler is installed (see below)</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Poppler Installation -->
-                    <div>
-                        <h4 class="font-medium text-lg text-gray-900 mb-3">Installing Poppler</h4>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-blue-50 rounded-lg">
-                                <h5 class="font-medium text-blue-700 mb-2">macOS</h5>
-                                <pre class="bg-blue-100 p-3 rounded"><code>brew install poppler</code></pre>
-                            </div>
-                            <div class="p-4 bg-green-50 rounded-lg">
-                                <h5 class="font-medium text-green-700 mb-2">Ubuntu/Debian</h5>
-                                <pre class="bg-green-100 p-3 rounded"><code>sudo apt-get install poppler-utils</code></pre>
-                            </div>
-                            <div class="p-4 bg-purple-50 rounded-lg">
-                                <h5 class="font-medium text-purple-700 mb-2">Windows</h5>
-                                <ol class="list-decimal ml-5 space-y-2">
-                                    <li>Download from <a href="https://github.com/oschwartz10612/poppler-windows/releases" class="text-indigo-600 hover:underline" target="_blank">GitHub</a></li>
-                                    <li>Extract the contents to a directory (e.g., <code>C:\Program Files\poppler</code>)</li>
-                                    <li>Add the bin directory to your PATH environment variable</li>
-                                </ol>
-                            </div>
-                        </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h4 class="font-semibold text-blue-800 flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                            </svg>
+                            Python Dependencies
+                        </h4>
+                        <p class="text-blue-700 mb-2">Install required Python packages using pip:</p>
+                        <pre class="bg-blue-100 p-3 rounded overflow-x-auto"><code>pip install -r requirements.txt</code></pre>
+                        <p class="text-sm text-blue-600 mt-2">This includes Flask, PyTesseract, python-docx, pdf2image, Pillow, and others.</p>
+                        
+                        <h5 class="font-medium text-blue-700 mt-4 mb-2">Optional OCR Engines:</h5>
+                        <p class="text-sm text-blue-600 mb-1">If you want to use EasyOCR or PyOCR, install their specific requirements:</p>
+                        <pre class="bg-blue-100 p-3 rounded overflow-x-auto"><code>pip install -r requirements-easyocr.txt
+pip install -r requirements-pyocr.txt</code></pre>
+                        <p class="text-sm text-blue-600 mt-1">Note: EasyOCR might require PyTorch. Follow <a href="https://pytorch.org/get-started/locally/" target="_blank" class="text-indigo-600 hover:underline">PyTorch installation instructions</a> if needed.</p>
                     </div>
 
-                    <!-- Tesseract Installation -->
-                    <div>
-                        <h4 class="font-medium text-lg text-gray-900 mb-3">Installing Tesseract OCR</h4>
-                        <div class="space-y-4">
-                            <div class="p-4 bg-blue-50 rounded-lg">
-                                <h5 class="font-medium text-blue-700 mb-2">macOS</h5>
-                                <pre class="bg-blue-100 p-3 rounded"><code>brew install tesseract</code></pre>
-                                <p class="mt-2 text-sm">For additional languages:</p>
-                                <pre class="bg-blue-100 p-3 rounded mt-1"><code>brew install tesseract-lang</code></pre>
-                            </div>
-                            <div class="p-4 bg-green-50 rounded-lg">
-                                <h5 class="font-medium text-green-700 mb-2">Ubuntu/Debian</h5>
-                                <pre class="bg-green-100 p-3 rounded"><code>sudo apt-get install tesseract-ocr</code></pre>
-                                <p class="mt-2 text-sm">For additional languages:</p>
-                                <pre class="bg-green-100 p-3 rounded mt-1"><code>sudo apt-get install tesseract-ocr-[lang]</code></pre>
-                                <p class="text-xs text-gray-600 mt-1">Replace [lang] with language code (e.g., fra for French)</p>
-                            </div>
-                            <div class="p-4 bg-purple-50 rounded-lg">
-                                <h5 class="font-medium text-purple-700 mb-2">Windows</h5>
-                                <ol class="list-decimal ml-5 space-y-2">
-                                    <li>Download installer from <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="text-indigo-600 hover:underline" target="_blank">UB-Mannheim</a></li>
-                                    <li>Run the installer and select additional languages if needed</li>
-                                    <li>Ensure "Add to PATH" is checked during installation</li>
-                                </ol>
-                            </div>
-                        </div>
+                    <!-- Poppler -->
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h4 class="font-semibold text-purple-800 flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                            </svg>
+                            Poppler (PDF Utilities)
+                        </h4>
+                        <p class="text-purple-700 mb-3">Required for converting PDF pages to images.</p>
+                        
+                        <h5 class="font-medium text-purple-700 mb-2">macOS</h5>
+                        <pre class="bg-purple-100 p-3 rounded"><code>brew install poppler</code></pre>
+                        
+                        <h5 class="font-medium text-purple-700 mt-4 mb-2">Ubuntu/Debian</h5>
+                        <pre class="bg-purple-100 p-3 rounded"><code>sudo apt-get update && sudo apt-get install poppler-utils</code></pre>
+                        
+                        <h5 class="font-medium text-purple-700 mt-4 mb-2">Windows</h5>
+                        <ol class="list-decimal ml-5 space-y-2 text-sm text-purple-600">
+                            <li>Download the latest Poppler binary from <a href="https://github.com/oschwartz10612/poppler-windows/releases/" class="text-indigo-600 hover:underline" target="_blank">Poppler for Windows Releases</a>.</li>
+                            <li>Extract the archive (e.g., using 7-Zip).</li>
+                            <li>Copy the contents of the `bin/` directory from the extracted Poppler folder to a location included in your system's PATH environment variable (e.g., `C:\poppler\bin`).</li>
+                            <li>Alternatively, add the Poppler `bin/` directory directly to your system's PATH.</li>
+                            <li>You might need to restart your command prompt or system for the PATH changes to take effect.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Tesseract -->
+                    <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                        <h4 class="font-semibold text-teal-800 flex items-center mb-3">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                                <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.18l3.75-7.5a1.65 1.65 0 012.96-.707l3.75 7.5a1.65 1.65 0 01-1.48 2.35H4.414l-.75 1.5a.5.5 0 00.708.708L5.586 13H14.414l.707.707a.5.5 0 00.708-.708l-.75-1.5h3.75a1.65 1.65 0 011.48 2.35l-3.75 7.5a1.65 1.65 0 01-2.96-.707l-3.75-7.5a1.65 1.65 0 010-1.18l-3.75-7.5zm17.67.707l-3.75-7.5a.15.15 0 00-.268-.064L10 9.586l-3.986-4.043a.15.15 0 00-.268.064l-3.75 7.5a.15.15 0 000 .108l3.75 7.5a.15.15 0 00.268.064L10 14.414l3.986 4.043a.15.15 0 00.268-.064l3.75-7.5a.15.15 0 000-.108z" clip-rule="evenodd" />
+                            </svg>
+                            Tesseract OCR
+                        </h4>
+                        <p class="text-teal-700 mb-3">The primary OCR engine.</p>
+                        
+                        <h5 class="font-medium text-teal-700 mb-2">macOS</h5>
+                        <pre class="bg-teal-100 p-3 rounded"><code>brew install tesseract</code></pre>
+                        <p class="text-sm text-teal-600 mt-1">To install all language packs:</p>
+                        <pre class="bg-teal-100 p-3 rounded mt-1"><code>brew install tesseract-lang</code></pre>
+                        
+                        <h5 class="font-medium text-teal-700 mt-4 mb-2">Ubuntu/Debian</h5>
+                        <pre class="bg-teal-100 p-3 rounded"><code>sudo apt-get update && sudo apt-get install tesseract-ocr</code></pre>
+                        <p class="text-sm text-teal-600 mt-1">To install language packs (e.g., French):</p>
+                        <pre class="bg-teal-100 p-3 rounded mt-1"><code>sudo apt-get install tesseract-ocr-[lang]</code></pre>
+                        <p class="text-xs text-teal-500 mt-1">Replace `[lang]` with the 3-letter language code (e.g., `fra`, `deu`, `spa`).</p>
+                        
+                        <h5 class="font-medium text-teal-700 mt-4 mb-2">Windows</h5>
+                         <ol class="list-decimal ml-5 space-y-2 text-sm text-teal-600">
+                            <li>Download the Tesseract installer from the <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="text-indigo-600 hover:underline" target="_blank">Tesseract at UB Mannheim page</a> (recommended).</li>
+                            <li>Run the installer. Make sure to select the language packs you need during installation.</li>
+                            <li>Ensure the Tesseract installation directory (e.g., `C:\Program Files\Tesseract-OCR`) is added to your system's PATH environment variable. The installer usually offers an option to do this.</li>
+                            <li>You might need to restart your command prompt or system for the PATH changes to take effect.</li>
+                        </ol>
                     </div>
                     
                     <!-- Troubleshooting -->
-                    <div>
-                        <h4 class="font-medium text-lg text-gray-900 mb-3">Troubleshooting</h4>
-                        <div class="p-4 bg-yellow-50 rounded-lg">
-                            <h5 class="font-medium text-yellow-700 mb-2">PDF2Image Not Working</h5>
-                            <p class="text-sm text-yellow-700 mb-2">If you get errors about pdf2image or Poppler:</p>
-                            <ol class="list-decimal ml-5 space-y-1 text-sm">
-                                <li>Make sure Poppler is installed correctly for your platform</li>
-                                <li>Check that the Poppler binaries are in your system PATH</li>
-                                <li>On Windows, you may need to set the path explicitly in your code</li>
-                                <li>Try running the test script: <code>python ocr_test.py</code></li>
-                            </ol>
-                        </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h4 class="font-semibold text-yellow-800 flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                            </svg>
+                            Troubleshooting
+                        </h4>
+                        
+                        <h5 class="font-medium text-yellow-700 mb-2">"Poppler not found" or PDF Conversion Errors</h5>
+                        <ul class="list-disc ml-5 space-y-1 text-sm text-yellow-600">
+                            <li>Ensure Poppler is installed correctly for your operating system.</li>
+                            <li>Verify that the Poppler `bin` directory is in your system's PATH environment variable.</li>
+                            <li>Restart the application or your terminal after modifying the PATH.</li>
+                        </ul>
+                        
+                        <h5 class="font-medium text-yellow-700 mt-4 mb-2">"Tesseract not found" or OCR Errors</h5>
+                         <ul class="list-disc ml-5 space-y-1 text-sm text-yellow-600">
+                            <li>Ensure Tesseract is installed correctly for your operating system.</li>
+                            <li>Verify that the Tesseract installation directory is in your system's PATH environment variable.</li>
+                            <li>Make sure you have installed the necessary language packs for Tesseract (e.g., `tesseract-ocr-eng`, `tesseract-ocr-fra`).</li>
+                             <li>On Windows, you might need to explicitly tell PyTesseract where Tesseract is installed by setting `pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'` in `app.py` (adjust the path if necessary).</li>
+                            <li>Restart the application or your terminal after modifying the PATH.</li>
+                        </ul>
+
+                        <h5 class="font-medium text-yellow-700 mt-4 mb-2">EasyOCR / PyOCR Errors</h5>
+                         <ul class="list-disc ml-5 space-y-1 text-sm text-yellow-600">
+                            <li>Ensure you have installed the specific requirements: `pip install -r requirements-easyocr.txt` or `pip install -r requirements-pyocr.txt`.</li>
+                            <li>EasyOCR might require specific versions of PyTorch or CUDA. Check the EasyOCR documentation for compatibility.</li>
+                            <li>PyOCR relies on an underlying OCR engine (usually Tesseract). Ensure Tesseract is installed and working.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="p-6 border-t border-gray-200 flex justify-end">
-                <a href="/guide" class="text-sm text-indigo-600 mr-4 hover:text-indigo-800">View detailed guide</a>
-                <button id="closeModalBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-medium">Close</button>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button id="closeModalBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">Close</button>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // Handle file selection UI
         const fileInput = document.getElementById('file');
-        const fileName = document.getElementById('file-name');
-        const form = document.getElementById('upload-form');
+        const fileNameDisplay = document.getElementById('file-name');
         const submitBtn = document.getElementById('submit-btn');
+        const form = document.getElementById('upload-form');
         const btnText = document.getElementById('btn-text');
         const loadingIcon = document.getElementById('loading-icon');
-        const tesseractOptions = document.getElementById('tesseract-options');
         const engineOptions = document.querySelectorAll('.ocr-engine-option');
         const engineInput = document.getElementById('ocr-engine');
+        const tesseractOptions = document.getElementById('tesseract-options');
         const toggleAdvanced = document.getElementById('toggle-advanced');
-        const toggleText = document.getElementById('toggle-text');
         const advancedOptions = document.getElementById('advanced-options');
+        const toggleText = document.getElementById('toggle-text');
         const showInstallGuideErrorBtn = document.getElementById('show-install-guide-error');
         
-        // File selection handling
+        // Advanced Options Elements
+        const sectionNavBtns = document.querySelectorAll('.section-nav-btn');
+        const optionsSections = document.querySelectorAll('.options-section');
+        const prevSectionBtn = document.getElementById('prev-section');
+        const nextSectionBtn = document.getElementById('next-section');
+        const currentStepSpan = document.getElementById('current-step');
+        const totalStepsSpan = document.getElementById('total-steps');
+        
+        // Duplicated Advanced Controls
+        const engineOptionsAdv = document.querySelectorAll('.ocr-engine-option-adv');
+        const tesseractOptionsAdv = document.getElementById('tesseract-options-adv');
+        const languageSelect = document.getElementById('language');
+        const languageSelectAdv = document.getElementById('language-adv');
+        const ocrQualitySelect = document.getElementById('ocr-quality');
+        const ocrQualitySelectAdv = document.getElementById('ocr-quality-adv');
+        const engineWarningAdv = document.getElementById('engine-warning-adv');
+
+        // File input handling
         fileInput.addEventListener('change', function() {
-            if (this.files && this.files.length > 0) {
-                fileName.textContent = this.files[0].name;
-                fileName.classList.remove('text-gray-500');
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.classList.remove('text-red-600'); // Remove error color if present
+                submitBtn.disabled = false;
             } else {
-                fileName.textContent = 'No file selected';
-                fileName.classList.add('text-gray-500');
+                fileNameDisplay.textContent = 'No file selected';
+                submitBtn.disabled = true;
             }
-            submitBtn.disabled = !this.files.length;
         });
         
-        // Engine selection handling
-        engineOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Prevent selection if engine is disabled
-                if (this.hasAttribute('data-disabled')) {
-                    alert("This OCR engine is not implemented.");
-                    return;
-                }
-                // Remove selection styling from all options
-                engineOptions.forEach(opt => {
+        // Function to update OCR engine selection visuals and hidden input
+        function updateEngineSelection(selectedEngine) {
+            engineInput.value = selectedEngine;
+            
+            // Update main UI buttons
+            engineOptions.forEach(opt => {
+                const engine = opt.getAttribute('data-engine');
+                const svg = opt.querySelector('svg');
+                const span = opt.querySelector('span');
+                if (engine === selectedEngine) {
+                    opt.classList.add('bg-indigo-50', 'border-indigo-300');
+                    opt.classList.remove('hover:bg-gray-50');
+                    svg.classList.add('text-indigo-600');
+                    svg.classList.remove('text-gray-400');
+                    span.classList.add('text-indigo-700');
+                    span.classList.remove('text-gray-800');
+                } else {
                     opt.classList.remove('bg-indigo-50', 'border-indigo-300');
                     opt.classList.add('hover:bg-gray-50');
-                    opt.querySelector('svg').classList.remove('text-indigo-600');
-                    opt.querySelector('svg').classList.add('text-gray-400');
-                    // Ensure text color consistency
-                    opt.querySelector('span').classList.remove('text-indigo-700'); 
-                    opt.querySelector('span').classList.add('text-gray-800');
-                });
-                
-                // Add selection styling to clicked option
-                this.classList.add('bg-indigo-50', 'border-indigo-300');
-                this.classList.remove('hover:bg-gray-50');
-                this.querySelector('svg').classList.add('text-indigo-600');
-                this.querySelector('svg').classList.remove('text-gray-400');
-                this.querySelector('span').classList.add('text-indigo-700'); // Highlight text too
-                this.querySelector('span').classList.remove('text-gray-800');
-                
-                // Update hidden input value
-                const engine = this.getAttribute('data-engine');
-                engineInput.value = engine;
-                
-                // Show/hide Tesseract-specific options and show warnings for other engines
-                if (engine === 'tesseract') {
-                    tesseractOptions.classList.remove('hidden');
-                    hideEngineWarning();
-                } else {
-                    tesseractOptions.classList.add('hidden');
-                    
-                    // Show appropriate warning for other engines
-                    if (engine === 'easyocr' || engine === 'pyocr') {
-                        showEngineWarning(engine);
-                    } else {
-                        hideEngineWarning();
-                    }
+                    svg.classList.remove('text-indigo-600');
+                    svg.classList.add('text-gray-400');
+                    span.classList.remove('text-indigo-700');
+                    span.classList.add('text-gray-800');
                 }
+            });
+            
+            // Update advanced UI buttons
+            engineOptionsAdv.forEach(opt => {
+                const engine = opt.getAttribute('data-engine');
+                const svg = opt.querySelector('svg');
+                const span = opt.querySelector('span');
+                 if (engine === selectedEngine) {
+                    opt.classList.add('bg-indigo-50', 'border-indigo-300');
+                    opt.classList.remove('hover:bg-gray-50');
+                    svg.classList.add('text-indigo-600');
+                    svg.classList.remove('text-gray-400');
+                    span.classList.add('text-indigo-700');
+                    span.classList.remove('text-gray-800');
+                } else {
+                    opt.classList.remove('bg-indigo-50', 'border-indigo-300');
+                    opt.classList.add('hover:bg-gray-50');
+                    svg.classList.remove('text-indigo-600');
+                    svg.classList.add('text-gray-400');
+                    span.classList.remove('text-indigo-700');
+                    span.classList.add('text-gray-800');
+                }
+            });
+
+            // Show/hide Tesseract options and warnings
+            if (selectedEngine === 'tesseract') {
+                tesseractOptions.classList.remove('hidden');
+                tesseractOptionsAdv.classList.remove('hidden');
+                hideEngineWarning(); // Hide main warning
+                hideEngineWarningAdv(); // Hide advanced warning
+            } else {
+                tesseractOptions.classList.add('hidden');
+                tesseractOptionsAdv.classList.add('hidden');
+                if (selectedEngine === 'easyocr' || selectedEngine === 'pyocr') {
+                    showEngineWarning(selectedEngine); // Show main warning
+                    showEngineWarningAdv(selectedEngine); // Show advanced warning
+                } else {
+                    hideEngineWarning();
+                    hideEngineWarningAdv();
+                }
+            }
+        }
+
+        // OCR Engine Selection (Main UI)
+        engineOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const engine = this.getAttribute('data-engine');
+                updateEngineSelection(engine);
             });
         });
         
-        // Show warning for non-Tesseract engines
+        // OCR Engine Selection (Advanced UI)
+        engineOptionsAdv.forEach(option => {
+            option.addEventListener('click', function() {
+                const engine = this.getAttribute('data-engine');
+                updateEngineSelection(engine);
+            });
+        });
+        
+        // Show warning for non-Tesseract engines (Main UI)
         function showEngineWarning(engine) {
-            // Create or update warning element
             let warningEl = document.getElementById('engine-warning');
             if (!warningEl) {
                 warningEl = document.createElement('div');
                 warningEl.id = 'engine-warning';
                 warningEl.className = 'mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-700';
-                tesseractOptions.parentNode.insertBefore(warningEl, tesseractOptions.nextSibling);
+                // Insert after the engine buttons container
+                const engineButtonContainer = document.querySelector('.ocr-engine-option').parentNode;
+                if (engineButtonContainer && engineButtonContainer.parentNode) {
+                    engineButtonContainer.parentNode.insertBefore(warningEl, engineButtonContainer.nextSibling);
+                } else {
+                    // Fallback: append to the parent div if insertion fails
+                    engineOptions[0].closest('div').appendChild(warningEl);
+                }
             }
             
-            const engineNames = {
-                'easyocr': 'EasyOCR',
-                'pyocr': 'PyOCR'
-            };
-            
+            const engineNames = { 'easyocr': 'EasyOCR', 'pyocr': 'PyOCR' };
             warningEl.innerHTML = `
                 <div class="flex items-start">
-                    <svg class="h-5 w-5 text-yellow-400 mr-1 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <div>
-                        <p>${engineNames[engine]} may require additional dependencies. If conversion fails, make sure it's properly installed:</p>
-                        <code class="block mt-1 p-1 bg-yellow-100 text-xs overflow-x-auto">pip install -r requirements-${engine}.txt</code>
-                    </div>
-                </div>
-            `;
+                    <svg class="h-5 w-5 text-yellow-400 mr-1 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /> </svg>
+                    <div> <p>${engineNames[engine]} may require additional dependencies. Check installation guide if conversion fails.</p> <code class="block mt-1 p-1 bg-yellow-100 text-xs overflow-x-auto">pip install -r requirements-${engine}.txt</code> </div>
+                </div>`;
+            warningEl.classList.remove('hidden');
         }
         
-        // Hide engine warning
+        // Hide engine warning (Main UI)
         function hideEngineWarning() {
             const warningEl = document.getElementById('engine-warning');
-            if (warningEl) {
-                warningEl.remove();
-            }
+            if (warningEl) warningEl.classList.add('hidden'); // Just hide, don't remove, to avoid layout shifts
         }
+
+        // Show warning for non-Tesseract engines (Advanced UI)
+        function showEngineWarningAdv(engine) {
+            const engineNames = { 'easyocr': 'EasyOCR', 'pyocr': 'PyOCR' };
+            engineWarningAdv.innerHTML = `
+                <div class="p-2 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-700">
+                    <div class="flex items-start">
+                        <svg class="h-5 w-5 text-yellow-400 mr-1 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /> </svg>
+                        <div> <p>${engineNames[engine]} may require additional dependencies. Check installation guide if conversion fails.</p> <code class="block mt-1 p-1 bg-yellow-100 text-xs overflow-x-auto">pip install -r requirements-${engine}.txt</code> </div>
+                    </div>
+                </div>`;
+            engineWarningAdv.classList.remove('hidden');
+        }
+
+        // Hide engine warning (Advanced UI)
+        function hideEngineWarningAdv() {
+            engineWarningAdv.innerHTML = ''; // Clear content
+            engineWarningAdv.classList.add('hidden');
+        }
+
+        // Synchronize Language Selection
+        languageSelect.addEventListener('change', function() {
+            languageSelectAdv.value = this.value;
+        });
+        languageSelectAdv.addEventListener('change', function() {
+            languageSelect.value = this.value;
+            // Update the name attribute of the main select to ensure it's submitted
+            languageSelect.name = 'language';
+            languageSelectAdv.name = 'language-adv'; // Prevent submission of this one
+        });
+
+        // Synchronize OCR Quality Selection
+        ocrQualitySelect.addEventListener('change', function() {
+            ocrQualitySelectAdv.value = this.value;
+        });
+        ocrQualitySelectAdv.addEventListener('change', function() {
+            ocrQualitySelect.value = this.value;
+             // Update the name attribute of the main select to ensure it's submitted
+            ocrQualitySelect.name = 'ocr-quality';
+            ocrQualitySelectAdv.name = 'ocr-quality-adv'; // Prevent submission
+        });
         
         // Toggle advanced options
         toggleAdvanced.addEventListener('click', function() {
             if (advancedOptions.classList.contains('hidden')) {
                 advancedOptions.classList.remove('hidden');
                 toggleText.textContent = 'Hide';
+                // Ensure the first section is shown by default
+                showSection('preprocessing'); 
             } else {
                 advancedOptions.classList.add('hidden');
                 toggleText.textContent = 'Show';
             }
         });
         
+        // --- Advanced Options Section Navigation ---
+        let currentSectionIndex = 0;
+        const sections = ['preprocessing', 'processing', 'output'];
+        totalStepsSpan.textContent = sections.length;
+
+        function showSection(sectionId) {
+            optionsSections.forEach(sec => {
+                if (sec.id === `${sectionId}-section`) {
+                    sec.classList.remove('hidden');
+                } else {
+                    sec.classList.add('hidden');
+                }
+            });
+
+            sectionNavBtns.forEach(btn => {
+                if (btn.getAttribute('data-section') === sectionId) {
+                    btn.classList.add('bg-indigo-100', 'text-indigo-700');
+                    btn.classList.remove('text-gray-500', 'hover:bg-gray-100');
+                } else {
+                    btn.classList.remove('bg-indigo-100', 'text-indigo-700');
+                    btn.classList.add('text-gray-500', 'hover:bg-gray-100');
+                }
+            });
+
+            currentSectionIndex = sections.indexOf(sectionId);
+            currentStepSpan.textContent = currentSectionIndex + 1;
+
+            // Update Prev/Next button states
+            prevSectionBtn.disabled = (currentSectionIndex === 0);
+            nextSectionBtn.disabled = (currentSectionIndex === sections.length - 1);
+        }
+
+        // Event listeners for section navigation buttons (tabs)
+        sectionNavBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const sectionId = this.getAttribute('data-section');
+                showSection(sectionId);
+            });
+        });
+
+        // Event listeners for Prev/Next buttons
+        prevSectionBtn.addEventListener('click', function() {
+            if (currentSectionIndex > 0) {
+                showSection(sections[currentSectionIndex - 1]);
+            }
+        });
+
+        nextSectionBtn.addEventListener('click', function() {
+            if (currentSectionIndex < sections.length - 1) {
+                showSection(sections[currentSectionIndex + 1]);
+            }
+        });
+
+        // --- End Advanced Options Section Navigation ---
+
+        // Toggle preprocessing options visibility
+        const preprocessToggle = document.getElementById('preprocess-toggle');
+        const togglePreprocessOptions = document.getElementById('toggle-preprocess-options');
+        const preprocessToggleText = document.getElementById('preprocess-toggle-text');
+        const preprocessingOptions = document.getElementById('preprocessing-options');
+        
+        togglePreprocessOptions.addEventListener('click', function() {
+            if (preprocessingOptions.classList.contains('hidden')) {
+                preprocessingOptions.classList.remove('hidden');
+                preprocessToggleText.textContent = 'Hide Options';
+            } else {
+                preprocessingOptions.classList.add('hidden');
+                preprocessToggleText.textContent = 'Show Options';
+            }
+        });
+        
+        // Show or hide preprocessing options when checkbox is clicked
+        preprocessToggle.addEventListener('change', function() {
+            // If checked and options are hidden, show them
+            if (this.checked && preprocessingOptions.classList.contains('hidden')) {
+                 preprocessingOptions.classList.remove('hidden');
+                 preprocessToggleText.textContent = 'Hide Options';
+            }
+            // If unchecked, ensure options are hidden (optional, could leave them open)
+            // else if (!this.checked && !preprocessingOptions.classList.contains('hidden')) {
+            //     preprocessingOptions.classList.add('hidden');
+            //     preprocessToggleText.textContent = 'Show Options';
+            // }
+        });
+        
+        // Contrast slider live update
+        const contrastSlider = document.getElementById('pre-contrast');
+        const contrastValue = document.getElementById('contrast-value');
+        
+        contrastSlider.addEventListener('input', function() {
+            contrastValue.textContent = parseFloat(this.value).toFixed(1);
+        });
+        
+        // Preprocessing profiles
+        const preprocessingProfile = document.getElementById('preprocessing-profile');
+        
+        // Define profiles
+        const profiles = {
+            'default': { 'grayscale': true, 'sharpen': true, 'contrast': 1.5, 'denoise': false, 'deskew': false, 'threshold': false, 'border-removal': false },
+            'text-heavy': { 'grayscale': true, 'sharpen': true, 'contrast': 1.7, 'denoise': true, 'deskew': true, 'threshold': false, 'border-removal': true },
+            'scanned': { 'grayscale': true, 'sharpen': true, 'contrast': 1.6, 'denoise': true, 'deskew': true, 'threshold': false, 'border-removal': true },
+            'low-quality': { 'grayscale': true, 'sharpen': true, 'contrast': 1.8, 'denoise': true, 'deskew': true, 'threshold': true, 'border-removal': true },
+            'printed': { 'grayscale': true, 'sharpen': true, 'contrast': 1.5, 'denoise': false, 'deskew': true, 'threshold': true, 'border-removal': true },
+            'handwriting': { 'grayscale': true, 'sharpen': false, 'contrast': 1.3, 'denoise': true, 'deskew': true, 'threshold': false, 'border-removal': true }
+        };
+        
+        // Apply profile settings
+        preprocessingProfile.addEventListener('change', function() {
+            const profile = this.value;
+            
+            if (profile !== 'custom' && profiles[profile]) {
+                const settings = profiles[profile];
+                document.querySelector('input[name="pre-grayscale"]').checked = settings['grayscale'];
+                document.querySelector('input[name="pre-sharpen"]').checked = settings['sharpen'];
+                document.querySelector('input[name="pre-denoise"]').checked = settings['denoise'];
+                document.querySelector('input[name="pre-deskew"]').checked = settings['deskew'];
+                document.querySelector('input[name="pre-threshold"]').checked = settings['threshold'];
+                document.querySelector('input[name="pre-border-removal"]').checked = settings['border-removal'];
+                contrastSlider.value = settings['contrast'];
+                contrastValue.textContent = parseFloat(settings['contrast']).toFixed(1);
+                
+                // Ensure the main preprocess toggle is checked if a profile is selected
+                if (!preprocessToggle.checked) {
+                    preprocessToggle.checked = true;
+                }
+                // Ensure the options panel is visible
+                if (preprocessingOptions.classList.contains('hidden')) {
+                    preprocessingOptions.classList.remove('hidden');
+                    preprocessToggleText.textContent = 'Hide Options';
+                }
+            }
+        });
+        
+        // Reset profile dropdown to 'Custom' if any individual option is changed
+        const individualOptions = preprocessingOptions.querySelectorAll('input[type="checkbox"], input[type="range"]');
+        individualOptions.forEach(opt => {
+            opt.addEventListener('change', function() {
+                preprocessingProfile.value = 'custom';
+            });
+        });
+
         // Form submission
         form.addEventListener('submit', function(e) {
+            // Ensure the correct language and quality values are submitted
+            languageSelect.name = 'language';
+            ocrQualitySelect.name = 'ocr-quality';
+            languageSelectAdv.name = 'language-adv'; // Don't submit this
+            ocrQualitySelectAdv.name = 'ocr-quality-adv'; // Don't submit this
+
             submitBtn.disabled = true;
             btnText.textContent = 'Processing...';
             loadingIcon.classList.remove('hidden');
@@ -533,13 +1013,15 @@
         
         // Installation guide modal handling
         const installGuideModal = document.getElementById('installGuideModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const closeModal = document.getElementById('closeModal');
-        
-        const showModal = () => {
+        const closeModalBtn = document.getElementById('closeModalBtn'); // Assuming this exists in the modal footer
+        const closeModalIcon = document.getElementById('closeModal'); // The 'X' icon
+        const viewGuideLinks = document.querySelectorAll('a[href="/guide"], #show-install-guide-error'); // Select all links that should open the modal
+
+        const showModal = (event) => {
+            event.preventDefault(); // Prevent default link behavior
             if (installGuideModal) {
                 installGuideModal.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
+                document.body.classList.add('overflow-hidden'); // Prevent background scrolling
             }
         };
         
@@ -550,17 +1032,13 @@
             }
         };
         
-        if (showInstallGuideErrorBtn) {
-            showInstallGuideErrorBtn.addEventListener('click', showModal);
-        }
+        // Attach event listener to all guide links
+        viewGuideLinks.forEach(link => {
+            link.addEventListener('click', showModal);
+        });
         
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', hideModal);
-        }
-        
-        if (closeModal) {
-            closeModal.addEventListener('click', hideModal);
-        }
+        if (closeModalBtn) closeModalBtn.addEventListener('click', hideModal);
+        if (closeModalIcon) closeModalIcon.addEventListener('click', hideModal);
         
         // Close modal on escape key
         document.addEventListener('keydown', function(e) {
@@ -569,11 +1047,10 @@
             }
         });
         
-        // Add click event outside modal to close it
-        document.addEventListener('click', function(e) {
-            if (installGuideModal && !installGuideModal.classList.contains('hidden') && 
-                !installGuideModal.querySelector('.bg-white').contains(e.target) && 
-                e.target !== showInstallGuideErrorBtn) {
+        // Close modal on clicking outside the modal content
+        installGuideModal.addEventListener('click', function(e) {
+             // Check if the click is directly on the modal background (the semi-transparent overlay)
+            if (e.target === installGuideModal) {
                 hideModal();
             }
         });
@@ -599,13 +1076,11 @@
             });
             
             function highlight() {
-                dropZone.classList.add('border-indigo-400');
-                dropZone.classList.add('bg-indigo-50/50');
+                dropZone.classList.add('border-indigo-400', 'bg-indigo-50/50');
             }
             
             function unhighlight() {
-                dropZone.classList.remove('border-indigo-400');
-                dropZone.classList.remove('bg-indigo-50/50');
+                dropZone.classList.remove('border-indigo-400', 'bg-indigo-50/50');
             }
             
             dropZone.addEventListener('drop', handleDrop, false);
@@ -614,13 +1089,37 @@
                 const dt = e.dataTransfer;
                 const files = dt.files;
                 if (files.length) {
-                    fileInput.files = files;
-                    // Trigger change event manually
-                    const event = new Event('change');
-                    fileInput.dispatchEvent(event);
+                    // Check if the dropped file is a PDF
+                    if (files[0].type === 'application/pdf') {
+                        fileInput.files = files;
+                        // Trigger change event manually
+                        const event = new Event('change');
+                        fileInput.dispatchEvent(event);
+                    } else {
+                        // Optionally provide feedback for wrong file type
+                        fileNameDisplay.textContent = 'Only PDF files are allowed';
+                        fileNameDisplay.classList.add('text-red-600');
+                        setTimeout(() => {
+                             fileNameDisplay.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'No file selected';
+                             fileNameDisplay.classList.remove('text-red-600');
+                        }, 3000);
+                    }
                 }
             }
         }
+
+        // Initial setup: Ensure correct engine state is reflected everywhere
+        updateEngineSelection(engineInput.value || 'tesseract');
+        // Ensure correct language/quality is synced initially
+        languageSelectAdv.value = languageSelect.value;
+        ocrQualitySelectAdv.value = ocrQualitySelect.value;
+        // Ensure correct names for submission
+        languageSelect.name = 'language';
+        ocrQualitySelect.name = 'ocr-quality';
+        languageSelectAdv.name = 'language-adv';
+        ocrQualitySelectAdv.name = 'ocr-quality-adv';
+
+
     </script>
 </body>
 </html>
