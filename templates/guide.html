@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Installation Guides</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6">Installation Guides for OCR Tools</h1>
+        
+        <!-- Core Dependencies -->
+        <div class="p-6 bg-blue-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-blue-800 text-lg mb-4">Core Dependencies</h4>
+            <!-- ...existing core dependencies content... -->
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-blue-100">
+                            <td class="py-2 font-medium">macOS:</td>
+                            <td class="py-2"><code class="bg-blue-100 px-2 py-1 rounded">brew install poppler</code></td>
+                        </tr>
+                        <tr class="border-b border-blue-100">
+                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
+                            <td class="py-2"><code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install poppler-utils</code></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-medium">Windows:</td>
+                            <td class="py-2">
+                                Download from <a href="https://github.com/oschwartz10612/poppler-windows" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">poppler-windows</a> and add to PATH
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tesseract OCR -->
+        <div class="p-6 bg-indigo-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-indigo-800 text-lg mb-4">Tesseract OCR</h4>
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-2">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-indigo-100">
+                            <td class="py-2 font-medium">macOS:</td>
+                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">brew install tesseract</code></td>
+                        </tr>
+                        <tr class="border-b border-indigo-100">
+                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
+                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr</code></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-medium">Windows:</td>
+                            <td class="py-2">
+                                Download installer from <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">UB-Mannheim</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-indigo-700 text-sm">For additional language packs, refer to Tesseract’s official installation instructions.</p>
+        </div>
+        
+        <!-- Kraken OCR -->
+        <div class="p-6 bg-purple-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-purple-800 text-lg mb-4">Kraken OCR</h4>
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-2">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-purple-100">
+                            <td class="py-2 font-medium">All systems:</td>
+                            <td class="py-2"><code class="bg-purple-100 px-2 py-1 rounded">pip install kraken</code></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-medium">Additional requirements:</td>
+                            <td class="py-2">May require additional system dependencies. See the <a href="https://github.com/mittagessen/kraken" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">official documentation</a>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-purple-700 text-sm">Note: Download Kraken models from the official repository and ensure all dependencies are met.</p>
+        </div>
+        
+        <!-- EasyOCR -->
+        <div class="p-6 bg-green-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-green-800 text-lg mb-4">EasyOCR</h4>
+            <p class="text-green-700">EasyOCR may require additional system dependencies such as PyTorch. Refer to the <a href="https://github.com/JaidedAI/EasyOCR" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">EasyOCR documentation</a> for details.</p>
+        </div>
+        
+        <!-- PaddleOCR -->
+        <div class="p-6 bg-teal-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-teal-800 text-lg mb-4">PaddleOCR</h4>
+            <p class="text-teal-700">PaddleOCR requires PaddlePaddle and additional dependencies. See the <a href="https://github.com/PaddlePaddle/PaddleOCR" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">PaddleOCR documentation</a> for instructions.</p>
+        </div>
+        
+        <!-- PyOCR -->
+        <div class="p-6 bg-emerald-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-emerald-800 text-lg mb-4">PyOCR</h4>
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-emerald-100">
+                            <td class="py-2 font-medium">All systems:</td>
+                            <td class="py-2"><code class="bg-emerald-100 px-2 py-1 rounded">pip install pyocr</code></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-medium">Requirements:</td>
+                            <td class="py-2">Requires either Tesseract or Cuneiform to be installed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="/" class="text-indigo-600 hover:text-indigo-800">&larr; Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

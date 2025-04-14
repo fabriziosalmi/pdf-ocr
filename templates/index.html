@@ -170,9 +170,7 @@
                             
                             <!-- Installation Guide Link & Debug Toggle -->
                             <div class="flex justify-start items-center text-sm mt-4">
-                                <button type="button" id="show-install-guide" class="text-indigo-600 hover:text-indigo-800">
-                                    View installation guides
-                                </button>
+                                <a href="/guide" class="text-indigo-600 hover:text-indigo-800">View installation guides</a>
                             </div>
                         </div>
                         
@@ -188,10 +186,6 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> </svg>
                                         <span class="text-xs font-medium text-gray-800 text-center">Tesseract</span>
                                     </div>
-                                    <div data-engine="ocrmypdf" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /> </svg>
-                                        <span class="text-xs font-medium text-gray-800 text-center">OCRmyPDF</span>
-                                    </div>
                                     <div data-engine="easyocr" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /> </svg>
                                         <span class="text-xs font-medium text-gray-800 text-center">EasyOCR</span>
@@ -203,10 +197,6 @@
                                     <div data-engine="kraken" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> </svg>
                                         <span class="text-xs font-medium text-gray-800 text-center">Kraken</span>
-                                    </div>
-                                    <div data-engine="calamari" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /> </svg>
-                                        <span class="text-xs font-medium text-gray-800 text-center">Calamari</span>
                                     </div>
                                     <div data-engine="pyocr" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 min-w-[90px]">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> </svg>
@@ -305,171 +295,6 @@
         </div> <!-- End main-card -->
     </div> <!-- End container-wrapper -->
     
-    <!-- Installation Guides Modal -->
-    <div id="install-guide-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4"> <!-- Added padding for small screens -->
-        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Installation Guides for OCR Tools</h3>
-                <button type="button" id="close-guide" class="text-gray-400 hover:text-gray-500">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="overflow-y-auto p-6 modal-scroll">
-                <div class="space-y-6">
-                    <!-- Core Dependencies -->
-                    <div class="p-6 bg-blue-50 rounded-xl">
-                        <h4 class="font-semibold text-blue-800 text-lg mb-4">Core Dependencies</h4>
-                        <div class="text-blue-700 space-y-4">
-                            <p class="font-medium text-blue-800">Poppler (Required for PDF processing)</p>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <table class="w-full text-sm">
-                                    <tbody>
-                                        <tr class="border-b border-blue-100">
-                                            <td class="py-2 font-medium">macOS:</td>
-                                            <td class="py-2"><code class="bg-blue-100 px-2 py-1 rounded">brew install poppler</code></td>
-                                        </tr>
-                                        <tr class="border-b border-blue-100">
-                                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
-                                            <td class="py-2"><code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install poppler-utils</code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 font-medium">Windows:</td>
-                                            <td class="py-2">
-                                                Download from <a href="https://github.com/oschwartz10612/poppler-windows" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">poppler-windows</a> and add to PATH
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Tesseract OCR -->
-                    <div class="p-6 bg-indigo-50 rounded-xl">
-                        <h4 class="font-semibold text-indigo-800 text-lg mb-4">Tesseract OCR</h4>
-                        <div class="text-indigo-700 space-y-4">
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <table class="w-full text-sm">
-                                    <tbody>
-                                        <tr class="border-b border-indigo-100">
-                                            <td class="py-2 font-medium">macOS:</td>
-                                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">brew install tesseract</code></td>
-                                        </tr>
-                                        <tr class="border-b border-indigo-100">
-                                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
-                                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr</code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 font-medium">Windows:</td>
-                                            <td class="py-2">
-                                                Download installer from <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">UB-Mannheim</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <p class="font-medium text-indigo-800 mt-4">Language Data:</p>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <table class="w-full text-sm">
-                                    <tbody>
-                                        <tr class="border-b border-indigo-100">
-                                            <td class="py-2 font-medium">macOS:</td>
-                                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">brew install tesseract-lang</code></td>
-                                        </tr>
-                                        <tr class="border-b border-indigo-100">
-                                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
-                                            <td class="py-2">
-                                                <code class="bg-indigo-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr-[lang]</code><br>
-                                                Replace [lang] with language code (e.g., fra, deu, spa)
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 font-medium">Windows:</td>
-                                            <td class="py-2">Additional language data files available in the installer</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Other engines sections are similar - same format but different content -->
-                    <!-- Add these sections inside the installation guides modal -->
-                    
-                    <!-- Kraken OCR -->
-                    <div class="p-6 bg-purple-50 rounded-xl">
-                        <h4 class="font-semibold text-purple-800 text-lg mb-4">Kraken OCR</h4>
-                        <div class="text-purple-700 space-y-4">
-                            <p>Specialized for historical documents and non-Latin scripts.</p>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <table class="w-full text-sm">
-                                    <tbody>
-                                        <tr class="border-b border-purple-100">
-                                            <td class="py-2 font-medium">All systems:</td>
-                                            <td class="py-2"><code class="bg-purple-100 px-2 py-1 rounded">pip install kraken</code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 font-medium">Additional requirements:</td>
-                                            <td class="py-2">May require additional dependencies based on your system. See the 
-                                                <a href="https://github.com/mittagessen/kraken" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">official documentation</a>.
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Calamari OCR -->
-                    <div class="p-6 bg-amber-50 rounded-xl">
-                        <h4 class="font-semibold text-amber-800 text-lg mb-4">Calamari OCR</h4>
-                        <div class="text-amber-700 space-y-4">
-                            <p>Deep learning based OCR engine for historical documents.</p>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <table class="w-full text-sm">
-                                    <tbody>
-                                        <tr class="border-b border-amber-100">
-                                            <td class="py-2 font-medium">All systems:</td>
-                                            <td class="py-2"><code class="bg-amber-100 px-2 py-1 rounded">pip install calamari_ocr</code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 font-medium">Note:</td>
-                                            <td class="py-2">Requires TensorFlow. Will be installed as a dependency.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- PyOCR -->
-                    <div class="p-6 bg-emerald-50 rounded-xl">
-                        <h4 class="font-semibold text-emerald-800 text-lg mb-4">PyOCR</h4>
-                        <div class="text-emerald-700 space-y-4">
-                            <p>A Python wrapper for Tesseract and Cuneiform OCR engines.</p>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <table class="w-full text-sm">
-                                    <tbody>
-                                        <tr class="border-b border-emerald-100">
-                                            <td class="py-2 font-medium">All systems:</td>
-                                            <td class="py-2"><code class="bg-emerald-100 px-2 py-1 rounded">pip install pyocr</code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 font-medium">Requirements:</td>
-                                            <td class="py-2">Requires either Tesseract or Cuneiform to be installed.</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <script>
         // Handle file selection UI
         const fileInput = document.getElementById('file');
@@ -484,10 +309,7 @@
         const toggleAdvanced = document.getElementById('toggle-advanced');
         const toggleText = document.getElementById('toggle-text');
         const advancedOptions = document.getElementById('advanced-options');
-        const showInstallGuideBtn = document.getElementById('show-install-guide');
         const showInstallGuideErrorBtn = document.getElementById('show-install-guide-error');
-        const installGuideModal = document.getElementById('install-guide-modal');
-        const closeGuideBtn = document.getElementById('close-guide');
         
         // File selection handling
         fileInput.addEventListener('change', function() {
@@ -504,6 +326,11 @@
         // Engine selection handling
         engineOptions.forEach(option => {
             option.addEventListener('click', function() {
+                // Prevent selection if engine is disabled
+                if (this.hasAttribute('data-disabled')) {
+                    alert("This OCR engine is not implemented.");
+                    return;
+                }
                 // Remove selection styling from all options
                 engineOptions.forEach(opt => {
                     opt.classList.remove('bg-indigo-50', 'border-indigo-300');
@@ -565,22 +392,9 @@
             document.body.classList.remove('overflow-hidden');
         };
         
-        if (showInstallGuideBtn) {
-            showInstallGuideBtn.addEventListener('click', showModal);
-        }
-        
         if (showInstallGuideErrorBtn) {
             showInstallGuideErrorBtn.addEventListener('click', showModal);
         }
-        
-        closeGuideBtn.addEventListener('click', hideModal);
-        
-        // Close modal when clicking outside
-        installGuideModal.addEventListener('click', function(e) {
-            if (e.target === installGuideModal) {
-                hideModal();
-            }
-        });
         
         // Close modal on escape key
         document.addEventListener('keydown', function(e) {

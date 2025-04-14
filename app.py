@@ -424,6 +424,11 @@ def new_conversion():
     # Redirect to index
     return redirect(url_for('index'))
 
+# NEW: Add the guide route to render the installation guide page
+@app.route('/guide')
+def guide():
+    return render_template('guide.html')
+
 if __name__ == '__main__':
     # Add initial dependency check
     deps_installed, message = check_dependencies()
