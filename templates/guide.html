@@ -5,34 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OCR Installation Guides</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // OS detection
+        function detectOS() {
+            const userAgent = window.navigator.userAgent;
+            if (userAgent.indexOf("Win") != -1) return "windows";
+            if (userAgent.indexOf("Mac") != -1) return "macos";
+            if (userAgent.indexOf("Linux") != -1 || userAgent.indexOf("X11") != -1) return "linux";
+            return "unknown";
+        }
+        
+        // Highlight relevant OS instructions on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            const os = detectOS();
+            
+            // First hide all OS-specific sections
+            document.querySelectorAll('[data-os]').forEach(el => {
+                el.classList.add('opacity-40');
+            });
+            
+            // Then highlight sections for detected OS
+            document.querySelectorAll(`[data-os="${os}"]`).forEach(el => {
+                el.classList.remove('opacity-40');
+                el.classList.add('bg-yellow-50', 'border-l-4', 'border-yellow-400', 'pl-4');
+            });
+            
+            // Update the header
+            const osDisplay = {
+                "windows": "Windows",
+                "macos": "macOS",
+                "linux": "Linux/Ubuntu",
+                "unknown": "Your System"
+            }[os] || "Your System";
+            
+            document.getElementById('detected-os').textContent = osDisplay;
+            document.getElementById('os-detection').classList.remove('hidden');
+        });
+    </script>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto p-6">
-        <h1 class="text-2xl font-bold mb-6">Installation Guides for OCR Tools</h1>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Installation Guides for OCR Tools</h1>
+            <div id="os-detection" class="hidden bg-indigo-100 text-indigo-800 px-4 py-2 rounded-full text-sm font-medium">
+                Detected OS: <span id="detected-os">Unknown</span>
+            </div>
+        </div>
+        
+        <!-- System Requirements Quick Check -->
+        <div class="p-6 bg-white rounded-xl shadow-md mb-8">
+            <h3 class="font-semibold text-gray-900 text-lg mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                Quick Dependency Checker
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Poppler Check -->
+                <div class="dependency-check">
+                    <div class="flex items-center mb-2">
+                        <span class="w-1/4 font-medium">Poppler:</span>
+                        <button id="check-poppler" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium py-1 px-3 rounded border border-indigo-200">
+                            Check Installation
+                        </button>
+                        <span id="poppler-status" class="ml-3 text-sm"></span>
+                    </div>
+                    <div id="poppler-details" class="mt-2 text-sm bg-gray-50 p-3 rounded hidden"></div>
+                </div>
+                
+                <!-- Tesseract Check -->
+                <div class="dependency-check">
+                    <div class="flex items-center mb-2">
+                        <span class="w-1/4 font-medium">Tesseract:</span>
+                        <button id="check-tesseract" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium py-1 px-3 rounded border border-indigo-200">
+                            Check Installation
+                        </button>
+                        <span id="tesseract-status" class="ml-3 text-sm"></span>
+                    </div>
+                    <div id="tesseract-details" class="mt-2 text-sm bg-gray-50 p-3 rounded hidden"></div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Note: The checker buttons will make API calls to test your environment. These checks verify the core dependencies required for the application.</p>
+            </div>
+        </div>
         
         <!-- Core Dependencies -->
         <div class="p-6 bg-blue-50 rounded-xl mb-6">
             <h4 class="font-semibold text-blue-800 text-lg mb-4">Core Dependencies</h4>
-            <!-- ...existing core dependencies content... -->
             <div class="bg-white p-4 rounded-lg shadow-sm">
-                <table class="w-full text-sm">
-                    <tbody>
-                        <tr class="border-b border-blue-100">
-                            <td class="py-2 font-medium">macOS:</td>
-                            <td class="py-2"><code class="bg-blue-100 px-2 py-1 rounded">brew install poppler</code></td>
-                        </tr>
-                        <tr class="border-b border-blue-100">
-                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
-                            <td class="py-2"><code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install poppler-utils</code></td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 font-medium">Windows:</td>
-                            <td class="py-2">
-                                Download from <a href="https://github.com/oschwartz10612/poppler-windows" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">poppler-windows</a> and add to PATH
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="mb-4">
+                    <h5 class="font-medium text-gray-700 mb-2">Poppler (PDF Utilities)</h5>
+                    <p class="text-sm text-gray-600 mb-3">Poppler is required for converting PDF files to images for OCR processing.</p>
+                    
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr class="border-b border-blue-100" data-os="macos">
+                                <td class="py-2 font-medium">macOS:</td>
+                                <td class="py-2">
+                                    <code class="bg-blue-100 px-2 py-1 rounded">brew install poppler</code>
+                                    <span class="ml-2 text-xs text-gray-500">Requires <a href="https://brew.sh/" target="_blank" class="text-blue-600 hover:underline">Homebrew</a></span>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-blue-100" data-os="linux">
+                                <td class="py-2 font-medium">Ubuntu/Debian:</td>
+                                <td class="py-2">
+                                    <code class="bg-blue-100 px-2 py-1 rounded">sudo apt-get install poppler-utils</code>
+                                </td>
+                            </tr>
+                            <tr data-os="windows">
+                                <td class="py-2 font-medium">Windows:</td>
+                                <td class="py-2">
+                                    <p>Download from <a href="https://github.com/oschwartz10612/poppler-windows" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">poppler-windows</a> and add the <code class="bg-blue-100 px-2 py-1 rounded">bin</code> directory to your PATH</p>
+                                    <div class="mt-1 text-xs text-gray-500">
+                                        <details>
+                                            <summary class="cursor-pointer hover:text-indigo-600">How to add to PATH in Windows</summary>
+                                            <ol class="mt-2 pl-4 list-decimal">
+                                                <li>Right-click on 'This PC' or 'My Computer' and select 'Properties'</li>
+                                                <li>Click on 'Advanced system settings'</li>
+                                                <li>Click on 'Environment Variables'</li>
+                                                <li>Under 'System variables', find and select 'Path', then click 'Edit'</li>
+                                                <li>Click 'New' and add the full path to the Poppler bin directory</li>
+                                                <li>Click 'OK' on all dialogs to save changes</li>
+                                            </ol>
+                                        </details>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd" />
+                        </svg>
+                        <p>Verify installation by running <code class="bg-gray-100 px-1">pdftoppm -v</code> in your terminal.</p>
+                    </div>
+                    
+                    <div class="mt-3 flex justify-end">
+                        <a href="https://poppler.freedesktop.org/" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">Official Poppler documentation →</a>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -40,82 +157,377 @@
         <div class="p-6 bg-indigo-50 rounded-xl mb-6">
             <h4 class="font-semibold text-indigo-800 text-lg mb-4">Tesseract OCR</h4>
             <div class="bg-white p-4 rounded-lg shadow-sm mb-2">
-                <table class="w-full text-sm">
-                    <tbody>
-                        <tr class="border-b border-indigo-100">
-                            <td class="py-2 font-medium">macOS:</td>
-                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">brew install tesseract</code></td>
-                        </tr>
-                        <tr class="border-b border-indigo-100">
-                            <td class="py-2 font-medium">Ubuntu/Debian:</td>
-                            <td class="py-2"><code class="bg-indigo-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr</code></td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 font-medium">Windows:</td>
-                            <td class="py-2">
-                                Download installer from <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">UB-Mannheim</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="mb-4">
+                    <h5 class="font-medium text-gray-700 mb-2">Tesseract OCR Engine</h5>
+                    <p class="text-sm text-gray-600 mb-3">Tesseract is the primary OCR engine used for text recognition.</p>
+                    
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr class="border-b border-indigo-100" data-os="macos">
+                                <td class="py-2 font-medium">macOS:</td>
+                                <td class="py-2">
+                                    <code class="bg-indigo-100 px-2 py-1 rounded">brew install tesseract</code>
+                                    <div class="mt-1">
+                                        <span class="text-xs text-gray-500">For additional languages:</span>
+                                        <code class="bg-indigo-100 px-2 py-1 rounded text-xs ml-2">brew install tesseract-lang</code>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-indigo-100" data-os="linux">
+                                <td class="py-2 font-medium">Ubuntu/Debian:</td>
+                                <td class="py-2">
+                                    <code class="bg-indigo-100 px-2 py-1 rounded">sudo apt-get install tesseract-ocr</code>
+                                    <div class="mt-1">
+                                        <span class="text-xs text-gray-500">For additional languages:</span>
+                                        <code class="bg-indigo-100 px-2 py-1 rounded text-xs ml-2">sudo apt-get install tesseract-ocr-all</code>
+                                        <span class="block text-xs text-gray-500 mt-1">Or for specific languages (e.g., French):</span>
+                                        <code class="bg-indigo-100 px-2 py-1 rounded text-xs">sudo apt-get install tesseract-ocr-fra</code>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-os="windows">
+                                <td class="py-2 font-medium">Windows:</td>
+                                <td class="py-2">
+                                    <p>Download installer from <a href="https://github.com/UB-Mannheim/tesseract/wiki" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">UB-Mannheim</a></p>
+                                    <p class="text-xs text-gray-500 mt-1">Important: During installation, check "Add to PATH" option and select additional languages if needed.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mb-2">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd" />
+                        </svg>
+                        <p>Verify installation by running <code class="bg-gray-100 px-1">tesseract --version</code> in your terminal.</p>
+                    </div>
+                    
+                    <div class="mt-3 bg-yellow-50 p-3 rounded-lg border border-yellow-100">
+                        <h6 class="font-medium text-yellow-800 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Common Installation Issues
+                        </h6>
+                        <ul class="mt-2 text-sm text-yellow-700 space-y-2">
+                            <li><strong>PATH issues:</strong> If 'command not found' occurs, ensure Tesseract is in your system PATH</li>
+                            <li><strong>Missing languages:</strong> Install additional language packs if you need non-English OCR</li>
+                            <li><strong>Windows DLL errors:</strong> Reinstall the Visual C++ Redistributable packages</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-3 flex justify-end">
+                        <a href="https://github.com/tesseract-ocr/tesseract" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">Official Tesseract documentation →</a>
+                    </div>
+                </div>
             </div>
-            <p class="text-indigo-700 text-sm">For additional language packs, refer to Tesseract’s official installation instructions.</p>
         </div>
         
-        <!-- Kraken OCR -->
+        <!-- Docker Environment -->
         <div class="p-6 bg-purple-50 rounded-xl mb-6">
-            <h4 class="font-semibold text-purple-800 text-lg mb-4">Kraken OCR</h4>
+            <h4 class="font-semibold text-purple-800 text-lg mb-4">Docker Installation (Alternative)</h4>
             <div class="bg-white p-4 rounded-lg shadow-sm mb-2">
-                <table class="w-full text-sm">
-                    <tbody>
-                        <tr class="border-b border-purple-100">
-                            <td class="py-2 font-medium">All systems:</td>
-                            <td class="py-2"><code class="bg-purple-100 px-2 py-1 rounded">pip install kraken</code></td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 font-medium">Additional requirements:</td>
-                            <td class="py-2">May require additional system dependencies. See the <a href="https://github.com/mittagessen/kraken" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">official documentation</a>.</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <p class="text-gray-700 mb-3">As an alternative to installing individual dependencies, you can use Docker to run the application with all dependencies pre-configured.</p>
+                
+                <div class="mb-4">
+                    <h5 class="font-medium text-gray-700 mb-2">1. Install Docker</h5>
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <tr class="border-b border-purple-100" data-os="macos">
+                                <td class="py-2 font-medium">macOS:</td>
+                                <td class="py-2">
+                                    <p>Download <a href="https://www.docker.com/products/docker-desktop" class="text-indigo-600 hover:underline" target="_blank">Docker Desktop for Mac</a></p>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-purple-100" data-os="linux">
+                                <td class="py-2 font-medium">Ubuntu/Debian:</td>
+                                <td class="py-2">
+                                    <code class="bg-purple-100 px-2 py-1 rounded">sudo apt-get install docker.io docker-compose</code>
+                                </td>
+                            </tr>
+                            <tr data-os="windows">
+                                <td class="py-2 font-medium">Windows:</td>
+                                <td class="py-2">
+                                    <p>Download <a href="https://www.docker.com/products/docker-desktop" class="text-indigo-600 hover:underline" target="_blank">Docker Desktop for Windows</a></p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mb-4">
+                    <h5 class="font-medium text-gray-700 mb-2">2. Run with Docker</h5>
+                    <div class="bg-gray-50 p-3 rounded">
+                        <p class="text-sm mb-2">Clone the repository and run with docker-compose:</p>
+                        <pre class="bg-gray-800 text-gray-100 p-3 rounded text-sm overflow-x-auto">
+git clone https://github.com/fabriziosalmi/ocr-pdf-docx.git
+cd ocr-pdf-docx
+docker-compose up -d</pre>
+                        <p class="text-xs text-gray-500 mt-2">This will start the application on port 8011, accessible at http://localhost:8011</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3 bg-green-50 p-3 rounded-lg border border-green-100">
+                    <h6 class="font-medium text-green-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        Benefits of Docker Installation
+                    </h6>
+                    <ul class="mt-2 text-sm text-green-700 space-y-1">
+                        <li>No need to install Tesseract, Poppler, or other dependencies</li>
+                        <li>Includes multiple language packs for Tesseract OCR</li>
+                        <li>Consistent environment across different operating systems</li>
+                        <li>Easier updates by pulling the latest image</li>
+                    </ul>
+                </div>
             </div>
-            <p class="text-purple-700 text-sm">Note: Download Kraken models from the official repository and ensure all dependencies are met.</p>
         </div>
         
-        <!-- EasyOCR -->
-        <div class="p-6 bg-green-50 rounded-xl mb-6">
-            <h4 class="font-semibold text-green-800 text-lg mb-4">EasyOCR</h4>
-            <p class="text-green-700">EasyOCR may require additional system dependencies such as PyTorch. Refer to the <a href="https://github.com/JaidedAI/EasyOCR" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">EasyOCR documentation</a> for details.</p>
+        <!-- Additional OCR Engines (Collapsed by default) -->
+        <div class="mb-6">
+            <details>
+                <summary class="p-4 bg-gray-50 rounded-t-xl border cursor-pointer hover:bg-gray-100 font-medium flex items-center text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Additional OCR Engines (Optional)
+                </summary>
+                <div class="border border-t-0 p-4 rounded-b-xl bg-white">
+                    <p class="text-sm text-gray-600 mb-4">These additional OCR engines are optional and can be installed for specific use cases.</p>
+                    
+                    <!-- Kraken OCR -->
+                    <div class="p-4 bg-purple-50 rounded-xl mb-4">
+                        <h4 class="font-semibold text-purple-800 text-lg mb-2">Kraken OCR</h4>
+                        <div class="bg-white p-3 rounded-lg shadow-sm mb-2">
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b border-purple-100">
+                                        <td class="py-2 font-medium">All systems:</td>
+                                        <td class="py-2"><code class="bg-purple-100 px-2 py-1 rounded">pip install kraken</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-medium">Additional requirements:</td>
+                                        <td class="py-2">May require additional system dependencies. See the <a href="https://github.com/mittagessen/kraken" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">official documentation</a>.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-purple-700 text-sm">Note: Download Kraken models from the official repository and ensure all dependencies are met.</p>
+                    </div>
+                    
+                    <!-- EasyOCR -->
+                    <div class="p-4 bg-green-50 rounded-xl mb-4">
+                        <h4 class="font-semibold text-green-800 text-lg mb-2">EasyOCR</h4>
+                        <div class="bg-white p-3 rounded-lg shadow-sm mb-2">
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b border-green-100">
+                                        <td class="py-2 font-medium">All systems:</td>
+                                        <td class="py-2"><code class="bg-green-100 px-2 py-1 rounded">pip install easyocr</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-green-700 text-sm">EasyOCR may require additional system dependencies such as PyTorch. Refer to the <a href="https://github.com/JaidedAI/EasyOCR" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">EasyOCR documentation</a> for details.</p>
+                    </div>
+                    
+                    <!-- PaddleOCR -->
+                    <div class="p-4 bg-teal-50 rounded-xl mb-4">
+                        <h4 class="font-semibold text-teal-800 text-lg mb-2">PaddleOCR</h4>
+                        <div class="bg-white p-3 rounded-lg shadow-sm mb-2">
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b border-teal-100">
+                                        <td class="py-2 font-medium">All systems:</td>
+                                        <td class="py-2"><code class="bg-teal-100 px-2 py-1 rounded">pip install paddleocr</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-teal-700 text-sm">PaddleOCR requires PaddlePaddle and additional dependencies. See the <a href="https://github.com/PaddlePaddle/PaddleOCR" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">PaddleOCR documentation</a> for instructions.</p>
+                    </div>
+                    
+                    <!-- PyOCR -->
+                    <div class="p-4 bg-emerald-50 rounded-xl">
+                        <h4 class="font-semibold text-emerald-800 text-lg mb-2">PyOCR</h4>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b border-emerald-100">
+                                        <td class="py-2 font-medium">All systems:</td>
+                                        <td class="py-2"><code class="bg-emerald-100 px-2 py-1 rounded">pip install pyocr</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-medium">Requirements:</td>
+                                        <td class="py-2">Requires either Tesseract or Cuneiform to be installed.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </details>
         </div>
         
-        <!-- PaddleOCR -->
-        <div class="p-6 bg-teal-50 rounded-xl mb-6">
-            <h4 class="font-semibold text-teal-800 text-lg mb-4">PaddleOCR</h4>
-            <p class="text-teal-700">PaddleOCR requires PaddlePaddle and additional dependencies. See the <a href="https://github.com/PaddlePaddle/PaddleOCR" class="text-indigo-600 hover:text-indigo-800 underline" target="_blank">PaddleOCR documentation</a> for instructions.</p>
-        </div>
-        
-        <!-- PyOCR -->
-        <div class="p-6 bg-emerald-50 rounded-xl mb-6">
-            <h4 class="font-semibold text-emerald-800 text-lg mb-4">PyOCR</h4>
-            <div class="bg-white p-4 rounded-lg shadow-sm">
-                <table class="w-full text-sm">
-                    <tbody>
-                        <tr class="border-b border-emerald-100">
-                            <td class="py-2 font-medium">All systems:</td>
-                            <td class="py-2"><code class="bg-emerald-100 px-2 py-1 rounded">pip install pyocr</code></td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 font-medium">Requirements:</td>
-                            <td class="py-2">Requires either Tesseract or Cuneiform to be installed.</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- Troubleshooting Section -->
+        <div class="p-6 bg-red-50 rounded-xl mb-6">
+            <h4 class="font-semibold text-red-800 text-lg mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                Troubleshooting Common Issues
+            </h4>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm space-y-4">
+                <!-- Common Issue 1 -->
+                <div class="border-b border-gray-200 pb-3">
+                    <h5 class="font-medium text-gray-800 mb-2">PDF Conversion Fails</h5>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-700 mb-2"><strong>Symptoms:</strong> "Poppler is not installed" error message or PDF conversion fails</p>
+                        <p class="text-sm font-medium text-gray-700 mb-1">Solutions:</p>
+                        <ul class="text-sm text-gray-600 list-disc ml-6 space-y-1">
+                            <li>Verify Poppler is installed correctly (run <code class="bg-gray-100 px-1">pdftoppm -v</code>)</li>
+                            <li>Check if Poppler is in your system PATH</li>
+                            <li>Try reinstalling Poppler</li>
+                            <li data-os="windows">Windows users: Make sure you've added the bin directory to PATH</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Common Issue 2 -->
+                <div class="border-b border-gray-200 pb-3">
+                    <h5 class="font-medium text-gray-800 mb-2">Tesseract OCR Problems</h5>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-700 mb-2"><strong>Symptoms:</strong> "Tesseract is not installed" error or blank/incorrect text in output</p>
+                        <p class="text-sm font-medium text-gray-700 mb-1">Solutions:</p>
+                        <ul class="text-sm text-gray-600 list-disc ml-6 space-y-1">
+                            <li>Verify Tesseract is installed correctly (run <code class="bg-gray-100 px-1">tesseract --version</code>)</li>
+                            <li>Ensure the language packs you need are installed</li>
+                            <li>Try using "high quality" mode for better results</li>
+                            <li>For images with complex layouts, try using EasyOCR or PaddleOCR</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Common Issue 3 -->
+                <div class="border-b border-gray-200 pb-3">
+                    <h5 class="font-medium text-gray-800 mb-2">Python Dependency Issues</h5>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-700 mb-2"><strong>Symptoms:</strong> Application fails to start or ModuleNotFoundError occurs</p>
+                        <p class="text-sm font-medium text-gray-700 mb-1">Solutions:</p>
+                        <ul class="text-sm text-gray-600 list-disc ml-6 space-y-1">
+                            <li>Reinstall Python dependencies with <code class="bg-gray-100 px-1">pip install -r requirements.txt</code></li>
+                            <li>Consider using a virtual environment (<code class="bg-gray-100 px-1">python -m venv venv</code>)</li>
+                            <li>Check for version conflicts in installed packages</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Common Issue 4 -->
+                <div>
+                    <h5 class="font-medium text-gray-800 mb-2">General Performance Issues</h5>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-700 mb-2"><strong>Symptoms:</strong> OCR is very slow or times out</p>
+                        <p class="text-sm font-medium text-gray-700 mb-1">Solutions:</p>
+                        <ul class="text-sm text-gray-600 list-disc ml-6 space-y-1">
+                            <li>Use "standard" quality instead of "high" for faster processing</li>
+                            <li>Split large PDFs into smaller files</li>
+                            <li>Increase memory allocation if using Docker</li>
+                            <li>Ensure your system has adequate CPU and RAM resources available</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="mt-4">
-            <a href="/" class="text-indigo-600 hover:text-indigo-800">&larr; Back to Home</a>
+        <div class="mt-6 flex justify-between items-center">
+            <a href="/" class="text-indigo-600 hover:text-indigo-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Home
+            </a>
+            
+            <button id="check-all-deps" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Check All Dependencies
+            </button>
         </div>
     </div>
+    
+    <script>
+        // Dependency checker functions
+        document.getElementById('check-poppler').addEventListener('click', async function() {
+            const statusEl = document.getElementById('poppler-status');
+            const detailsEl = document.getElementById('poppler-details');
+            
+            statusEl.textContent = "Checking...";
+            statusEl.className = "ml-3 text-sm text-gray-600";
+            
+            try {
+                const response = await fetch('/api/check-dependency?name=poppler');
+                const data = await response.json();
+                
+                if (data.installed) {
+                    statusEl.textContent = "Installed ✓";
+                    statusEl.className = "ml-3 text-sm text-green-600";
+                    detailsEl.innerHTML = `<p>Version: ${data.version || 'Unknown'}</p>`;
+                } else {
+                    statusEl.textContent = "Not installed ✗";
+                    statusEl.className = "ml-3 text-sm text-red-600";
+                    detailsEl.innerHTML = `<p>${data.message || 'Poppler is not installed or not found in PATH'}</p>`;
+                }
+                
+                detailsEl.classList.remove('hidden');
+            } catch (error) {
+                statusEl.textContent = "Check failed";
+                statusEl.className = "ml-3 text-sm text-orange-600";
+                detailsEl.innerHTML = `<p>Could not check Poppler installation from browser. Try running <code>pdftoppm -v</code> in your terminal.</p>`;
+                detailsEl.classList.remove('hidden');
+            }
+        });
+        
+        document.getElementById('check-tesseract').addEventListener('click', async function() {
+            const statusEl = document.getElementById('tesseract-status');
+            const detailsEl = document.getElementById('tesseract-details');
+            
+            statusEl.textContent = "Checking...";
+            statusEl.className = "ml-3 text-sm text-gray-600";
+            
+            try {
+                const response = await fetch('/api/check-dependency?name=tesseract');
+                const data = await response.json();
+                
+                if (data.installed) {
+                    statusEl.textContent = "Installed ✓";
+                    statusEl.className = "ml-3 text-sm text-green-600";
+                    detailsEl.innerHTML = `<p>Version: ${data.version || 'Unknown'}</p>
+                                        <p>Available languages: ${data.languages?.join(', ') || 'Unknown'}</p>`;
+                } else {
+                    statusEl.textContent = "Not installed ✗";
+                    statusEl.className = "ml-3 text-sm text-red-600";
+                    detailsEl.innerHTML = `<p>${data.message || 'Tesseract is not installed or not found in PATH'}</p>`;
+                }
+                
+                detailsEl.classList.remove('hidden');
+            } catch (error) {
+                statusEl.textContent = "Check failed";
+                statusEl.className = "ml-3 text-sm text-orange-600";
+                detailsEl.innerHTML = `<p>Could not check Tesseract installation from browser. Try running <code>tesseract --version</code> in your terminal.</p>`;
+                detailsEl.classList.remove('hidden');
+            }
+        });
+        
+        // Check all dependencies button
+        document.getElementById('check-all-deps').addEventListener('click', function() {
+            document.getElementById('check-poppler').click();
+            document.getElementById('check-tesseract').click();
+        });
+    </script>
 </body>
 </html>

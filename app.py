@@ -69,6 +69,44 @@ def check_dependencies():
     except Exception as e:
         return False, f"Error checking dependencies: {str(e)}"
 
+def check_dependency(name):
+    """Check a specific dependency and return detailed information"""
+    if DOCKER_ENV:
+        return True, {"installed": True, "version": "Docker Environment", "message": "Running in Docker container"}
+    
+    try:
+        if name.lower() == 'poppler':
+            try:
+                output = subprocess.check_output(['pdftoppm', '-v'], stderr=subprocess.STDOUT, text=True)
+                version = output.strip() if output else "Unknown version"
+                return True, {"installed": True, "version": version, "message": "Poppler is installed"}
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                return False, {"installed": False, "message": "Poppler is not installed or not in PATH"}
+        
+        elif name.lower() == 'tesseract':
+            try:
+                version_output = subprocess.check_output(['tesseract', '--version'], stderr=subprocess.STDOUT, text=True)
+                version = version_output.split('\n')[0] if version_output else "Unknown version"
+                
+                # Try to get available languages
+                langs_output = subprocess.check_output(['tesseract', '--list-langs'], stderr=subprocess.STDOUT, text=True)
+                langs = [l.strip() for l in langs_output.split('\n')[1:] if l.strip()]
+                
+                return True, {
+                    "installed": True, 
+                    "version": version, 
+                    "languages": langs,
+                    "message": "Tesseract is installed"
+                }
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                return False, {"installed": False, "message": "Tesseract is not installed or not in PATH"}
+        
+        else:
+            return False, {"installed": False, "message": f"Unknown dependency: {name}"}
+    
+    except Exception as e:
+        return False, {"installed": False, "message": f"Error checking {name}: {str(e)}"}
+
 @app.route('/')
 def index():
     # Check if dependencies are properly installed
@@ -451,6 +489,16 @@ def new_conversion():
 
     # Redirect to index
     return redirect(url_for('index'))
+
+@app.route('/api/check-dependency')
+def api_check_dependency():
+    """API endpoint to check if a specific dependency is installed"""
+    name = request.args.get('name', '')
+    if not name:
+        return jsonify({"error": "No dependency name provided"}), 400
+    
+    installed, data = check_dependency(name)
+    return jsonify(data)
 
 @app.route('/guide')
 def guide():
