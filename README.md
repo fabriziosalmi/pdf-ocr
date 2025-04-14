@@ -2,6 +2,8 @@
 
 A web application that converts PDF documents to editable DOCX files using Optical Character Recognition (OCR). This tool is useful for extracting text from scanned documents, making them searchable and editable.
 
+![PDF to DOCX OCR Converter](https://via.placeholder.com/800x400?text=PDF+to+DOCX+OCR+Converter)
+
 ## Features
 
 - Convert PDF documents to editable DOCX or TXT files
@@ -78,15 +80,36 @@ pip install -r requirements.txt
    pip install -r requirements.txt
    ```
 
-#### Docker (Alternative)
+### Docker Installation (Recommended)
+
+The easiest way to run this application is using Docker, which bundles all dependencies together:
 
 ```bash
-# Build the Docker image
-docker build -t ocr-pdf-docx .
+# Clone the repository
+git clone https://github.com/fabriziosalmi/ocr-pdf-docx.git
+cd ocr-pdf-docx
 
-# Run the container
-docker run -p 8011:8011 -e DOCKER_ENV=true ocr-pdf-docx
+# Using docker-compose (recommended)
+docker-compose up -d
+
+# Alternatively, build and run the Docker image manually
+docker build -t ocr-pdf-docx .
+docker run -p 8011:8011 -v ./uploads:/app/uploads -e DOCKER_ENV=true ocr-pdf-docx
 ```
+
+The Docker image includes:
+- All required system dependencies (Poppler, Tesseract)
+- Multiple language packs for Tesseract OCR
+- All Python dependencies
+
+Once the container is running, access the application at http://localhost:8011
+
+#### Docker Configuration Options
+
+You can customize the Docker deployment by:
+- Editing environment variables in the `docker-compose.yml` file
+- Mounting a volume for persistent storage with `-v ./uploads:/app/uploads`
+- Increasing container memory (2GB recommended for processing large documents)
 
 ## Usage
 
@@ -117,6 +140,7 @@ The application supports multiple OCR engines, each with different strengths:
 
 For Tesseract OCR, you can install additional language packs:
 
+- **Docker**: Already includes multiple languages (English, French, German, Spanish, Italian, Portuguese, Japanese, Chinese, Korean, Russian, Arabic, Hindi)
 - **macOS**: `brew install tesseract-lang`
 - **Linux**: `sudo apt-get install tesseract-ocr-[lang]` (replace [lang] with language code)
 - **Windows**: During Tesseract installation, select additional languages
@@ -136,6 +160,25 @@ For Tesseract OCR, you can install additional language packs:
 3. **Slow processing for large files**:
    - Try using standard quality instead of high quality
    - Consider splitting large PDFs into smaller files
+
+### Docker Troubleshooting
+
+1. **Container starts but application is not accessible**:
+   - Check container logs with `docker logs ocr-pdf-docx`
+   - Ensure port 8011 is not already in use on your host machine
+
+2. **Out of memory errors when processing large documents**:
+   - Increase container memory limit in docker-compose.yml:
+     ```yaml
+     deploy:
+       resources:
+         limits:
+           memory: 4G
+     ```
+
+3. **Slow performance in Docker**:
+   - Make sure you've allocated enough CPU resources to Docker
+   - Consider mounting a volume for the uploads directory for better performance
 
 ### Advanced Configuration
 
