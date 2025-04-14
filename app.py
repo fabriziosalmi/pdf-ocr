@@ -72,6 +72,11 @@ def index():
         flash(message, 'error')
     return render_template('index.html')
 
+def sanitize_text(text):
+    import re
+    # Remove control characters (except newline \n and tab \t)
+    return re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
+
 def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard"):
     """Process PDF (progress parts removed)"""
     try:
@@ -233,6 +238,8 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
                 text = f"[Error processing page {i+1} with {ocr_engine}]"
                 # Removed progress update
 
+            # Sanitize OCR output to remove problematic characters
+            text = sanitize_text(text)
             full_text += text + "\n\n" # Add page break representation
 
             # Add paragraph for each page with a page break
