@@ -12,23 +12,11 @@ from PIL import Image
 import uuid
 import time
 
-# <<< ADDED: Import HTTPBasicAuth
-from flask_httpauth import HTTPBasicAuth
-
 # Import the progress manager
 from progress_manager import ProgressManager
 from websocket_server import run_websocket_server
 
 app = Flask(__name__)
-
-# <<< ADDED: Initialize Flask-HTTPAuth
-auth = HTTPBasicAuth()
-
-# <<< ADDED: Define example username and password
-# --- WARNING: Do NOT use hardcoded credentials like this in production! ---
-# --- Use environment variables or a secure configuration method instead. ---
-EXAMPLE_USERNAME = "forza"  # Replace with your desired username
-EXAMPLE_PASSWORD = "roma"  # Replace with your desired password
 
 # Configuration
 UPLOAD_FOLDER = 'uploads'
@@ -50,21 +38,6 @@ websocket_thread.start()
 # Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
-# <<< ADDED: Password verification callback for HTTPBasicAuth
-@auth.verify_password
-def verify_password(username, password):
-    """Verifies the provided username and password."""
-    if username == EXAMPLE_USERNAME and password == EXAMPLE_PASSWORD:
-        return username  # Return username (or True) on successful authentication
-    return False         # Return False on failure
-
-# <<< ADDED: Optional error handler for 401 Unauthorized
-@auth.error_handler
-def auth_error():
-    """Returns a 401 Unauthorized error."""
-    # You could return a custom JSON response or render a template if needed
-    return "Unauthorized Access", 401
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -99,7 +72,6 @@ def check_dependencies():
         return False, f"Error checking dependencies: {str(e)}"
 
 @app.route('/')
-@auth.login_required  # <<< ADDED: Protect this route with basic auth
 def index():
     # Check if dependencies are properly installed
     deps_installed, message = check_dependencies()
@@ -209,7 +181,6 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
         return False, None, error_message
 
 @app.route('/upload', methods=['POST'])
-@auth.login_required # <<< ADDED: Protect this route
 def upload_file():
     # Check dependencies first
     deps_installed, message = check_dependencies()
@@ -276,12 +247,10 @@ def upload_file():
         return redirect(url_for('index'))
 
 @app.route('/progress/<conversion_id>')
-@auth.login_required # <<< ADDED: Protect this route
 def progress(conversion_id):
     """Show progress page for a specific conversion"""
     # Make sure the conversion ID matches the one in session
     if 'conversion_id' not in session or session['conversion_id'] != conversion_id:
-        # This check might become less critical with auth, but keep for session integrity
         flash('Invalid conversion session', 'error')
         return redirect(url_for('index'))
 
@@ -301,14 +270,12 @@ def progress(conversion_id):
                           progress=progress_data)
 
 @app.route('/api/progress/<conversion_id>')
-@auth.login_required # <<< ADDED: Protect this API route
 def get_progress(conversion_id):
     """API endpoint to get current progress"""
     progress_data = progress_manager.get_progress(conversion_id)
     return jsonify(progress_data)
 
 @app.route('/success')
-@auth.login_required # <<< ADDED: Protect this route
 def success():
     # Check if we have valid session data
     if 'docx_path' not in session or 'output_filename' not in session:
@@ -318,7 +285,6 @@ def success():
     return render_template('success.html', filename=session['output_filename'])
 
 @app.route('/download')
-@auth.login_required # <<< ADDED: Protect this route
 def download_file():
     # Check if we have valid session data
     if 'docx_path' not in session or 'output_filename' not in session:
@@ -341,7 +307,6 @@ def download_file():
     )
 
 @app.route('/new_conversion')
-@auth.login_required # <<< ADDED: Protect this route
 def new_conversion():
     # Clean up session data and files
     if 'pdf_path' in session and os.path.exists(session['pdf_path']):
