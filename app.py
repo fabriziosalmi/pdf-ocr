@@ -1,9 +1,8 @@
 import os
-import io
 import sys
+import time
 import subprocess
 import threading
-import time
 import multiprocessing
 import logging
 from flask import Flask, request, render_template, send_file, flash, redirect, url_for, session, jsonify
@@ -12,16 +11,15 @@ import pytesseract
 from docx import Document
 from PIL import Image
 import uuid
-import time
-import json
 from threading import Thread
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from functools import partial
 import shutil
 import tempfile
 import re
 import hashlib
 from datetime import datetime, timedelta
+from typing import Optional, Tuple, Dict, Any
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -62,88 +60,86 @@ CLEANUP_INTERVAL = 3600  # 1 hour in seconds
 TASK_TIMEOUT = 3600  # 1 hour in seconds
 LAST_CLEANUP_TIME = time.time()
 
-def allowed_file(filename):
+def allowed_file(filename: Optional[str]) -> bool:
     """Check if a file extension is allowed."""
     if not filename:
         return False
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def secure_clean_filename(filename):
+def secure_clean_filename(filename: str) -> str:
     """Secure and sanitize the filename."""
-    # First secure the filename 
     filename = secure_filename(filename)
-    # Remove potentially harmful characters
     filename = re.sub(r'[^\w\s.-]', '', filename)
-    # Replace spaces with underscores
     filename = filename.replace(' ', '_')
     return filename
 
-def cleanup_old_files():
+def cleanup_old_files() -> None:
     """Remove old files from the uploads directory and expired tasks."""
     global LAST_CLEANUP_TIME
-    
     current_time = time.time()
-    # Only run cleanup periodically
     if current_time - LAST_CLEANUP_TIME < CLEANUP_INTERVAL:
         return
-    
     LAST_CLEANUP_TIME = current_time
     logger.info("Running periodic cleanup")
-    
-    # Clean up old files
     try:
-        for filename in os.listdir(UPLOAD_FOLDER):
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
-            # If file is older than 24 hours, delete it
-            if os.path.isfile(file_path) and current_time - os.path.getmtime(file_path) > 86400:  # 24 hours
+        upload_path = Path(UPLOAD_FOLDER)
+        for file_path in upload_path.iterdir():
+            if file_path.is_file() and current_time - file_path.stat().st_mtime > 86400:
                 try:
-                    os.remove(file_path)
+                    file_path.unlink()
                     logger.info(f"Deleted old file: {file_path}")
                 except Exception as e:
                     logger.error(f"Error deleting old file {file_path}: {e}")
     except Exception as e:
         logger.error(f"Error during file cleanup: {e}")
-    
-    # Clean up old tasks
     expired_tasks = []
     for task_id, status in TASK_STATUS.items():
         if status.get("timestamp", 0) + TASK_TIMEOUT < current_time:
             expired_tasks.append(task_id)
-    
     for task_id in expired_tasks:
         TASK_STATUS.pop(task_id, None)
         TASK_RESULTS.pop(task_id, None)
         logger.info(f"Removed expired task: {task_id}")
 
-def check_dependencies():
-    """Check if all required dependencies are installed."""
-    try:
-        # In Docker, we can assume dependencies are installed
-        if DOCKER_ENV:
-            return True, "Running in Docker, dependencies assumed to be installed"
+_dependency_check_cache: Dict[str, Tuple[float, Tuple[bool, str]]] = {}
 
-        # Check for poppler on macOS using Homebrew
-        if sys.platform == 'darwin':  # macOS
+def check_dependencies() -> Tuple[bool, str]:
+    """Check if all required dependencies are installed. Caches result for 60s."""
+    cache_key = 'all'
+    now = time.time()
+    if cache_key in _dependency_check_cache:
+        ts, result = _dependency_check_cache[cache_key]
+        if now - ts < 60:
+            return result
+    try:
+        if DOCKER_ENV:
+            result = (True, "Running in Docker, dependencies assumed to be installed")
+            _dependency_check_cache[cache_key] = (now, result)
+            return result
+        if sys.platform == 'darwin':
             try:
-                # Try to import pdf2image
                 from pdf2image import convert_from_path
-                # Test with a simple pdf conversion call (with a non-existent file is fine)
                 convert_from_path.get_page_count('test.pdf')
             except Exception as e:
                 if "Unable to get page count. Is poppler installed and in PATH?" in str(e):
-                    return False, "Poppler is not installed or not in PATH. Install it with 'brew install poppler'"
-
-        # Check for Tesseract
+                    result = (False, "Poppler is not installed or not in PATH. Install it with 'brew install poppler'")
+                    _dependency_check_cache[cache_key] = (now, result)
+                    return result
         try:
-            output = subprocess.check_output(['tesseract', '--version'], stderr=subprocess.STDOUT)
+            subprocess.check_output(['tesseract', '--version'], stderr=subprocess.STDOUT)
         except (subprocess.CalledProcessError, FileNotFoundError):
-            return False, "Tesseract OCR is not installed or not in PATH. On macOS, install it with 'brew install tesseract'"
-
-        return True, "All dependencies are properly installed"
+            result = (False, "Tesseract OCR is not installed or not in PATH. On macOS, install it with 'brew install tesseract'")
+            _dependency_check_cache[cache_key] = (now, result)
+            return result
+        result = (True, "All dependencies are properly installed")
+        _dependency_check_cache[cache_key] = (now, result)
+        return result
     except Exception as e:
-        return False, f"Error checking dependencies: {str(e)}"
+        result = (False, f"Error checking dependencies: {str(e)}")
+        _dependency_check_cache[cache_key] = (now, result)
+        return result
 
-def check_dependency(name):
+def check_dependency(name: str) -> Tuple[bool, Dict[str, Any]]:
     """Check a specific dependency and return detailed information"""
     if DOCKER_ENV:
         return True, {"installed": True, "version": "Docker Environment", "message": "Running in Docker container"}
@@ -164,7 +160,7 @@ def check_dependency(name):
                 
                 # Try to get available languages
                 langs_output = subprocess.check_output(['tesseract', '--list-langs'], stderr=subprocess.STDOUT, text=True)
-                langs = [l.strip() for l in langs_output.split('\n')[1:] if l.strip()]
+                langs = [lang.strip() for lang in langs_output.split('\n')[1:] if lang.strip()]
                 
                 return True, {
                     "installed": True, 
@@ -199,13 +195,13 @@ def index():
         flash(message, 'error')
     return render_template('index.html')
 
-def sanitize_text(text):
+def sanitize_text(text: Optional[str]) -> str:
     """Sanitize text by removing control characters."""
     if not text:
         return ""
     return re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
 
-def enhance_image(image):
+def enhance_image(image: Image.Image) -> Image.Image:
     """Enhance image quality for better OCR results."""
     try:
         # Import here to avoid requiring these packages unless needed
@@ -227,7 +223,7 @@ def enhance_image(image):
         logger.warning(f"Image enhancement failed: {e}")
         return image  # Return original image if enhancement fails
 
-def process_image(i, image_path, ocr_engine, language, preprocess=False):
+def process_image(i: int, image_path: str, ocr_engine: str, language: str, preprocess: bool = False) -> Tuple[int, str]:
     """Process a single image with OCR (to be used in parallel processing)"""
     try:
         text = ""
@@ -342,7 +338,7 @@ def process_image(i, image_path, ocr_engine, language, preprocess=False):
         # We don't delete the file here as it will be managed by the main process
         pass
 
-def fix_common_ocr_errors(text):
+def fix_common_ocr_errors(text: str) -> str:
     """Fix common OCR errors in text."""
     if not text:
         return text
@@ -367,7 +363,7 @@ def fix_common_ocr_errors(text):
     
     return text
 
-def save_as_markdown(text_results, output_path):
+def save_as_markdown(text_results: Dict[int, str], output_path: str) -> None:
     """Save the extracted text results as a Markdown file."""
     with open(output_path, 'w', encoding='utf-8') as f:
         for i in sorted(text_results.keys()):
@@ -380,7 +376,7 @@ def save_as_markdown(text_results, output_path):
             if i < max(text_results.keys()):
                 f.write('---\n\n')
 
-def save_as_html(text_results, output_path, title="Converted Document"):
+def save_as_html(text_results: Dict[int, str], output_path: str, title: str = "Converted Document") -> None:
     """Save the extracted text results as a basic HTML file."""
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write('<!DOCTYPE html>\n')
@@ -408,7 +404,7 @@ def save_as_html(text_results, output_path, title="Converted Document"):
         f.write('</body>\n')
         f.write('</html>\n')
 
-def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", language="eng", quality="standard", preprocess=False, orig_filename=None, output_format="docx"):
+def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str = "tesseract", language: str = "eng", quality: str = "standard", preprocess: bool = False, orig_filename: Optional[str] = None, output_format: str = "docx") -> Tuple[bool, Optional[str], str]:
     """Process PDF with parallel processing for speed and handle different output formats"""
     temp_dir = None
     try:
@@ -588,7 +584,7 @@ def process_pdf_with_progress(pdf_path, conversion_id, ocr_engine="tesseract", l
             except Exception as e:
                 logger.error(f"Error cleaning up temporary directory: {e}")
 
-def run_task_in_background(func, task_id, *args, **kwargs):
+def run_task_in_background(func: callable, task_id: str, *args: Any, **kwargs: Any) -> str:
     """Run a function in a background thread and track its status"""
     def task_wrapper():
         try:
