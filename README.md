@@ -5,7 +5,7 @@
 
 A web-based application built with Flask to convert PDF documents into editable formats (DOCX, TXT, Markdown, HTML) using Optical Character Recognition (OCR). It supports multiple OCR engines and provides options for image preprocessing to improve accuracy.
 
-![Screenshot](placeholder.png) <!-- Add a relevant screenshot here -->
+![Screenshot](screenshot.png)
 
 ## Features
 
@@ -32,10 +32,13 @@ A web-based application built with Flask to convert PDF documents into editable 
     *   Preset profiles for common scenarios (scanned documents, low quality, etc.).
 *   **Quality Settings:** Choose between standard (faster) and high quality (slower, potentially more accurate) OCR processing.
 *   **Background Processing:** Handles conversions asynchronously, allowing users to monitor progress.
-*   **Progress Tracking:** Real-time status updates during conversion.
+*   **Progress Tracking:** Real-time status updates during conversion with time estimation.
 *   **Dependency Checker:** Includes a script to help install necessary system and Python dependencies.
 *   **In-App Installation Guide:** Provides installation instructions directly within the web interface via a modal.
 *   **Automatic Cleanup:** Periodically removes old uploaded and converted files.
+*   **Error Handling:** Robust error handling with user-friendly error messages.
+*   **Docker Support:** Run the application in a containerized environment for easy deployment.
+*   **Mobile-Friendly UI:** Responsive design that works on desktop, tablet, and mobile devices.
 
 ## Installation
 
@@ -100,6 +103,23 @@ The script will:
 
 4.  **Verify System Dependencies:** Ensure Tesseract and Poppler are installed and accessible in your system's PATH.
 
+### Docker Installation
+
+For a containerized setup (no need to install Tesseract or Poppler locally):
+
+1. **Build and run with Docker Compose:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Or build and run manually:**
+   ```bash
+   docker build -t ocr-pdf-docx .
+   docker run -p 8011:8011 ocr-pdf-docx
+   ```
+
+The application will be available at `http://localhost:8011`.
+
 ## Usage
 
 1.  **Start the Flask application:**
@@ -133,5 +153,63 @@ The application can be configured using environment variables (e.g., in a `.env`
 *   `FLASK_ENV`: Set to `development` for debug mode, `production` otherwise.
 *   `SECRET_KEY`: A strong, random secret key for session management. If not set, a temporary one is generated.
 *   `PORT`: The port the application runs on (default: `8011`).
+*   `DOCKER_ENV`: Set to `true` when running in Docker (automatically set in the Dockerfile).
 
 Example `.env` file:
+```
+FLASK_ENV=production
+SECRET_KEY=your_secret_key_here
+PORT=8011
+```
+
+## Troubleshooting
+
+### Dependency Issues
+
+#### Tesseract Not Found
+- Ensure Tesseract is installed correctly for your operating system.
+- Verify that the Tesseract installation directory is in your system's PATH environment variable.
+- On Windows, you may need to explicitly set the Tesseract path in `app.py`:
+  ```python
+  pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+  ```
+
+#### Poppler / PDF Conversion Issues
+- Ensure Poppler is installed and in your PATH.
+- On Windows, check the installation directory and ensure it's properly added to the PATH.
+- Restart your terminal/command prompt after making PATH changes.
+
+#### OCR Engine-Specific Issues
+- **EasyOCR**: Ensure PyTorch is installed correctly for your system (CPU or GPU version).
+- **PyOCR**: Make sure Tesseract is installed as PyOCR relies on it.
+
+### Common Errors
+
+#### Empty or Incomplete OCR Results
+- Try increasing the DPI settings to 600 DPI for better quality.
+- Enable preprocessing options like sharpening and contrast adjustment.
+- For low-quality scans, try using the "Low Quality Image" preset profile.
+- Different OCR engines may produce better results for certain documents; try switching engines.
+
+#### Performance Issues
+- Processing large PDF files can be memory-intensive. Ensure your system has sufficient RAM.
+- High-quality settings and certain preprocessing options significantly increase processing time.
+- The first run with EasyOCR may be slow as it downloads language models.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for the core OCR capability
+- [EasyOCR](https://github.com/JaidedAI/EasyOCR) for the alternative OCR engine
+- [PyOCR](https://gitlab.gnome.org/World/OpenPaperwork/pyocr) for the Tesseract/Cuneiform wrapper
+- [Flask](https://flask.palletsprojects.com/) for the web framework
+- [pdf2image](https://github.com/Belval/pdf2image) for PDF to image conversion
+- [python-docx](https://python-docx.readthedocs.io/) for DOCX creation
+- [Tailwind CSS](https://tailwindcss.com/) for the UI components
