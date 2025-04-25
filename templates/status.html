@@ -1,10 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Processing - PDF to DOCX OCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind for dark mode
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // Custom colors for dark mode if needed
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         /* Animation for spinner */
         @keyframes spinner {
@@ -42,75 +55,94 @@
             0% { left: -30%; }
             100% { left: 100%; }
         }
+
+        /* Transition for dark mode */
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
     </style>
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
+<body class="bg-gray-100 dark:bg-gray-900 h-screen flex items-center justify-center">
     <div class="container mx-auto px-4">
-        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-white">
-                <div class="flex items-center">
-                    <svg class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <h1 class="text-xl font-bold">Processing PDF</h1>
+        <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-white relative">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h1 class="text-xl font-bold">Processing PDF</h1>
+                    </div>
+                    
+                    <!-- Dark mode toggle button -->
+                    <button id="theme-toggle" type="button" class="text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white rounded-lg p-2">
+                        <!-- Sun icon (for dark mode - will show when dark mode is on) -->
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                        </svg>
+                        <!-- Moon icon (for light mode - will show when light mode is on) -->
+                        <svg id="theme-toggle-light-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
             
-            <div class="p-6">
+            <div class="p-6 dark:text-gray-200">
                 <div class="text-center mb-6">
                     <div class="flex justify-center mb-4">
-                        <svg class="spinner h-12 w-12 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="spinner h-12 w-12 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </div>
-                    <h2 class="text-lg font-medium text-gray-900 mb-2" id="status-message">Processing document...</h2>
-                    <p class="text-sm text-gray-500" id="substatus-message">OCR processing can take some time for large documents</p>
+                    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2" id="status-message">Processing document...</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400" id="substatus-message">OCR processing can take some time for large documents</p>
                 </div>
                 
                 <!-- Processing stages icons -->
                 <div class="flex justify-between items-center mb-6">
                     <div id="stage-convert" class="flex flex-col items-center opacity-40">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
                             </svg>
                         </div>
-                        <span class="text-xs text-gray-500">Converting</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Converting</span>
                     </div>
-                    <div class="w-1/4 h-0.5 bg-gray-200" id="line-1"></div>
+                    <div class="w-1/4 h-0.5 bg-gray-200 dark:bg-gray-700" id="line-1"></div>
                     <div id="stage-ocr" class="flex flex-col items-center opacity-40">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </div>
-                        <span class="text-xs text-gray-500">OCR Processing</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">OCR Processing</span>
                     </div>
-                    <div class="w-1/4 h-0.5 bg-gray-200" id="line-2"></div>
+                    <div class="w-1/4 h-0.5 bg-gray-200 dark:bg-gray-700" id="line-2"></div>
                     <div id="stage-assemble" class="flex flex-col items-center opacity-40">
-                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <span class="text-xs text-gray-500">Assembling</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Assembling</span>
                     </div>
                 </div>
                 
                 <!-- Progress bar -->
                 <div class="mb-2 flex justify-between text-xs">
-                    <span id="progress-percentage" class="text-indigo-600 font-medium">0%</span>
-                    <span id="time-remaining" class="text-gray-500"></span>
+                    <span id="progress-percentage" class="text-indigo-600 dark:text-indigo-400 font-medium">0%</span>
+                    <span id="time-remaining" class="text-gray-500 dark:text-gray-400"></span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 overflow-hidden">
-                    <div id="progress-bar" class="progress-indeterminate bg-indigo-600 h-2.5 rounded-full"></div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-6 overflow-hidden">
+                    <div id="progress-bar" class="progress-indeterminate bg-indigo-600 dark:bg-indigo-500 h-2.5 rounded-full"></div>
                 </div>
                 
-                <div id="error-container" class="hidden mt-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                <div id="error-container" class="hidden mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg border border-red-200 dark:border-red-800">
                     <div class="flex">
-                        <svg class="h-5 w-5 mr-2 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-5 w-5 mr-2 text-red-400 dark:text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
@@ -120,13 +152,13 @@
                     </div>
                 </div>
                 
-                <div class="mt-4 text-xs text-gray-500 flex justify-center">
+                <div class="mt-4 text-xs text-gray-500 dark:text-gray-400 flex justify-center">
                     <p>You'll be redirected automatically when processing is complete</p>
                 </div>
                 
                 <!-- Cancel button -->
                 <div class="mt-6 text-center">
-                    <a href="/" class="text-indigo-600 hover:text-indigo-800 text-sm">Cancel and return to home</a>
+                    <a href="/" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm">Cancel and return to home</a>
                 </div>
             </div>
         </div>
@@ -152,6 +184,39 @@
         const timeRemaining = document.getElementById('time-remaining');
         const errorContainer = document.getElementById('error-container');
         const errorMessage = document.getElementById('error-message');
+
+        // Dark mode toggle elements
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // Check for saved theme preference or use system preference
+        if (localStorage.getItem('color-theme') === 'dark' || 
+            (!localStorage.getItem('color-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleLightIcon.classList.add('hidden');
+            themeToggleDarkIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.add('hidden');
+            themeToggleLightIcon.classList.remove('hidden');
+        }
+
+        // Toggle theme when button clicked
+        themeToggleBtn.addEventListener('click', function() {
+            // Toggle icons
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+            
+            // Toggle dark class on html element
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
         
         // Format time remaining
         function formatTimeRemaining(seconds) {
@@ -205,8 +270,8 @@
             [stageConvert, stageOcr, stageAssemble, line1, line2].forEach(el => {
                 el.classList.add('opacity-40');
                 if (el === line1 || el === line2) {
-                    el.classList.remove('bg-indigo-500');
-                    el.classList.add('bg-gray-200');
+                    el.classList.remove('bg-indigo-500', 'dark:bg-indigo-400');
+                    el.classList.add('bg-gray-200', 'dark:bg-gray-700');
                 }
             });
             
@@ -215,8 +280,8 @@
                 [stageConvert, stageOcr, stageAssemble, line1, line2].forEach(el => {
                     el.classList.remove('opacity-40');
                     if (el === line1 || el === line2) {
-                        el.classList.add('bg-indigo-500');
-                        el.classList.remove('bg-gray-200');
+                        el.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
+                        el.classList.remove('bg-gray-200', 'dark:bg-gray-700');
                     }
                 });
                 return;
@@ -228,18 +293,18 @@
             } else if (step === 'ocr' || (progress >= 10 && progress < 90)) {
                 stageConvert.classList.remove('opacity-40');
                 line1.classList.remove('opacity-40');
-                line1.classList.add('bg-indigo-500');
-                line1.classList.remove('bg-gray-200');
+                line1.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
+                line1.classList.remove('bg-gray-200', 'dark:bg-gray-700');
                 stageOcr.classList.remove('opacity-40');
             } else if (step === 'assembling' || progress >= 90) {
                 stageConvert.classList.remove('opacity-40');
                 line1.classList.remove('opacity-40');
-                line1.classList.add('bg-indigo-500');
-                line1.classList.remove('bg-gray-200');
+                line1.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
+                line1.classList.remove('bg-gray-200', 'dark:bg-gray-700');
                 stageOcr.classList.remove('opacity-40');
                 line2.classList.remove('opacity-40');
-                line2.classList.add('bg-indigo-500');
-                line2.classList.remove('bg-gray-200');
+                line2.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
+                line2.classList.remove('bg-gray-200', 'dark:bg-gray-700');
                 stageAssemble.classList.remove('opacity-40');
             }
         }
@@ -353,7 +418,7 @@
                             const statusMessage = document.getElementById('status-message');
                             const substatusMessage = document.getElementById('substatus-message');
                             statusMessage.textContent = 'Processing taking longer than expected';
-                            substatusMessage.innerHTML = '<a href="/status/' + taskId + '" class="text-indigo-600 hover:underline">Refresh page</a> to check progress';
+                            substatusMessage.innerHTML = '<a href="/status/' + taskId + '" class="text-indigo-600 dark:text-indigo-400 hover:underline">Refresh page</a> to check progress';
                             return;
                         }
                         
@@ -363,7 +428,7 @@
                 .catch(error => {
                     console.error('Error checking task status:', error);
                     const errorDiv = document.createElement('div');
-                    errorDiv.className = 'mt-4 p-3 bg-yellow-50 text-yellow-700 rounded text-sm';
+                    errorDiv.className = 'mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded text-sm';
                     errorDiv.textContent = `Connection error: ${error.message}. Retrying...`;
                     document.querySelector('.p-6').appendChild(errorDiv);
                     

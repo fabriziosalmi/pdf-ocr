@@ -2,25 +2,37 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Last Updated](https://img.shields.io/badge/last%20updated-April%202025-brightgreen.svg)](https://github.com/yourusername/ocr-pdf-docx)
 
-A web-based application built with Flask to convert PDF documents into editable formats (DOCX, TXT, Markdown, HTML) using Optical Character Recognition (OCR). It supports multiple OCR engines and provides options for image preprocessing to improve accuracy.
+A powerful web-based application built with Flask to convert PDF documents into editable formats (DOCX, TXT, Markdown, HTML) using Optical Character Recognition (OCR). It supports multiple OCR engines and provides advanced options for image preprocessing to improve accuracy.
 
 ![Screenshot](screenshot.png)
 
 ## Features
 
-*   **Web Interface:** Simple drag-and-drop or browse interface for uploading PDF files.
+*   **Modern Web Interface:** 
+    * Simple drag-and-drop or browse interface for uploading PDF files
+    * Responsive design that works on desktop, tablet, and mobile devices
+    * Dark mode support for comfortable usage in different lighting conditions
+    * Real-time feedback during file upload and processing
+
 *   **Multiple Output Formats:** Convert PDFs to:
-    *   Microsoft Word (`.docx`)
-    *   Plain Text (`.txt`)
-    *   Markdown (`.md`)
-    *   HTML (`.html`)
+    *   Microsoft Word (`.docx`) with formatting preservation
+    *   Plain Text (`.txt`) for maximum compatibility
+    *   Markdown (`.md`) for easy integration with documentation systems
+    *   HTML (`.html`) for web publishing
+
 *   **Multiple OCR Engines:** Choose between:
-    *   **Tesseract:** (Default) Widely used, supports many languages.
-    *   **EasyOCR:** Often good for complex layouts or noisy images.
-    *   **PyOCR:** A wrapper that can use Tesseract or Cuneiform.
-*   **Language Support:** Select the document language for better Tesseract accuracy (including multi-language support).
-*   **Image Preprocessing:** Enhance image quality before OCR with options like:
+    *   **Tesseract:** (Default) Widely used, supports 100+ languages
+    *   **EasyOCR:** Often better for complex layouts, handwriting, or noisy images
+    *   **PyOCR:** A wrapper that can use Tesseract or Cuneiform backends
+
+*   **Comprehensive Language Support:** 
+    * Select from a wide range of document languages for better OCR accuracy
+    * Multi-language detection support for documents containing multiple languages
+    * Primary support for English, French, German, Spanish, Italian, Portuguese, Chinese, Japanese, Korean, Russian, Arabic, and Hindi
+
+*   **Advanced Image Preprocessing:** Enhance image quality before OCR with options like:
     *   Grayscale conversion
     *   Sharpening
     *   Denoising
@@ -29,16 +41,32 @@ A web-based application built with Flask to convert PDF documents into editable 
     *   Border removal
     *   Contrast adjustment
     *   DPI selection (300 or 600 DPI)
-    *   Preset profiles for common scenarios (scanned documents, low quality, etc.).
-*   **Quality Settings:** Choose between standard (faster) and high quality (slower, potentially more accurate) OCR processing.
-*   **Background Processing:** Handles conversions asynchronously, allowing users to monitor progress.
-*   **Progress Tracking:** Real-time status updates during conversion with time estimation.
-*   **Dependency Checker:** Includes a script to help install necessary system and Python dependencies.
-*   **In-App Installation Guide:** Provides installation instructions directly within the web interface via a modal.
-*   **Automatic Cleanup:** Periodically removes old uploaded and converted files.
-*   **Error Handling:** Robust error handling with user-friendly error messages.
-*   **Docker Support:** Run the application in a containerized environment for easy deployment.
-*   **Mobile-Friendly UI:** Responsive design that works on desktop, tablet, and mobile devices.
+    *   Preset profiles for common scenarios (text-heavy documents, scanned documents, low quality images, printed text, handwriting)
+
+*   **Quality & Performance Settings:**
+    * Choose between standard (faster) and high quality (slower, more accurate) OCR processing
+    * Memory-efficient processing for large documents
+    * Multi-threading support for faster processing when available
+
+*   **Robust Processing System:**
+    * Background processing with asynchronous task handling
+    * Real-time progress tracking with estimated completion time
+    * Cancellable operations with clean resource management
+    * Auto-recovery from common processing errors
+
+*   **Developer-Friendly:**
+    * Comprehensive error logging with detailed diagnostics
+    * Modular architecture allowing easy extension with new OCR engines
+    * Clean API endpoints for potential integration with other systems
+    * Docker support for easy deployment in any environment
+    * Automated testing with colored output for better readability
+
+*   **Advanced Features:**
+    * Intelligent paragraph detection in output documents
+    * Experimental heading detection for better document structure
+    * Common OCR error correction using contextual text analysis
+    * Resource management with automatic temporary file cleanup
+    * Self-diagnostic dependency checker
 
 ## Installation
 
@@ -140,7 +168,7 @@ The application will be available at `http://localhost:8011`.
 
 5.  **Convert:** Click the "Upload and Convert" button.
 
-6.  **Monitor Progress:** You will be redirected to a status page showing the conversion progress.
+6.  **Monitor Progress:** You will be redirected to a status page showing the conversion progress with real-time updates.
 
 7.  **Download:** Once complete, click the "Download" button on the success page.
 
@@ -153,6 +181,11 @@ The application can be configured using environment variables (e.g., in a `.env`
 *   `FLASK_ENV`: Set to `development` for debug mode, `production` otherwise.
 *   `SECRET_KEY`: A strong, random secret key for session management. If not set, a temporary one is generated.
 *   `PORT`: The port the application runs on (default: `8011`).
+*   `HOST`: The host to bind to (default: `0.0.0.0` in Docker, `127.0.0.1` otherwise).
+*   `UPLOAD_FOLDER`: Directory for uploaded files (default: `uploads/`).
+*   `MAX_CONTENT_LENGTH`: Maximum upload size in bytes (default: 64MB).
+*   `CLEANUP_INTERVAL`: How often to run cleanup of old files in seconds (default: 3600).
+*   `CLEANUP_THRESHOLD`: Age in seconds after which temporary files are deleted (default: 86400 - 1 day).
 *   `DOCKER_ENV`: Set to `true` when running in Docker (automatically set in the Dockerfile).
 
 Example `.env` file:
@@ -160,6 +193,37 @@ Example `.env` file:
 FLASK_ENV=production
 SECRET_KEY=your_secret_key_here
 PORT=8011
+HOST=0.0.0.0
+MAX_CONTENT_LENGTH=67108864
+CLEANUP_INTERVAL=3600
+CLEANUP_THRESHOLD=86400
+```
+
+## Advanced Usage
+
+### Preprocessing Profiles
+
+The application includes several preset profiles for different document types:
+
+- **Default**: Basic grayscale and sharpening, moderate contrast
+- **Text-heavy Document**: Enhanced settings for documents with dense text
+- **Scanned Document**: Optimized for typical scanned pages
+- **Low Quality Image**: Aggressive enhancement for poor quality scans
+- **Printed Text**: Optimized for machine-printed text
+- **Handwriting**: Adjusted for handwritten content
+
+### OCR Engines Comparison
+
+- **Tesseract**: Fastest option with good accuracy for clear, printed text. Best for most documents.
+- **EasyOCR**: Better with complex layouts and handwriting, but slower. Good for challenging documents where Tesseract struggles.
+- **PyOCR**: Provides a unified interface to different OCR backends. Useful for testing different engines.
+
+### Batch Processing
+
+For batch processing multiple PDFs, consider using the Docker setup with a shared volume:
+
+```bash
+docker run -p 8011:8011 -v /path/to/your/pdfs:/app/batch ocr-pdf-docx
 ```
 
 ## Troubleshooting
@@ -196,9 +260,34 @@ PORT=8011
 - High-quality settings and certain preprocessing options significantly increase processing time.
 - The first run with EasyOCR may be slow as it downloads language models.
 
+## Recent Updates (April 2025)
+
+- Added dark mode support for better usability in different lighting conditions
+- Enhanced mobile responsiveness for better experience on smaller screens
+- Improved preprocessing with additional options and preset profiles
+- Added colored test output for easier development
+- Fixed resource warnings in image processing pipeline
+- Added real-time progress estimation with more accurate time remaining calculation
+- Improved error handling and recovery mechanisms
+- Enhanced documentation with more detailed installation and usage instructions
+
+## Planned Features
+
+- Integration with cloud storage services (Google Drive, Dropbox)
+- PDF annotation detection and preservation
+- Table structure recognition and preservation in output formats
+- Specialized handling for scientific papers and forms
+- API endpoints for programmatic access
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
@@ -213,3 +302,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [pdf2image](https://github.com/Belval/pdf2image) for PDF to image conversion
 - [python-docx](https://python-docx.readthedocs.io/) for DOCX creation
 - [Tailwind CSS](https://tailwindcss.com/) for the UI components
+- [colorama](https://pypi.org/project/colorama/) for colored test output
