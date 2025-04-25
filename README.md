@@ -6,7 +6,13 @@
 
 A powerful web-based application built with Flask to convert PDF documents into editable formats (DOCX, TXT, Markdown, HTML) using Optical Character Recognition (OCR). It supports multiple OCR engines and provides advanced options for image preprocessing to improve accuracy.
 
-![Screenshot](screenshot.png)
+## Screnshots
+
+![screenshot1](screenshot_1.png)
+![screenshot2](screenshot_2.png)
+![screenshot3](screenshot_3.png)
+![screenshot4](screenshot_4.png)
+
 
 ## Features
 
