@@ -225,6 +225,7 @@ def enhance_image(image: Image.Image) -> Image.Image:
 
 def process_image(i: int, image_path: str, ocr_engine: str, language: str, preprocess: bool = False) -> Tuple[int, str]:
     """Process a single image with OCR (to be used in parallel processing)"""
+    img_to_process = None
     try:
         text = ""
         # Open image
@@ -335,8 +336,13 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
         logger.error(f"Error processing page {i+1} with {ocr_engine}: {str(e)}", exc_info=True)
         return i, f"[Error processing page {i+1}: {str(e)}]"
     finally:
+        # Ensure PIL Image is properly closed to prevent resource leaks
+        if img_to_process is not None:
+            try:
+                img_to_process.close()
+            except Exception as e:
+                logger.warning(f"Error closing image for page {i+1}: {str(e)}")
         # We don't delete the file here as it will be managed by the main process
-        pass
 
 def fix_common_ocr_errors(text: str) -> str:
     """Fix common OCR errors in text."""
@@ -624,91 +630,84 @@ def run_task_in_background(func: callable, task_id: str, *args: Any, **kwargs: A
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """Handle file upload and initiate OCR processing."""
-    # Check dependencies first
-    deps_installed, message = check_dependencies()
-    if not deps_installed:
-        flash(message, 'error')
-        flash("Please install the required dependencies before proceeding", 'error')
-        return redirect(url_for('index'))
-
-    if 'file' not in request.files:
-        flash('No file part', 'error')
-        return redirect(url_for('index'))
-
-    file = request.files['file']
-    if file.filename == '':
-        flash('No selected file', 'error')
-        return redirect(url_for('index'))
-    
-    if not allowed_file(file.filename):
-        flash('Invalid file type. Please upload a PDF.', 'error')
-        return redirect(url_for('index'))
-
     try:
+        # Check dependencies first
+        deps_installed, message = check_dependencies()
+        if not deps_installed:
+            flash(message, 'error')
+            flash("Please install the required dependencies before proceeding", 'error')
+            return redirect(url_for('index'))
+
+        if 'file' not in request.files:
+            flash('No file part', 'error')
+            return redirect(url_for('index'))
+
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file', 'error')
+            return redirect(url_for('index'))
+
+        if not allowed_file(file.filename):
+            flash('Invalid file type. Please upload a PDF.', 'error')
+            return redirect(url_for('index'))
+
         # Generate unique ID for this conversion
         conversion_id = str(uuid.uuid4())
-        # Store conversion_id in session
         session['conversion_id'] = conversion_id
 
         # Save original filename for later use (but sanitize it)
         orig_filename = secure_clean_filename(file.filename)
         session['orig_filename'] = orig_filename
 
-        # Get OCR options from form (using names from the options panel)
-        ocr_engine = request.form.get('ocr-engine', 'tesseract') # Hidden input name
-        language = request.form.get('language', 'eng') # Select name inside options
-        quality = request.form.get('ocr-quality', 'standard') # Select name inside options
-        preprocess = request.form.get('preprocess', '0') == '1' # Checkbox name inside options
-        output_format = request.form.get('output-format', 'docx') # Select name inside options
-        # Get preprocessing details if needed (e.g., contrast, dpi)
-        # pre_contrast = request.form.get('pre-contrast', '1.5') 
-        # dpi_setting = request.form.get('dpi', '300')
+        # Get OCR options from form
+        ocr_engine = request.form.get('ocr-engine', 'tesseract')
+        language = request.form.get('language', 'eng')
+        quality = request.form.get('ocr-quality', 'standard')
+        preprocess = request.form.get('preprocess', '0') == '1'
+        output_format = request.form.get('output-format', 'docx')
 
-        # Add warnings for problematic OCR engines
-        if ocr_engine == 'kraken':
-            flash('Warning: Kraken OCR may have protobuf compatibility issues. If conversion fails, try Tesseract.', 'warning')
-        elif ocr_engine == 'paddleocr':
-            flash('Warning: PaddleOCR may have compatibility issues on some systems. If conversion fails, try Tesseract.', 'warning')
-
-        # Log processing request with more details for debugging
+        # Log processing request
         logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}, format={output_format}")
-        logger.info(f"Form data: {request.form}")
 
         # Create a temporary filename to avoid collisions
         temp_filename = f"{conversion_id}_{secure_clean_filename(file.filename)}"
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
-        
+
         # Save the uploaded file
-        file.save(pdf_path)
-        logger.info(f"Saved uploaded file to {pdf_path}")
-        
-        # Store pdf_path in session for potential cleanup
+        try:
+            file.save(pdf_path)
+            logger.info(f"Saved uploaded file to {pdf_path}")
+        except Exception as e:
+            logger.error(f"Error saving uploaded file: {str(e)}", exc_info=True)
+            flash("An error occurred while saving the uploaded file. Please try again.", 'error')
+            return redirect(url_for('index'))
+
         session['pdf_path'] = pdf_path
 
         # Process asynchronously
-        task_id = run_task_in_background(
-            process_pdf_with_progress, 
-            conversion_id,
-            pdf_path, 
-            conversion_id, 
-            ocr_engine, 
-            language, 
-            quality,
-            preprocess,
-            orig_filename,
-            output_format # Pass output_format here
-            # Pass other preprocessing options if needed
-        )
-        
-        # Store task_id in session
-        session['task_id'] = conversion_id
-        
-        # Redirect to status page
-        return redirect(url_for('status', task_id=conversion_id))
+        try:
+            task_id = run_task_in_background(
+                process_pdf_with_progress,
+                conversion_id,
+                pdf_path,
+                conversion_id,
+                ocr_engine,
+                language,
+                quality,
+                preprocess,
+                orig_filename,
+                output_format
+            )
+            session['task_id'] = conversion_id
+            return redirect(url_for('status', task_id=conversion_id))
+        except Exception as e:
+            logger.error(f"Error starting background task: {str(e)}", exc_info=True)
+            flash("An error occurred while starting the OCR process. Please try again.", 'error')
+            return redirect(url_for('index'))
 
     except Exception as e:
-        logger.error(f"Error during file upload: {str(e)}", exc_info=True)
-        flash(f"An error occurred during upload: {str(e)}", 'error')
+        logger.error(f"Unexpected error during file upload: {str(e)}", exc_info=True)
+        flash("An unexpected error occurred. Please try again.", 'error')
         return redirect(url_for('index'))
 
 @app.route('/status/<task_id>')

@@ -3,10 +3,15 @@ import os
 import tempfile
 import shutil
 import json
-import time  # <-- Add this import
+import time
 from unittest.mock import patch, MagicMock, mock_open
 from io import BytesIO
 from PIL import Image
+import colorama
+from colorama import Fore, Style
+
+# Initialize colorama for colored terminal output
+colorama.init(autoreset=True)
 
 from app import (
     app, allowed_file, secure_clean_filename, cleanup_old_files,
@@ -14,6 +19,37 @@ from app import (
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     TASK_STATUS, TASK_RESULTS
 )
+
+# Custom test result class for colored output
+class ColorTextTestResult(unittest.TextTestResult):
+    def addSuccess(self, test):
+        self.stream.write(f"{Fore.GREEN}✓{Style.RESET_ALL} ")
+        super().addSuccess(test)
+        
+    def addError(self, test, err):
+        self.stream.write(f"{Fore.RED}✗{Style.RESET_ALL} ")
+        super().addError(test, err)
+        
+    def addFailure(self, test, err):
+        self.stream.write(f"{Fore.RED}✗{Style.RESET_ALL} ")
+        super().addFailure(test, err)
+        
+    def addSkip(self, test, reason):
+        self.stream.write(f"{Fore.YELLOW}s{Style.RESET_ALL} ")
+        super().addSkip(test, reason)
+        
+    def printErrorList(self, flavour, errors):
+        for test, err in errors:
+            self.stream.writeln(self.separator1)
+            self.stream.writeln(f"{Fore.RED if flavour == 'ERROR' else Fore.YELLOW}{flavour}: {self.getDescription(test)}{Style.RESET_ALL}")
+            self.stream.writeln(self.separator2)
+            self.stream.writeln(f"{err}")
+
+# Custom test runner that uses our colored result class
+class ColorTextTestRunner(unittest.TextTestRunner):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('resultclass', ColorTextTestResult)
+        super().__init__(**kwargs)
 
 class TestOCRApp(unittest.TestCase):
     
@@ -471,4 +507,4 @@ class TestOCRApp(unittest.TestCase):
         self.assertFalse(os.path.exists(result_path))
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(testRunner=ColorTextTestRunner(verbosity=2))
