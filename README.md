@@ -95,8 +95,8 @@ The easiest way to install Python dependencies and check system prerequisites is
 
 ```bash
 # Clone the repository (if you haven't already)
-git clone https://github.com/your-username/ocr-pdf-docx.git # Replace with your repo URL
-cd ocr-pdf-docx
+git clone https://github.com/fabriziosalmi/pdf-ocr.git
+cd pdf-ocr
 
 # Run the installer script
 python install_dependencies.py
@@ -117,8 +117,8 @@ The script will:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/ocr-pdf-docx.git # Replace with your repo URL
-    cd ocr-pdf-docx
+    git clone https://github.com/fabriziosalmi/pdf-ocr.git
+    cd pdf-ocr
     ```
 
 2.  **Install core Python dependencies:**
