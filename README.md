@@ -266,25 +266,6 @@ docker run -p 8011:8011 -v /path/to/your/pdfs:/app/batch ocr-pdf-docx
 - High-quality settings and certain preprocessing options significantly increase processing time.
 - The first run with EasyOCR may be slow as it downloads language models.
 
-## Recent Updates (April 2025)
-
-- Added dark mode support for better usability in different lighting conditions
-- Enhanced mobile responsiveness for better experience on smaller screens
-- Improved preprocessing with additional options and preset profiles
-- Added colored test output for easier development
-- Fixed resource warnings in image processing pipeline
-- Added real-time progress estimation with more accurate time remaining calculation
-- Improved error handling and recovery mechanisms
-- Enhanced documentation with more detailed installation and usage instructions
-
-## Planned Features
-
-- Integration with cloud storage services (Google Drive, Dropbox)
-- PDF annotation detection and preservation
-- Table structure recognition and preservation in output formats
-- Specialized handling for scientific papers and forms
-- API endpoints for programmatic access
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
