@@ -3,3 +3,32 @@ uploads/
 __pycache__/
 app.log
 models/
+
+# Secrets / local environment (never commit these)
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+
+# Python
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Generated test artifacts
+test_pdf_conversion.png
+test_pdf.pdf

@@ -165,7 +165,7 @@ def test_tesseract():
                 log("3. Try running 'tesseract test_ocr.png stdout' directly in terminal", WARNING)
                 
             # Keep the image for investigation
-            log(f"Test image saved as 'test_ocr.png' for your reference", INFO)
+            log("Test image saved as 'test_ocr.png' for your reference", INFO)
             
             return "Tesseract OCR Test" in text
         except Exception as e:

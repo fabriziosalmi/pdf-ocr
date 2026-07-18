@@ -1,0 +1,13 @@
+# Ruff configuration — https://docs.astral.sh/ruff/
+#
+# CI gates on correctness rules only: pyflakes (F) plus the pycodestyle error
+# subsets E4/E7/E9. These catch real problems — undefined names, unused imports
+# and variables, redefinitions, bare excepts, syntax errors.
+#
+# Cosmetic rules (line-length E501, whitespace W2xx) are intentionally NOT
+# enforced yet: turning them on would require reformatting the existing code in
+# one large diff. Adopting `ruff format` is tracked as a roadmap item in README.
+target-version = "py39"
+
+[lint]
+select = ["E4", "E7", "E9", "F"]

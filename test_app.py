@@ -4,21 +4,20 @@ import tempfile
 import shutil
 import json
 import time
-from unittest.mock import patch, MagicMock, mock_open
-from io import BytesIO
+from unittest.mock import patch, MagicMock
 from PIL import Image
 import colorama
 from colorama import Fore, Style
 
-# Initialize colorama for colored terminal output
-colorama.init(autoreset=True)
-
 from app import (
-    app, allowed_file, secure_clean_filename, cleanup_old_files,
-    check_dependencies, check_dependency, sanitize_text, enhance_image,
+    app, allowed_file, secure_clean_filename,
+    check_dependency, sanitize_text, enhance_image,
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     TASK_STATUS, TASK_RESULTS
 )
+
+# Initialize colorama for colored terminal output
+colorama.init(autoreset=True)
 
 # Custom test result class for colored output
 class ColorTextTestResult(unittest.TextTestResult):
@@ -254,7 +253,7 @@ class TestOCRApp(unittest.TestCase):
     def test_index_route_with_dependency_error(self):
         # Mock check_dependencies to return failure
         with patch('app.check_dependencies', return_value=(False, "Missing tesseract")):
-            with self.app.session_transaction() as session:
+            with self.app.session_transaction():
                 pass  # Setup session if needed
             
             response = self.app.get('/', follow_redirects=True)
@@ -332,8 +331,8 @@ class TestOCRApp(unittest.TestCase):
             "timestamp": 1234567890
         }
         TASK_RESULTS[task_id] = (True, "/path/to/result.docx", "result.docx")
-        
-        with self.app.session_transaction() as session:
+
+        with self.app.session_transaction():
             pass  # Setup session if needed
         
         response = self.app.get(f'/api/task_status/{task_id}')

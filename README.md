@@ -1,292 +1,227 @@
-# PDF to DOCX/TXT/MD/HTML OCR Converter
+# pdf-ocr
 
-[![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/fabriziosalmi/pdf-ocr/actions/workflows/ci.yml/badge.svg)](https://github.com/fabriziosalmi/pdf-ocr/actions/workflows/ci.yml)
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Last Updated](https://img.shields.io/badge/last%20updated-April%202025-brightgreen.svg)](https://github.com/yourusername/ocr-pdf-docx)
 
-A powerful web-based application built with Flask to convert PDF documents into editable formats (DOCX, TXT, Markdown, HTML) using Optical Character Recognition (OCR). It supports multiple OCR engines and provides advanced options for image preprocessing to improve accuracy.
+A small **Flask web app** that turns scanned/image PDFs into editable text formats
+(**DOCX, TXT, Markdown, HTML**) using OCR. You upload a PDF in the browser, it renders
+each page to an image with Poppler, runs OCR (Tesseract by default), and gives you the
+extracted text back as a downloadable file.
 
-## Screnshots
+This is a working single-file application (`app.py`, ~920 lines) with a unit-test suite
+— not a stub. It is a **useful local/self-hosted tool**, not a hardened multi-tenant
+service. See [What works today vs. Roadmap](#what-works-today-vs-roadmap) for an honest
+feature-by-feature breakdown before you rely on any specific capability.
+
+## Screenshots
 
 ![screenshot1](screenshot_1.png)
 ![screenshot2](screenshot_2.png)
 ![screenshot3](screenshot_3.png)
 ![screenshot4](screenshot_4.png)
 
+## Quickstart (Docker, 3 commands)
 
-## Features
+Docker is the fastest path because the image already contains Tesseract and Poppler,
+so you don't have to install anything else:
 
-*   **Modern Web Interface:** 
-    * Simple drag-and-drop or browse interface for uploading PDF files
-    * Responsive design that works on desktop, tablet, and mobile devices
-    * Dark mode support for comfortable usage in different lighting conditions
-    * Real-time feedback during file upload and processing
+```bash
+git clone https://github.com/fabriziosalmi/pdf-ocr.git
+cd pdf-ocr
+docker compose up --build
+```
 
-*   **Multiple Output Formats:** Convert PDFs to:
-    *   Microsoft Word (`.docx`) with formatting preservation
-    *   Plain Text (`.txt`) for maximum compatibility
-    *   Markdown (`.md`) for easy integration with documentation systems
-    *   HTML (`.html`) for web publishing
+Then open <http://localhost:8011>, drop a PDF onto the page, pick an output format,
+and download the result.
 
-*   **Multiple OCR Engines:** Choose between:
-    *   **Tesseract:** (Default) Widely used, supports 100+ languages
-    *   **EasyOCR:** Often better for complex layouts, handwriting, or noisy images
-    *   **PyOCR:** A wrapper that can use Tesseract or Cuneiform backends
+### Run locally without Docker
 
-*   **Comprehensive Language Support:** 
-    * Select from a wide range of document languages for better OCR accuracy
-    * Multi-language detection support for documents containing multiple languages
-    * Primary support for English, French, German, Spanish, Italian, Portuguese, Chinese, Japanese, Korean, Russian, Arabic, and Hindi
+You need the two system binaries first (Python packages alone are not enough):
 
-*   **Advanced Image Preprocessing:** Enhance image quality before OCR with options like:
-    *   Grayscale conversion
-    *   Sharpening
-    *   Denoising
-    *   Deskewing (straightening tilted text)
-    *   Thresholding (creating high-contrast images)
-    *   Border removal
-    *   Contrast adjustment
-    *   DPI selection (300 or 600 DPI)
-    *   Preset profiles for common scenarios (text-heavy documents, scanned documents, low quality images, printed text, handwriting)
+```bash
+# macOS
+brew install tesseract poppler
+# Debian/Ubuntu
+# sudo apt-get install -y tesseract-ocr poppler-utils
 
-*   **Quality & Performance Settings:**
-    * Choose between standard (faster) and high quality (slower, more accurate) OCR processing
-    * Memory-efficient processing for large documents
-    * Multi-threading support for faster processing when available
+pip install -r requirements.txt
+python app.py                     # serves on http://127.0.0.1:8011
+```
 
-*   **Robust Processing System:**
-    * Background processing with asynchronous task handling
-    * Real-time progress tracking with estimated completion time
-    * Cancellable operations with clean resource management
-    * Auto-recovery from common processing errors
+To confirm the OCR toolchain is actually wired up on your machine:
 
-*   **Developer-Friendly:**
-    * Comprehensive error logging with detailed diagnostics
-    * Modular architecture allowing easy extension with new OCR engines
-    * Clean API endpoints for potential integration with other systems
-    * Docker support for easy deployment in any environment
-    * Automated testing with colored output for better readability
+```bash
+python ocr_test.py                # renders a test image, OCRs it, prints PASS/FAIL
+```
 
-*   **Advanced Features:**
-    * Intelligent paragraph detection in output documents
-    * Experimental heading detection for better document structure
-    * Common OCR error correction using contextual text analysis
-    * Resource management with automatic temporary file cleanup
-    * Self-diagnostic dependency checker
+## Demo (input → output)
+
+The conversion flow is: **PDF → Poppler renders each page to PNG → OCR engine reads the
+image → text is written to your chosen format.** OCR quality depends entirely on the
+scan quality of your input.
+
+For example, two OCR'd pages of an invoice come back as Markdown like this (this is the
+literal output of the app's Markdown writer, with `---` marking a page break):
+
+```markdown
+ACME Corporation
+
+Invoice No. 2024-0042
+Date: 2024-11-03
+
+Total due: 1,250.00 EUR
+
+---
+
+Terms: Net 30 days.
+Thank you for your business.
+```
+
+The same pages exported as HTML wrap each paragraph in `<p>` tags, escape HTML entities,
+and insert `<hr class="page-break">` between pages. DOCX output writes one paragraph per
+text block with a page break between pages (plain text — see the roadmap note on layout).
+
+## What works today vs. Roadmap
+
+The application genuinely does the core job. Some capabilities described in older versions
+of this README were aspirational; they are listed under Roadmap below so expectations match
+the code.
+
+### Works today (verified in the code)
+
+- **Web upload → convert → download** flow with a background worker and a live progress
+  page (`/status/<id>` polling `/api/task_status/<id>`).
+- **Four output formats:** DOCX, TXT, Markdown, HTML.
+- **Three OCR engines:** Tesseract (default, always available), plus **EasyOCR** and
+  **PyOCR** if you install their optional dependencies.
+- **Tesseract language selection** (e.g. `eng`, `ita`, `fra`, `deu`, `chi_sim`, `+`-joined
+  for multiple), with sensible 3-letter → EasyOCR code mapping.
+- **Basic image preprocessing** (opt-in): sharpen filter + contrast boost + grayscale.
+- **Quality toggle:** standard (300 DPI) or high (600 DPI) rendering.
+- **Light OCR clean-up:** control-character stripping and a small substitution pass for
+  common misreads, plus paragraph splitting on blank lines.
+- **Self-diagnostics:** dependency checks for Tesseract/Poppler and a `/system-check` JSON
+  endpoint.
+- **Docker image** bundling Tesseract (with several language packs) and Poppler.
+- **Automatic cleanup** of old uploads and finished tasks.
+- **34 unit tests** (`test_app.py`) covering the pure logic and Flask routes.
+
+### Roadmap / not implemented yet
+
+These are referenced in the UI or were previously advertised, but are **not** in the code
+today. Contributions welcome.
+
+- **Advanced preprocessing** — denoising, deskewing, thresholding, border removal, and the
+  named preset profiles (text-heavy / scanned / low-quality / handwriting). Only
+  sharpen+contrast+grayscale exist right now.
+- **DOCX layout/formatting preservation** — output is currently plain paragraphs, not a
+  faithful reproduction of the source layout.
+- **Heading / structure detection** in the output.
+- **Real task cancellation** — the "Cancel" link on the status page only navigates home;
+  the background OCR job keeps running to completion.
+- **Parallel page processing** — OCR currently runs one page at a time (single worker) on
+  purpose, to avoid multiprocessing races. Throughput work is pending.
+- **Batch / folder processing** — there is no batch mode; each conversion is one uploaded
+  PDF via the web UI.
+- **PaddleOCR engine** — `requirements-paddleocr.txt` ships, but PaddleOCR is not wired
+  into the engine selector yet.
+- **Env-configurable `UPLOAD_FOLDER`, `MAX_CONTENT_LENGTH`, `HOST`, and cleanup intervals**
+  — these are currently constants in `app.py` (see [Configuration](#configuration) for
+  what is actually read from the environment).
 
 ## Installation
 
 ### Prerequisites
 
-1.  **Python:** Version 3.7 or higher.
-2.  **pip:** Python package installer (usually comes with Python).
-3.  **Tesseract OCR Engine:**
-    *   **macOS:** `brew install tesseract tesseract-lang`
-    *   **Ubuntu/Debian:** `sudo apt-get update && sudo apt-get install tesseract-ocr libtesseract-dev tesseract-ocr-all` (Install desired language packs, e.g., `tesseract-ocr-fra`)
-    *   **Windows:** Download installer from [UB Mannheim Tesseract Wiki](https://github.com/UB-Mannheim/tesseract/wiki). **Ensure Tesseract is added to your system's PATH.**
-4.  **Poppler PDF Rendering Library:**
-    *   **macOS:** `brew install poppler`
-    *   **Ubuntu/Debian:** `sudo apt-get update && sudo apt-get install poppler-utils`
-    *   **Windows:** Download latest binaries from [Poppler for Windows Releases](https://github.com/oschwartz10612/poppler-windows/releases/). Extract and add the `bin/` directory to your system's PATH.
+- **Python 3.9+** and `pip`.
+- **Tesseract OCR** — `brew install tesseract tesseract-lang` (macOS),
+  `apt-get install tesseract-ocr` + language packs (Debian/Ubuntu), or the
+  [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) on Windows
+  (ensure it is on your `PATH`).
+- **Poppler** — `brew install poppler` (macOS), `apt-get install poppler-utils`
+  (Debian/Ubuntu), or the
+  [poppler-windows](https://github.com/oschwartz10612/poppler-windows/releases) binaries
+  on Windows (add `bin/` to `PATH`).
 
-### Using the Installer Script (Recommended)
+Docker users can skip both binaries — they are baked into the image.
 
-The easiest way to install Python dependencies and check system prerequisites is using the provided script:
+### Optional OCR engines
+
+Tesseract works out of the box. The other two engines are optional:
 
 ```bash
-# Clone the repository (if you haven't already)
-git clone https://github.com/fabriziosalmi/pdf-ocr.git
-cd pdf-ocr
+# EasyOCR (pulls in PyTorch — see https://pytorch.org for the right build)
+pip install -r requirements-easyocr.txt
 
-# Run the installer script
-python install_dependencies.py
-
-# To install optional OCR engines (EasyOCR, PyOCR):
-# python install_dependencies.py --engine easyocr
-# python install_dependencies.py --engine pyocr
-# python install_dependencies.py --engine all
+# PyOCR (a thin wrapper over the Tesseract/Cuneiform binaries)
+pip install pyocr
 ```
 
-The script will:
-*   Check your Python version.
-*   Install core Python packages (`Flask`, `pytesseract`, `python-docx`, `pdf2image`, `Pillow`, etc.).
-*   Check if Tesseract and Poppler are accessible via the system PATH.
-*   Optionally install dependencies for EasyOCR and PyOCR.
+### Helper script
 
-### Manual Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/fabriziosalmi/pdf-ocr.git
-    cd pdf-ocr
-    ```
-
-2.  **Install core Python dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **(Optional) Install dependencies for other OCR engines:**
-    ```bash
-    # For EasyOCR (may require manual PyTorch installation first - see https://pytorch.org/)
-    pip install -r requirements-easyocr.txt
-
-    # For PyOCR
-    pip install -r requirements-pyocr.txt
-    ```
-
-4.  **Verify System Dependencies:** Ensure Tesseract and Poppler are installed and accessible in your system's PATH.
-
-### Docker Installation
-
-For a containerized setup (no need to install Tesseract or Poppler locally):
-
-1. **Build and run with Docker Compose:**
-   ```bash
-   docker-compose up -d
-   ```
-
-2. **Or build and run manually:**
-   ```bash
-   docker build -t ocr-pdf-docx .
-   docker run -p 8011:8011 ocr-pdf-docx
-   ```
-
-The application will be available at `http://localhost:8011`.
-
-## Usage
-
-1.  **Start the Flask application:**
-    ```bash
-    python app.py
-    ```
-    The application will be available at `http://127.0.0.1:8011` (or the configured host/port).
-
-2.  **Open the web interface:** Navigate to the URL in your web browser.
-
-3.  **Upload PDF:** Drag and drop a PDF file onto the designated area or click to browse.
-
-4.  **Configure Options (Optional):**
-    *   Click the "Show" button next to "Options" to expand the settings panel.
-    *   **Preprocessing:** Enable and configure image enhancement options or select a preset profile. Adjust DPI if needed.
-    *   **Processing:** Select the desired OCR Engine (Tesseract, EasyOCR, PyOCR), Document Language (for Tesseract), and OCR Quality.
-    *   **Output:** Choose the desired Output Format (DOCX, TXT, MD, HTML).
-
-5.  **Convert:** Click the "Upload and Convert" button.
-
-6.  **Monitor Progress:** You will be redirected to a status page showing the conversion progress with real-time updates.
-
-7.  **Download:** Once complete, click the "Download" button on the success page.
-
-8.  **Convert Another:** Click "Convert Another File" to return to the upload page.
+`python install_dependencies.py` installs the core Python packages and checks whether
+Tesseract and Poppler are reachable on your `PATH`. Use `--engine easyocr|all` to pull
+in optional engines.
 
 ## Configuration
 
-The application can be configured using environment variables (e.g., in a `.env` file):
+Only the following environment variables are actually read by `app.py` today:
 
-*   `FLASK_ENV`: Set to `development` for debug mode, `production` otherwise.
-*   `SECRET_KEY`: A strong, random secret key for session management. If not set, a temporary one is generated.
-*   `PORT`: The port the application runs on (default: `8011`).
-*   `HOST`: The host to bind to (default: `0.0.0.0` in Docker, `127.0.0.1` otherwise).
-*   `UPLOAD_FOLDER`: Directory for uploaded files (default: `uploads/`).
-*   `MAX_CONTENT_LENGTH`: Maximum upload size in bytes (default: 64MB).
-*   `CLEANUP_INTERVAL`: How often to run cleanup of old files in seconds (default: 3600).
-*   `CLEANUP_THRESHOLD`: Age in seconds after which temporary files are deleted (default: 86400 - 1 day).
-*   `DOCKER_ENV`: Set to `true` when running in Docker (automatically set in the Dockerfile).
+| Variable      | Effect                                                        | Default            |
+|---------------|---------------------------------------------------------------|--------------------|
+| `SECRET_KEY`  | Flask session secret. A random one is generated if unset.     | random per start   |
+| `PORT`        | Port to listen on.                                            | `8011`             |
+| `FLASK_ENV`   | `development` enables Flask debug mode.                       | production         |
+| `DOCKER_ENV`  | `true` skips local dependency checks (set in the image).      | `false`            |
 
-Example `.env` file:
-```
-FLASK_ENV=production
-SECRET_KEY=your_secret_key_here
-PORT=8011
-HOST=0.0.0.0
-MAX_CONTENT_LENGTH=67108864
-CLEANUP_INTERVAL=3600
-CLEANUP_THRESHOLD=86400
-```
+Other settings (upload folder, 64 MB max upload size, `0.0.0.0` bind host, cleanup timings)
+are constants in `app.py`. Making them env-configurable is on the roadmap.
 
-## Advanced Usage
+## Running the tests
 
-### Preprocessing Profiles
-
-The application includes several preset profiles for different document types:
-
-- **Default**: Basic grayscale and sharpening, moderate contrast
-- **Text-heavy Document**: Enhanced settings for documents with dense text
-- **Scanned Document**: Optimized for typical scanned pages
-- **Low Quality Image**: Aggressive enhancement for poor quality scans
-- **Printed Text**: Optimized for machine-printed text
-- **Handwriting**: Adjusted for handwritten content
-
-### OCR Engines Comparison
-
-- **Tesseract**: Fastest option with good accuracy for clear, printed text. Best for most documents.
-- **EasyOCR**: Better with complex layouts and handwriting, but slower. Good for challenging documents where Tesseract struggles.
-- **PyOCR**: Provides a unified interface to different OCR backends. Useful for testing different engines.
-
-### Batch Processing
-
-For batch processing multiple PDFs, consider using the Docker setup with a shared volume:
+The unit tests mock the Tesseract/Poppler binaries, so they run anywhere with just the
+Python dependencies — no OCR engines required:
 
 ```bash
-docker run -p 8011:8011 -v /path/to/your/pdfs:/app/batch ocr-pdf-docx
+pip install -r requirements.txt -r requirements-dev.txt
+python -m unittest test_app -v          # 34 tests
+ruff check .                            # lint (same gate as CI)
 ```
+
+CI runs both of these on every push and pull request — see
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Troubleshooting
 
-### Dependency Issues
+**Tesseract not found** — confirm `tesseract --version` works in your shell and that the
+install dir is on `PATH`. On Windows you may need to set it explicitly in `app.py`:
+`pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'`.
 
-#### Tesseract Not Found
-- Ensure Tesseract is installed correctly for your operating system.
-- Verify that the Tesseract installation directory is in your system's PATH environment variable.
-- On Windows, you may need to explicitly set the Tesseract path in `app.py`:
-  ```python
-  pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-  ```
+**Poppler / PDF conversion errors** — confirm `pdftoppm -v` works and Poppler's `bin/` is
+on `PATH`; restart your terminal after changing `PATH`.
 
-#### Poppler / PDF Conversion Issues
-- Ensure Poppler is installed and in your PATH.
-- On Windows, check the installation directory and ensure it's properly added to the PATH.
-- Restart your terminal/command prompt after making PATH changes.
+**Empty or poor OCR output** — try High quality (600 DPI), enable preprocessing, or switch
+engines. OCR is only as good as the source scan.
 
-#### OCR Engine-Specific Issues
-- **EasyOCR**: Ensure PyTorch is installed correctly for your system (CPU or GPU version).
-- **PyOCR**: Make sure Tesseract is installed as PyOCR relies on it.
-
-### Common Errors
-
-#### Empty or Incomplete OCR Results
-- Try increasing the DPI settings to 600 DPI for better quality.
-- Enable preprocessing options like sharpening and contrast adjustment.
-- For low-quality scans, try using the "Low Quality Image" preset profile.
-- Different OCR engines may produce better results for certain documents; try switching engines.
-
-#### Performance Issues
-- Processing large PDF files can be memory-intensive. Ensure your system has sufficient RAM.
-- High-quality settings and certain preprocessing options significantly increase processing time.
-- The first run with EasyOCR may be slow as it downloads language models.
+**First EasyOCR run is slow** — it downloads language models on first use.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Issues and pull requests are welcome. Please run `ruff check .` and
+`python -m unittest test_app` before opening a PR.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT — see [LICENSE](LICENSE).
 
 ## Acknowledgments
 
-- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for the core OCR capability
-- [EasyOCR](https://github.com/JaidedAI/EasyOCR) for the alternative OCR engine
-- [PyOCR](https://gitlab.gnome.org/World/OpenPaperwork/pyocr) for the Tesseract/Cuneiform wrapper
-- [Flask](https://flask.palletsprojects.com/) for the web framework
-- [pdf2image](https://github.com/Belval/pdf2image) for PDF to image conversion
-- [python-docx](https://python-docx.readthedocs.io/) for DOCX creation
-- [Tailwind CSS](https://tailwindcss.com/) for the UI components
-- [colorama](https://pypi.org/project/colorama/) for colored test output
+Built on [Tesseract OCR](https://github.com/tesseract-ocr/tesseract),
+[EasyOCR](https://github.com/JaidedAI/EasyOCR),
+[PyOCR](https://gitlab.gnome.org/World/OpenPaperwork/pyocr),
+[Flask](https://flask.palletsprojects.com/),
+[pdf2image](https://github.com/Belval/pdf2image),
+[python-docx](https://python-docx.readthedocs.io/),
+[Pillow](https://python-pillow.org/), and
+[Tailwind CSS](https://tailwindcss.com/).

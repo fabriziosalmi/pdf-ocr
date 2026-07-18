@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import subprocess
-import threading
 import multiprocessing
 import logging
 from flask import Flask, request, render_template, send_file, flash, redirect, url_for, session, jsonify
@@ -17,7 +16,7 @@ import shutil
 import tempfile
 import re
 import hashlib
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional, Tuple, Dict, Any
 from pathlib import Path
 
@@ -474,7 +473,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         
         # Check if we have all the images
         if len(image_paths) == 0:
-            raise FileNotFoundError(f"No images were successfully saved from the PDF conversion")
+            raise FileNotFoundError("No images were successfully saved from the PDF conversion")
         
         if len(image_paths) < len(images):
             logger.warning(f"Only saved {len(image_paths)} of {len(images)} images")
@@ -686,7 +685,7 @@ def upload_file():
 
         # Process asynchronously
         try:
-            task_id = run_task_in_background(
+            run_task_in_background(
                 process_pdf_with_progress,
                 conversion_id,
                 pdf_path,
