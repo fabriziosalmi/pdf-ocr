@@ -357,10 +357,12 @@ class TestOCRApp(unittest.TestCase):
         self.assertIn("error", data)
     
     def test_system_check(self):
-        # Mock dependency checks
+        # Mock dependency checks (order: tesseract, poppler, paddleocr).
+        # PaddleOCR is reported but optional, so its absence must NOT flip status to error.
         with patch('app.check_dependency', side_effect=[
             (True, {"installed": True, "version": "4.1.1"}),
-            (True, {"installed": True, "version": "22.02.0"})
+            (True, {"installed": True, "version": "22.02.0"}),
+            (False, {"installed": False, "message": "PaddleOCR is not installed"})
         ]):
             response = self.app.get('/system-check')
             self.assertEqual(response.status_code, 200)
@@ -370,6 +372,8 @@ class TestOCRApp(unittest.TestCase):
             self.assertIn("dependencies", data)
             self.assertIn("tesseract", data["dependencies"])
             self.assertIn("poppler", data["dependencies"])
+            self.assertIn("paddleocr", data["dependencies"])
+            self.assertFalse(data["dependencies"]["paddleocr"]["installed"])
             self.assertIn("upload_dir", data)
 
     def test_allowed_file_uppercase(self):
@@ -422,11 +426,48 @@ class TestOCRApp(unittest.TestCase):
         
         # Call the function with pyocr engine
         idx, text = mock_process(0, img_path, "pyocr", "eng")
-        
+
         # Verify it was called with the right arguments
         mock_process.assert_called_once_with(0, img_path, "pyocr", "eng")
         self.assertEqual(idx, 0)
         self.assertEqual(text, "PyOCR result")
+
+    @patch('app.logger')
+    def test_process_image_paddleocr(self, mock_logger):
+        # Exercises the REAL paddleocr dispatch branch by injecting a fake
+        # `paddleocr` module into sys.modules, so the test never needs the
+        # (heavy) paddleocr package installed — keeping CI green.
+        img = Image.new('RGB', (100, 100), color='white')
+        img_path = os.path.join(self.test_upload_folder, 'paddleocr.png')
+        img.save(img_path)
+
+        # Fake PaddleOCR 2.x return: [ [ [box], (text, confidence) ], ... ]
+        # (outer list is per-image). Include malformed entries that must be skipped.
+        fake_result = [[
+            [[[0, 0], [1, 0], [1, 1], [0, 1]], ("Hello", 0.99)],
+            [[[0, 2], [1, 2], [1, 3], [0, 3]], ("World", 0.98)],
+            None,                       # malformed -> TypeError -> skipped
+            [],                         # malformed -> IndexError -> skipped
+            [[[0, 4]], (123, 0.5)],     # non-str text -> skipped by isinstance guard
+        ]]
+
+        fake_reader = MagicMock()
+        fake_reader.ocr.return_value = fake_result
+        fake_paddle_cls = MagicMock(return_value=fake_reader)
+        fake_module = MagicMock()
+        fake_module.PaddleOCR = fake_paddle_cls
+
+        import sys
+        with patch.dict(sys.modules, {'paddleocr': fake_module}):
+            idx, text = process_image(0, img_path, "paddleocr", "eng")
+
+        self.assertEqual(idx, 0)
+        # Only the two well-formed lines survive; single newline is normalised to a space
+        # by fix_common_ocr_errors.
+        self.assertEqual(text, "Hello World")
+        # Built with the PaddleOCR 2.x API and 'eng' mapped to 'en'
+        fake_paddle_cls.assert_called_once_with(use_angle_cls=True, lang="en", show_log=False)
+        fake_reader.ocr.assert_called_once_with(img_path, cls=True)
 
     # Test cleanup function directly instead of through the periodic mechanism
     @patch('app.CLEANUP_INTERVAL', 0)  # Force cleanup to always run

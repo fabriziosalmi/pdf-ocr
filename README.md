@@ -93,19 +93,19 @@ the code.
 - **Web upload → convert → download** flow with a background worker and a live progress
   page (`/status/<id>` polling `/api/task_status/<id>`).
 - **Four output formats:** DOCX, TXT, Markdown, HTML.
-- **Three OCR engines:** Tesseract (default, always available), plus **EasyOCR** and
-  **PyOCR** if you install their optional dependencies.
+- **Four OCR engines:** Tesseract (default, always available), plus **EasyOCR**,
+  **PyOCR**, and **PaddleOCR** if you install their optional dependencies.
 - **Tesseract language selection** (e.g. `eng`, `ita`, `fra`, `deu`, `chi_sim`, `+`-joined
   for multiple), with sensible 3-letter → EasyOCR code mapping.
 - **Basic image preprocessing** (opt-in): sharpen filter + contrast boost + grayscale.
 - **Quality toggle:** standard (300 DPI) or high (600 DPI) rendering.
 - **Light OCR clean-up:** control-character stripping and a small substitution pass for
   common misreads, plus paragraph splitting on blank lines.
-- **Self-diagnostics:** dependency checks for Tesseract/Poppler and a `/system-check` JSON
-  endpoint.
+- **Self-diagnostics:** dependency checks for Tesseract/Poppler (plus an optional PaddleOCR
+  lazy-import probe) and a `/system-check` JSON endpoint.
 - **Docker image** bundling Tesseract (with several language packs) and Poppler.
 - **Automatic cleanup** of old uploads and finished tasks.
-- **34 unit tests** (`test_app.py`) covering the pure logic and Flask routes.
+- **35 unit tests** (`test_app.py`) covering the pure logic and Flask routes.
 
 ### Roadmap / not implemented yet
 
@@ -124,8 +124,6 @@ today. Contributions welcome.
   purpose, to avoid multiprocessing races. Throughput work is pending.
 - **Batch / folder processing** — there is no batch mode; each conversion is one uploaded
   PDF via the web UI.
-- **PaddleOCR engine** — `requirements-paddleocr.txt` ships, but PaddleOCR is not wired
-  into the engine selector yet.
 - **Env-configurable `UPLOAD_FOLDER`, `MAX_CONTENT_LENGTH`, `HOST`, and cleanup intervals**
   — these are currently constants in `app.py` (see [Configuration](#configuration) for
   what is actually read from the environment).
@@ -148,7 +146,7 @@ Docker users can skip both binaries — they are baked into the image.
 
 ### Optional OCR engines
 
-Tesseract works out of the box. The other two engines are optional:
+Tesseract works out of the box. The other three engines are optional:
 
 ```bash
 # EasyOCR (pulls in PyTorch — see https://pytorch.org for the right build)
@@ -156,7 +154,14 @@ pip install -r requirements-easyocr.txt
 
 # PyOCR (a thin wrapper over the Tesseract/Cuneiform binaries)
 pip install pyocr
+
+# PaddleOCR (heavy — pulls in paddlepaddle; the 2.x line is required)
+pip install -r requirements-paddleocr.txt
 ```
+
+PaddleOCR is wired against the **PaddleOCR 2.x** API (`paddleocr>=2.6,<3.0` with
+`paddlepaddle>=2.5,<3.0`). The 3.x release removed `use_angle_cls`/`cls`/`show_log` and
+renamed `.ocr()` to `.predict()`, so it is intentionally pinned below 3.0.
 
 ### Helper script
 
@@ -185,7 +190,7 @@ Python dependencies — no OCR engines required:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-python -m unittest test_app -v          # 34 tests
+python -m unittest test_app -v          # 35 tests
 ruff check .                            # lint (same gate as CI)
 ```
 
@@ -220,6 +225,7 @@ MIT — see [LICENSE](LICENSE).
 Built on [Tesseract OCR](https://github.com/tesseract-ocr/tesseract),
 [EasyOCR](https://github.com/JaidedAI/EasyOCR),
 [PyOCR](https://gitlab.gnome.org/World/OpenPaperwork/pyocr),
+[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR),
 [Flask](https://flask.palletsprojects.com/),
 [pdf2image](https://github.com/Belval/pdf2image),
 [python-docx](https://python-docx.readthedocs.io/),

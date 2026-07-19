@@ -384,6 +384,10 @@
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 dark:text-gray-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> </svg>
                                                         <span class="text-xs font-medium text-gray-800 dark:text-gray-400 text-center">PyOCR</span>
                                                     </div>
+                                                    <div data-engine="paddleocr" class="ocr-engine-option flex-1 cursor-pointer border rounded-lg p-2 flex flex-col items-center hover:bg-gray-50 dark:hover:bg-gray-700/30 min-w-[90px]">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 dark:text-gray-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /> </svg>
+                                                        <span class="text-xs font-medium text-gray-800 dark:text-gray-400 text-center">PaddleOCR</span>
+                                                    </div>
                                                 </div>
                                                 <input type="hidden" id="ocr-engine" name="ocr-engine" value="tesseract"> <!-- Hidden input to store selected engine -->
                                                 <div id="engine-warning-panel" class="mt-2"></div> <!-- Placeholder for warnings -->
@@ -531,10 +535,11 @@
                         <p class="text-sm text-blue-600 dark:text-blue-300 mt-2">This includes Flask, PyTesseract, python-docx, pdf2image, Pillow, and others.</p>
                         
                         <h5 class="font-medium text-blue-700 dark:text-blue-300 mt-4 mb-2">Optional OCR Engines:</h5>
-                        <p class="text-sm text-blue-600 dark:text-blue-300 mb-1">If you want to use EasyOCR or PyOCR, install their specific requirements:</p>
+                        <p class="text-sm text-blue-600 dark:text-blue-300 mb-1">If you want to use EasyOCR, PyOCR, or PaddleOCR, install their specific requirements:</p>
                         <pre class="bg-blue-100 dark:bg-blue-800 p-3 rounded overflow-x-auto"><code>pip install -r requirements-easyocr.txt
-pip install -r requirements-pyocr.txt</code></pre>
-                        <p class="text-sm text-blue-600 dark:text-blue-300 mt-1">Note: EasyOCR might require PyTorch. Follow <a href="https://pytorch.org/get-started/locally/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">PyTorch installation instructions</a> if needed.</p>
+pip install -r requirements-pyocr.txt
+pip install -r requirements-paddleocr.txt</code></pre>
+                        <p class="text-sm text-blue-600 dark:text-blue-300 mt-1">Note: EasyOCR might require PyTorch. Follow <a href="https://pytorch.org/get-started/locally/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">PyTorch installation instructions</a> if needed. PaddleOCR pulls in the heavy paddlepaddle package and targets the PaddleOCR 2.x API.</p>
                     </div>
 
                     <!-- Poppler -->
@@ -619,11 +624,12 @@ pip install -r requirements-pyocr.txt</code></pre>
                             <li>Restart the application or your terminal after modifying the PATH.</li>
                         </ul>
 
-                        <h5 class="font-medium text-yellow-700 dark:text-yellow-300 mt-4 mb-2">EasyOCR / PyOCR Errors</h5>
+                        <h5 class="font-medium text-yellow-700 dark:text-yellow-300 mt-4 mb-2">EasyOCR / PyOCR / PaddleOCR Errors</h5>
                          <ul class="list-disc ml-5 space-y-1 text-sm text-yellow-600 dark:text-yellow-300">
-                            <li>Ensure you have installed the specific requirements: `pip install -r requirements-easyocr.txt` or `pip install -r requirements-pyocr.txt`.</li>
+                            <li>Ensure you have installed the specific requirements: `pip install -r requirements-easyocr.txt`, `pip install -r requirements-pyocr.txt`, or `pip install -r requirements-paddleocr.txt`.</li>
                             <li>EasyOCR might require specific versions of PyTorch or CUDA. Check the EasyOCR documentation for compatibility.</li>
                             <li>PyOCR relies on an underlying OCR engine (usually Tesseract). Ensure Tesseract is installed and working.</li>
+                            <li>PaddleOCR requires the PaddleOCR 2.x line (`paddleocr>=2.6,&lt;3.0` with `paddlepaddle>=2.5,&lt;3.0`); the 3.x API is not compatible.</li>
                         </ul>
                     </div>
                 </div>
@@ -706,7 +712,7 @@ pip install -r requirements-pyocr.txt</code></pre>
                 hideEngineWarningPanel(); // Hide options panel warning
             } else {
                 tesseractOptionsPanel.classList.add('hidden');
-                if (selectedEngine === 'easyocr' || selectedEngine === 'pyocr') {
+                if (selectedEngine === 'easyocr' || selectedEngine === 'pyocr' || selectedEngine === 'paddleocr') {
                     showEngineWarningPanel(selectedEngine); // Show options panel warning
                 } else {
                     hideEngineWarningPanel();
@@ -724,7 +730,7 @@ pip install -r requirements-pyocr.txt</code></pre>
 
         // Show warning for non-Tesseract engines (Options Panel)
         function showEngineWarningPanel(engine) { // Renamed
-            const engineNames = { 'easyocr': 'EasyOCR', 'pyocr': 'PyOCR' };
+            const engineNames = { 'easyocr': 'EasyOCR', 'pyocr': 'PyOCR', 'paddleocr': 'PaddleOCR' };
             engineWarningPanel.innerHTML = `
                 <div class="p-2 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-700">
                     <div class="flex items-start">

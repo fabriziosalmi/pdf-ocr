@@ -169,7 +169,17 @@ def check_dependency(name: str) -> Tuple[bool, Dict[str, Any]]:
                 }
             except (subprocess.CalledProcessError, FileNotFoundError):
                 return False, {"installed": False, "message": "Tesseract is not installed or not in PATH"}
-        
+
+        elif name.lower() == 'paddleocr':
+            # Optional engine: lazy-import test so its (heavy) absence never breaks the check.
+            try:
+                import paddleocr
+                from paddleocr import PaddleOCR  # noqa: F401
+                version = getattr(paddleocr, '__version__', 'Unknown version')
+                return True, {"installed": True, "version": version, "message": "PaddleOCR is installed"}
+            except Exception:
+                return False, {"installed": False, "message": "PaddleOCR is not installed. Install with 'pip install -r requirements-paddleocr.txt'"}
+
         else:
             return False, {"installed": False, "message": f"Unknown dependency: {name}"}
     
@@ -317,7 +327,44 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
             except Exception as e:
                 logger.error(f"PyOCR error: {str(e)}", exc_info=True)
                 return i, f"[Error with PyOCR: {str(e)}]"
-        
+
+        elif ocr_engine == "paddleocr":
+            try:
+                from paddleocr import PaddleOCR
+                # Map common ISO codes (3-letter Tesseract or 2-letter) to PaddleOCR codes
+                lang_map = {
+                    'eng': 'en', 'en': 'en', 'ita': 'it', 'it': 'it',
+                    'fra': 'fr', 'fr': 'fr', 'deu': 'german', 'de': 'german',
+                    'spa': 'es', 'es': 'es', 'chi_sim': 'ch', 'ch': 'ch',
+                }
+                # PaddleOCR loads a single language model per reader; use the first requested language
+                first_lang = language.split('+')[0]
+                paddle_lang = lang_map.get(first_lang, 'en')
+
+                # PaddleOCR 2.x API (use_angle_cls / cls / show_log were removed in 3.x)
+                reader = PaddleOCR(use_angle_cls=True, lang=paddle_lang, show_log=False)
+                result = reader.ocr(image_path, cls=True)
+
+                # Defensively extract text from the PaddleOCR 2.x nested structure:
+                # result = [ [ [box], (text, confidence) ], ... ]  (outer list is per-image)
+                lines = []
+                if result:
+                    for page in result:
+                        if not page:
+                            continue
+                        for entry in page:
+                            try:
+                                line = entry[1][0]
+                            except (IndexError, TypeError):
+                                # Skip malformed entries
+                                continue
+                            if isinstance(line, str) and line:
+                                lines.append(line)
+                text = '\n'.join(lines)
+            except Exception as e:
+                logger.error(f"PaddleOCR error: {str(e)}", exc_info=True)
+                return i, f"[Error with PaddleOCR: {str(e)}]"
+
         else:
             return i, f"[Error: Unsupported OCR engine: {ocr_engine}]"
 
@@ -872,7 +919,14 @@ def system_check():
         results["dependencies"]["poppler"] = {"error": str(e)}
         results["status"] = "error"
         results["errors"].append(f"Error checking Poppler: {str(e)}")
-    
+
+    # Check PaddleOCR (optional engine — reported for info, does not gate overall status)
+    try:
+        _, paddleocr_data = check_dependency('paddleocr')
+        results["dependencies"]["paddleocr"] = paddleocr_data
+    except Exception as e:
+        results["dependencies"]["paddleocr"] = {"error": str(e)}
+
     # Check upload directory
     upload_dir = app.config['UPLOAD_FOLDER']
     results["upload_dir"] = {
