@@ -19,7 +19,8 @@ from app import (  # noqa: E402
     check_dependency, sanitize_text, enhance_image,
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
-    process_pdf_with_progress, TASKS, TASK_TIMEOUT
+    process_pdf_with_progress, parse_preprocess_options, otsu_threshold,
+    TASKS, TASK_TIMEOUT
 )
 
 # Initialize colorama for colored terminal output
@@ -176,6 +177,87 @@ class TestOCRApp(unittest.TestCase):
             # Should log a warning
             mock_logger.warning.assert_called_once()
     
+    def test_parse_preprocess_options(self):
+        opts = parse_preprocess_options({
+            'pre-grayscale': '1', 'pre-sharpen': '1',
+            'pre-threshold': '1', 'pre-contrast': '1.8',
+        })
+        self.assertEqual(opts, {
+            "grayscale": True, "sharpen": True, "threshold": True, "contrast": 1.8,
+        })
+
+        # Unchecked boxes are absent from the form, not sent as '0'.
+        opts = parse_preprocess_options({'pre-contrast': '1.0'})
+        self.assertFalse(opts["grayscale"])
+        self.assertFalse(opts["threshold"])
+
+        # A hand-crafted request cannot ask for an absurd contrast factor.
+        self.assertEqual(parse_preprocess_options({'pre-contrast': '999'})["contrast"], 2.5)
+        self.assertEqual(parse_preprocess_options({'pre-contrast': '-5'})["contrast"], 0.5)
+        self.assertEqual(parse_preprocess_options({'pre-contrast': 'abc'})["contrast"], 1.5)
+
+    def test_otsu_threshold_separates_two_populations(self):
+        # Half the pixels black, half white: the cutoff must land between them.
+        image = Image.new('L', (10, 10), color=0)
+        for y in range(5):
+            for x in range(10):
+                image.putpixel((x, y), 220)
+        cutoff = otsu_threshold(image)
+        # The cutoff is the top of the dark class: `p > cutoff` must send the
+        # 0-valued pixels to black and the 220-valued ones to white.
+        self.assertGreaterEqual(cutoff, 0)
+        self.assertLess(cutoff, 220)
+
+        # A uniform image has no split to find; the fallback must not divide by
+        # zero or blank the page.
+        self.assertEqual(otsu_threshold(Image.new('L', (4, 4), color=0)), 128)
+        self.assertEqual(otsu_threshold(Image.new('L', (0, 0), color=0)), 128)
+
+    def test_enhance_image_threshold_binarises(self):
+        image = Image.new('L', (20, 20), color=0)
+        for x in range(20):
+            for y in range(10):
+                image.putpixel((x, y), 200)
+
+        result = enhance_image(image, {
+            "grayscale": True, "sharpen": False, "contrast": 1.0, "threshold": True,
+        })
+        self.assertEqual(set(result.convert('L').tobytes()), {0, 255})
+
+    def test_enhance_image_honours_disabled_options(self):
+        image = Image.new('RGB', (10, 10), color='white')
+        result = enhance_image(image, {
+            "grayscale": False, "sharpen": False, "contrast": 1.0, "threshold": False,
+        })
+        # Nothing was asked for, so the mode is untouched.
+        self.assertEqual(result.mode, 'RGB')
+
+    @patch('app.logger')
+    def test_preprocessing_reaches_path_based_engines(self, mock_logger):
+        """EasyOCR/PaddleOCR read the file from disk, not the PIL object.
+
+        Without writing the enhanced page back out they silently received the
+        untouched render, so the preprocessing checkbox did nothing for them.
+        """
+        img = Image.new('RGB', (40, 40), color='white')
+        img_path = os.path.join(self.test_upload_folder, 'page.png')
+        img.save(img_path)
+
+        fake_reader = MagicMock()
+        fake_reader.readtext.return_value = ["text"]
+        fake_module = MagicMock()
+        fake_module.Reader = MagicMock(return_value=fake_reader)
+
+        import sys
+        with patch.dict(sys.modules, {'easyocr': fake_module}):
+            process_image(0, img_path, "easyocr", "eng", preprocess=True)
+
+        used_path = fake_reader.readtext.call_args[0][0]
+        self.assertNotEqual(used_path, img_path)
+        self.assertTrue(used_path.endswith('.pre.png'))
+        # The temporary preprocessed copy is cleaned up afterwards.
+        self.assertFalse(os.path.exists(used_path))
+
     def test_save_as_markdown(self):
         test_results = {0: "Test page 1", 1: "Test page 2\n\nParagraph 2"}
         test_output = tempfile.mktemp(suffix='.md')
