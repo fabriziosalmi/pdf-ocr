@@ -1,23 +1,35 @@
-version: '3'
-
+# `version:` is obsolete in Compose v2 and emits a warning on every command.
 services:
-  ocr-pdf-docx:
+  pdf-ocr:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ocr-pdf-docx
+    container_name: pdf-ocr
     ports:
       - "8011:8011"
     volumes:
       - ./uploads:/app/uploads
     environment:
-      - DOCKER_ENV=true
-      - PORT=8011
-      # Uncomment the following line for development mode
-      # - FLASK_ENV=development
+      DOCKER_ENV: "true"
+      PORT: "8011"
+      # Required. Put it in a .env file next to this one (see .env.example);
+      # the container will not start without it.
+      SECRET_KEY: "${SECRET_KEY:?set SECRET_KEY in .env — see .env.example}"
+      WEB_CONCURRENCY: "${WEB_CONCURRENCY:-2}"
+      MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-64}"
+      MAX_PAGES: "${MAX_PAGES:-200}"
     restart: unless-stopped
-    # Increase memory limit if needed for larger documents
+    # The app writes only to /app/uploads, so the rest of the filesystem can
+    # stay read-only.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     deploy:
       resources:
         limits:
+          # Rendering is the memory-hungry step; RENDER_BATCH_SIZE bounds it.
           memory: 2G

@@ -1,41 +1,39 @@
-# Core dependencies
-Flask>=2.0.0
-Werkzeug>=2.1.0
-Pillow>=9.0.0 # Image handling
-pytesseract>=0.3.8 # Tesseract wrapper
-pdf2image>=1.16.0 # PDF to image conversion
-python-docx>=0.8.11 # DOCX creation
+# Runtime dependencies, pinned.
+#
+# These were previously floating lower bounds (`Flask>=2.0.0`), so every build
+# produced a different application and a regression upstream was indistinguishable
+# from a regression here. Dependabot (.github/dependabot.yml) opens a PR when any
+# of these has an update, and CI has to pass before it can be merged.
 
-# Image Preprocessing (Optional but used by enhance_image)
-# Pillow also handles some basic enhancements
-# Add others if specific preprocessing functions require them, e.g.:
-# opencv-python>=4.5.0
-# scikit-image>=0.18.0
-# scipy>=1.7.0
+# Core
+Flask==3.1.3
+Werkzeug==3.1.8            # 2.3.7 had a DoS advisory; do not float back below 3.0.6
+Jinja2==3.1.6
+itsdangerous==2.2.0        # signs the session cookie
+MarkupSafe==3.0.3
+click==8.4.2
+blinker==1.9.0
 
-# Security and Performance
-gunicorn>=20.1.0 # WSGI production server (Recommended for deployment)
-python-dotenv>=0.19.0 # Environment variable management
+# PDF / OCR / output
+Pillow==12.3.0             # image handling
+pytesseract==0.3.13        # Tesseract wrapper
+pdf2image==1.17.0          # PDF -> image, shells out to Poppler
+python-docx==1.2.0         # DOCX creation
+lxml==6.1.1                # python-docx dependency
 
-# --- Optional OCR Engine Dependencies ---
-# Install these separately if needed, e.g., using install_dependencies.py script
-# or requirements-*.txt files
+# Serving
+gunicorn==26.0.0           # WSGI server used by entrypoint.sh
+python-dotenv==1.2.2       # loads .env in local development
 
-# For EasyOCR (see requirements-easyocr.txt)
-# easyocr>=1.7.0
-# torch>=1.7.0 # Check PyTorch website for specific installation instructions
-# torchvision>=0.8.1
+# --- Optional OCR engines --------------------------------------------------
+# Not installed by default; each is a large dependency tree pulled in lazily by
+# app.py only when that engine is selected.
+#   EasyOCR   -> pip install -r requirements-easyocr.txt
+#   PaddleOCR -> pip install -r requirements-paddleocr.txt
+#   PyOCR     -> pip install pyocr
 
-# For PyOCR (see requirements-pyocr.txt)
-# pyocr>=0.8.3
-
-# --- External System Dependencies (Not installed via pip) ---
-# Note: You also need to install poppler externally:
-# On macOS: brew install poppler
-# On Windows: Download from https://github.com/oschwartz10612/poppler-windows/releases
-# On Linux: apt-get install poppler-utils
-# 
-# Note: You also need to install Tesseract OCR engine externally:
-# On macOS: brew install tesseract tesseract-lang
-# On Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
-# On Linux: apt-get install tesseract-ocr tesseract-ocr-all (or specific languages)
+# --- External system dependencies (not installed via pip) ------------------
+# Poppler:   macOS `brew install poppler`   Debian `apt-get install poppler-utils`
+# Tesseract: macOS `brew install tesseract tesseract-lang`
+#            Debian `apt-get install tesseract-ocr tesseract-ocr-<lang>`
+# Both are already present in the Docker image.
