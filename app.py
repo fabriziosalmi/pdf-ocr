@@ -912,12 +912,11 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
 
 def run_task_in_background(func: callable, task_id: str, *args: Any, **kwargs: Any) -> str:
     """Run a conversion in a background thread, recording progress in the store."""
-    flask_app = app._get_current_object()
 
     def task_wrapper():
         # The worker touches app.config (upload folder, task store paths), so it
         # needs an application context of its own.
-        with flask_app.app_context():
+        with app.app_context():
             try:
                 success, result_path, output_filename = func(*args, **kwargs)
                 if success:
