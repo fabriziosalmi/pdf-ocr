@@ -9,6 +9,7 @@ import tempfile
 import shutil
 import json
 import time
+import threading
 from unittest.mock import patch, MagicMock
 from PIL import Image
 import colorama
@@ -20,7 +21,7 @@ from app import (  # noqa: E402
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
     process_pdf_with_progress, parse_preprocess_options, otsu_threshold,
-    TASKS, TASK_TIMEOUT
+    run_task_in_background, TASKS, TASK_TIMEOUT
 )
 
 # Initialize colorama for colored terminal output
@@ -538,6 +539,49 @@ class TestOCRApp(unittest.TestCase):
                 follow_redirects=True,
             )
         self.assertIn(b'Unknown output format', response.data)
+
+    def test_run_task_in_background_records_success(self):
+        """Cover the thread wrapper itself, not just the function it calls.
+
+        Nothing exercised this path, so an AttributeError inside it surfaced
+        only as a generic "error starting the OCR process" flash at runtime.
+        """
+        done = threading.Event()
+
+        def fake_conversion():
+            return True, os.path.join(self.test_upload_folder, "r.txt"), "r.txt"
+
+        TASKS.set(self.TASK_ID, {"status": "processing", "progress": 0})
+        run_task_in_background(lambda: (done.set(), fake_conversion())[1], self.TASK_ID)
+        self.assertTrue(done.wait(timeout=5))
+
+        for _ in range(50):
+            record = TASKS.get(self.TASK_ID)
+            if record and record.get("status") == "completed":
+                break
+            time.sleep(0.05)
+
+        record = TASKS.get(self.TASK_ID)
+        self.assertEqual(record["status"], "completed")
+        self.assertEqual(record["progress"], 100)
+        self.assertEqual(record["output_filename"], "r.txt")
+
+    def test_run_task_in_background_records_failure(self):
+        def boom():
+            raise RuntimeError("conversion exploded")
+
+        TASKS.set(self.TASK_ID, {"status": "processing", "progress": 0})
+        with patch('app.logger'):
+            run_task_in_background(boom, self.TASK_ID)
+            for _ in range(50):
+                record = TASKS.get(self.TASK_ID)
+                if record and record.get("status") == "failed":
+                    break
+                time.sleep(0.05)
+
+        record = TASKS.get(self.TASK_ID)
+        self.assertEqual(record["status"], "failed")
+        self.assertIn("conversion exploded", record["error"])
 
     def test_save_output_rejects_unknown_format(self):
         with self.assertRaises(ValueError):
