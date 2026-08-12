@@ -1,5 +1,5 @@
 # `COPY . .` used to pull the whole repository into the image, including the
-# ~30 MB of screenshots and the .git history.
+# 30 MB of .git history, the screenshots, and the test suite.
 .git
 .github
 .gitignore

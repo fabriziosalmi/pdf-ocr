@@ -32,7 +32,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files (see .dockerignore for what stays out)
+# Copy application files (see .dockerignore: .git, screenshots and tests stay out)
 COPY . .
 
 # Run as an unprivileged user. The uploads directory is owned by that user
