@@ -1,9 +1,11 @@
 import os
 import sys
 import time
+import json
 import subprocess
-import multiprocessing
 import logging
+import logging.handlers
+import secrets
 from flask import Flask, request, render_template, send_file, flash, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 import pytesseract
@@ -11,53 +13,169 @@ from docx import Document
 from PIL import Image
 import uuid
 from threading import Thread
-from concurrent.futures import ProcessPoolExecutor, as_completed
 import shutil
 import tempfile
 import re
-import hashlib
 from datetime import timedelta
 from typing import Optional, Tuple, Dict, Any
 from pathlib import Path
 
-# Configure logging
+# Configure logging. The log file is opt-in: a container or a read-only
+# deployment should not fail to boot because the working directory is not
+# writable, and stdout is what an orchestrator actually collects.
+_log_handlers: list = [logging.StreamHandler()]
+_log_file = os.environ.get('LOG_FILE')
+if _log_file:
+    try:
+        # Rotate, so a long-running instance cannot fill the disk.
+        _log_handlers.append(logging.handlers.RotatingFileHandler(
+            _log_file, maxBytes=10 * 1024 * 1024, backupCount=3, encoding='utf-8'
+        ))
+    except OSError as exc:  # pragma: no cover - depends on the filesystem
+        print(f"Warning: could not open LOG_FILE {_log_file!r}: {exc}", file=sys.stderr)
+
 logging.basicConfig(
-    level=logging.INFO,
+    level=os.environ.get('LOG_LEVEL', 'INFO').upper(),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("app.log"),
-        logging.StreamHandler()
-    ]
+    handlers=_log_handlers,
 )
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
 # Configuration
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
 ALLOWED_EXTENSIONS = {'pdf'}
+SUPPORTED_ENGINES = {'tesseract', 'easyocr', 'pyocr', 'paddleocr'}
+SUPPORTED_OUTPUT_FORMATS = {'docx', 'txt', 'md', 'html'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024  # 64 MB limit
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_UPLOAD_MB', '64')) * 1024 * 1024
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Session timeout
-
-# Use a strong secret key from environment or generate one
-app.secret_key = os.environ.get('SECRET_KEY', hashlib.sha256(os.urandom(32)).hexdigest())
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# Only send the session cookie over HTTPS when serving over TLS.
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() == 'true'
 
 # Docker-specific configuration
 DOCKER_ENV = os.environ.get('DOCKER_ENV', 'false').lower() == 'true'
 
-# Ensure the upload folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 
-# Add storage for background tasks
-TASK_STATUS = {}  # Store task status updates
-TASK_RESULTS = {}  # Store task results
+def _resolve_secret_key() -> str:
+    """Return the session signing key, refusing to run unpinned in production.
+
+    A key generated at import time differs in every gunicorn worker and changes
+    on every restart, so session cookies silently fail to validate as soon as
+    more than one worker serves traffic. Require SECRET_KEY unless the app is
+    explicitly running in development or under test.
+    """
+    key = os.environ.get('SECRET_KEY')
+    if key:
+        return key
+    if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('PDF_OCR_TESTING') == '1':
+        logger.warning(
+            "SECRET_KEY is not set; using an ephemeral development key. Sessions "
+            "will not survive a restart and will break with more than one worker."
+        )
+        return secrets.token_hex(32)
+    raise RuntimeError(
+        "SECRET_KEY environment variable is required. Generate one with:\n"
+        "  python -c 'import secrets; print(secrets.token_hex(32))'\n"
+        "and set it in the environment (see .env.example). For local development "
+        "set FLASK_ENV=development instead."
+    )
+
+
+app.secret_key = _resolve_secret_key()
+
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Setup periodic cleanup
 CLEANUP_INTERVAL = 3600  # 1 hour in seconds
 TASK_TIMEOUT = 3600  # 1 hour in seconds
 LAST_CLEANUP_TIME = time.time()
+
+
+class TaskStore:
+    """Filesystem-backed store for background conversion tasks.
+
+    The previous implementation kept task state in two module-level dicts.
+    Under gunicorn with more than one worker the upload lands in one process
+    and the status poll lands in another, so the progress page reported
+    "not found" for a task that was running fine — the app only ever worked
+    single-process. One JSON file per task in the shared upload volume is the
+    smallest thing that survives multiple workers and a restart.
+    """
+
+    def _dir(self) -> Path:
+        # Read the folder from the config on every call, so tests (and any
+        # deployment overriding UPLOAD_FOLDER) point at the right place.
+        path = Path(app.config['UPLOAD_FOLDER']) / '.tasks'
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _path(self, task_id: str) -> Optional[Path]:
+        # Task ids are server-generated UUIDs; reject anything else rather than
+        # letting a crafted id escape the task directory.
+        if not re.fullmatch(r'[0-9a-fA-F-]{1,64}', task_id or ''):
+            return None
+        return self._dir() / f"{task_id}.json"
+
+    def get(self, task_id: str) -> Optional[Dict[str, Any]]:
+        path = self._path(task_id)
+        if path is None or not path.is_file():
+            return None
+        try:
+            with path.open(encoding='utf-8') as fh:
+                return json.load(fh)
+        except (OSError, ValueError) as exc:
+            logger.error(f"Could not read task {task_id}: {exc}")
+            return None
+
+    def set(self, task_id: str, data: Dict[str, Any]) -> None:
+        path = self._path(task_id)
+        if path is None:
+            return
+        data = {**data, "timestamp": time.time()}
+        # Write-then-rename, so a concurrent reader never sees a partial file.
+        tmp = path.with_suffix('.tmp')
+        try:
+            with tmp.open('w', encoding='utf-8') as fh:
+                json.dump(data, fh)
+            tmp.replace(path)
+        except OSError as exc:
+            logger.error(f"Could not write task {task_id}: {exc}")
+
+    def update(self, task_id: str, **fields: Any) -> None:
+        current = self.get(task_id)
+        if current is None:
+            return
+        current.update(fields)
+        self.set(task_id, current)
+
+    def delete(self, task_id: str) -> None:
+        path = self._path(task_id)
+        if path is not None:
+            try:
+                path.unlink(missing_ok=True)
+            except OSError as exc:
+                logger.warning(f"Could not delete task {task_id}: {exc}")
+
+    def items(self):
+        for path in sorted(self._dir().glob('*.json')):
+            record = self.get(path.stem)
+            if record is not None:
+                yield path.stem, record
+
+    def clear(self) -> None:
+        for path in self._dir().glob('*.json'):
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
+TASKS = TaskStore()
 
 def allowed_file(filename: Optional[str]) -> bool:
     """Check if a file extension is allowed."""
@@ -72,6 +190,35 @@ def secure_clean_filename(filename: str) -> str:
     filename = filename.replace(' ', '_')
     return filename
 
+
+def is_within_upload_folder(path: str) -> bool:
+    """Return True if `path` resolves inside the configured upload folder.
+
+    Compared with `Path.resolve()` and a parent check rather than a string
+    prefix: `"uploads_evil/x".startswith("uploads")` is True, which the old
+    check in the download route would have accepted.
+    """
+    try:
+        root = Path(app.config['UPLOAD_FOLDER']).resolve()
+        target = Path(path).resolve()
+    except (OSError, ValueError):
+        return False
+    return target == root or root in target.parents
+
+
+def looks_like_pdf(stream) -> bool:
+    """Check the PDF magic bytes on an uploaded stream, then rewind it.
+
+    The extension check alone says nothing about the content: anything named
+    `.pdf` was previously saved to disk and handed straight to Poppler.
+    """
+    try:
+        head = stream.read(5)
+        stream.seek(0)
+    except (OSError, ValueError):
+        return False
+    return head == b'%PDF-'
+
 def cleanup_old_files() -> None:
     """Remove old files from the uploads directory and expired tasks."""
     global LAST_CLEANUP_TIME
@@ -81,7 +228,7 @@ def cleanup_old_files() -> None:
     LAST_CLEANUP_TIME = current_time
     logger.info("Running periodic cleanup")
     try:
-        upload_path = Path(UPLOAD_FOLDER)
+        upload_path = Path(app.config['UPLOAD_FOLDER'])
         for file_path in upload_path.iterdir():
             if file_path.is_file() and current_time - file_path.stat().st_mtime > 86400:
                 try:
@@ -91,14 +238,18 @@ def cleanup_old_files() -> None:
                     logger.error(f"Error deleting old file {file_path}: {e}")
     except Exception as e:
         logger.error(f"Error during file cleanup: {e}")
-    expired_tasks = []
-    for task_id, status in TASK_STATUS.items():
-        if status.get("timestamp", 0) + TASK_TIMEOUT < current_time:
-            expired_tasks.append(task_id)
-    for task_id in expired_tasks:
-        TASK_STATUS.pop(task_id, None)
-        TASK_RESULTS.pop(task_id, None)
-        logger.info(f"Removed expired task: {task_id}")
+    for task_id, record in list(TASKS.items()):
+        if record.get("timestamp", 0) + TASK_TIMEOUT < current_time:
+            # Drop the produced file along with the record, otherwise results
+            # linger for a full day after their task has expired.
+            result_path = record.get("result_path")
+            if result_path and is_within_upload_folder(result_path):
+                try:
+                    os.remove(result_path)
+                except OSError:
+                    pass
+            TASKS.delete(task_id)
+            logger.info(f"Removed expired task: {task_id}")
 
 _dependency_check_cache: Dict[str, Tuple[float, Tuple[bool, str]]] = {}
 
@@ -115,15 +266,17 @@ def check_dependencies() -> Tuple[bool, str]:
             result = (True, "Running in Docker, dependencies assumed to be installed")
             _dependency_check_cache[cache_key] = (now, result)
             return result
-        if sys.platform == 'darwin':
-            try:
-                from pdf2image import convert_from_path
-                convert_from_path.get_page_count('test.pdf')
-            except Exception as e:
-                if "Unable to get page count. Is poppler installed and in PATH?" in str(e):
-                    result = (False, "Poppler is not installed or not in PATH. Install it with 'brew install poppler'")
-                    _dependency_check_cache[cache_key] = (now, result)
-                    return result
+        # Poppler ships the `pdftoppm` binary that pdf2image shells out to.
+        # (The previous probe called `convert_from_path.get_page_count`, an
+        # attribute that does not exist on that function, so it raised
+        # AttributeError, failed the string match, and never reported anything.)
+        try:
+            subprocess.check_output(['pdftoppm', '-v'], stderr=subprocess.STDOUT)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            hint = "brew install poppler" if sys.platform == 'darwin' else "apt-get install poppler-utils"
+            result = (False, f"Poppler is not installed or not in PATH. Install it with '{hint}'")
+            _dependency_check_cache[cache_key] = (now, result)
+            return result
         try:
             subprocess.check_output(['tesseract', '--version'], stderr=subprocess.STDOUT)
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -191,9 +344,48 @@ def before_request():
     """Run before each request to perform housekeeping."""
     # Run cleanup periodically
     cleanup_old_files()
-    
+
     # Make session permanent but with a timeout
     session.permanent = True
+
+
+# The page loads Tailwind from static/vendor and defines inline styles/handlers,
+# so 'unsafe-inline' is still required; everything else is same-origin only.
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline'; "
+    "style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "font-src 'self' data:; "
+    "connect-src 'self'; "
+    "form-action 'self'; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'; "
+    "object-src 'none'"
+)
+
+
+@app.after_request
+def set_security_headers(response):
+    """Attach baseline security headers to every response."""
+    response.headers.setdefault('Content-Security-Policy', CONTENT_SECURITY_POLICY)
+    response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+    response.headers.setdefault('X-Frame-Options', 'DENY')
+    response.headers.setdefault('Referrer-Policy', 'no-referrer')
+    response.headers.setdefault('Cross-Origin-Opener-Policy', 'same-origin')
+    response.headers.setdefault('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+    if app.config['SESSION_COOKIE_SECURE']:
+        response.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+    return response
+
+
+@app.route('/healthz')
+def healthz():
+    """Liveness/readiness probe: is the process up and the upload folder usable?"""
+    upload_dir = app.config['UPLOAD_FOLDER']
+    writable = os.path.isdir(upload_dir) and os.access(upload_dir, os.W_OK)
+    body = {"status": "ok" if writable else "degraded", "upload_dir_writable": writable}
+    return jsonify(body), (200 if writable else 503)
 
 @app.route('/')
 def index():
@@ -471,152 +663,132 @@ def save_as_html(text_results: Dict[int, str], output_path: str, title: str = "C
         f.write('</body>\n')
         f.write('</html>\n')
 
+MAX_PAGES = int(os.environ.get('MAX_PAGES', '200'))
+# Pages rendered per Poppler call. Rendering the whole document in one go
+# materialises every page as a full-resolution bitmap at once: a 100-page PDF
+# at 600 DPI is several GB of RSS, which the 2 GB container limit cannot hold.
+RENDER_BATCH_SIZE = int(os.environ.get('RENDER_BATCH_SIZE', '4'))
+
+
+def save_output(results: Dict[int, str], output_format: str, output_path: str, base_filename: str) -> None:
+    """Write the per-page OCR text out in the requested format."""
+    if output_format == "docx":
+        document = Document()
+        ordered = sorted(results.keys())
+        for position, i in enumerate(ordered):
+            document.add_paragraph(results[i])
+            if position < len(ordered) - 1:
+                document.add_page_break()
+        document.save(output_path)
+    elif output_format == "txt":
+        with open(output_path, 'w', encoding='utf-8') as f:
+            ordered = sorted(results.keys())
+            for position, i in enumerate(ordered):
+                f.write(results[i])
+                # Add a separator between pages for clarity
+                if position < len(ordered) - 1:
+                    f.write("\n\n--- Page Break ---\n\n")
+    elif output_format == "md":
+        save_as_markdown(results, output_path)
+    elif output_format == "html":
+        save_as_html(results, output_path, title=base_filename)
+    else:
+        raise ValueError(f"Unsupported output format: {output_format}")
+
+
 def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str = "tesseract", language: str = "eng", quality: str = "standard", preprocess: bool = False, orig_filename: Optional[str] = None, output_format: str = "docx") -> Tuple[bool, Optional[str], str]:
-    """Process PDF with parallel processing for speed and handle different output formats"""
+    """Render a PDF page by page, OCR each page, and write the chosen format."""
+    if output_format not in {"docx", "txt", "md", "html"}:
+        return False, None, f"Unsupported output format: {output_format}"
+
     temp_dir = None
     try:
         # Create a temporary directory for image files
         temp_dir = tempfile.mkdtemp(prefix="ocr_")
-        logger.info(f"Created temporary directory: {temp_dir}")  # Log temp dir creation
-        
+        logger.info(f"Created temporary directory: {temp_dir}")
+
         # Import PDF conversion library
         from pdf2image import convert_from_path, pdfinfo_from_path
 
-        # Get total page count
-        total_pages = 0
-        try:
-            pdf_info = pdfinfo_from_path(pdf_path)
-            total_pages = pdf_info["Pages"]
-        except Exception as e:
-            logger.warning(f"Could not get page count via pdfinfo: {e}. Will count after conversion.")
-
         # Convert PDF to images with appropriate DPI based on quality
-        dpi = 300
-        if quality == "high":
-            dpi = 600
+        dpi = 600 if quality == "high" else 300
 
-        # Update status to show we're starting conversion
-        if conversion_id in TASK_STATUS:
-            TASK_STATUS[conversion_id].update({
-                "status": "processing", 
-                "step": "converting",
-                "progress": 0
-            })
+        TASKS.update(conversion_id, status="processing", step="converting", progress=0)
 
-        # Convert PDF to images but don't rely on automatic file saving
-        logger.info(f"Starting PDF conversion with DPI={dpi}")
-        images = convert_from_path(
-            pdf_path, 
-            dpi=dpi,
-            thread_count=1,  # Use single thread to avoid concurrency issues
-            use_pdftocairo=True,  # Try to use pdftocairo which is more reliable
-            fmt='png'
-            # Removed output_folder parameter to handle file saving manually
-        )
-        logger.info(f"PDF conversion returned {len(images)} images")
+        # The page count decides how the work is batched, so it is required
+        # rather than best-effort: without it the whole document has to be
+        # rendered at once just to find out how long it is.
+        pdf_info = pdfinfo_from_path(pdf_path)
+        total_pages = int(pdf_info["Pages"])
+        if total_pages < 1:
+            raise ValueError("The PDF reports zero pages.")
+        if total_pages > MAX_PAGES:
+            raise ValueError(
+                f"This PDF has {total_pages} pages; the limit is {MAX_PAGES} "
+                f"(raise MAX_PAGES to allow more)."
+            )
 
-        if total_pages == 0:
-            total_pages = len(images)
-            
-        # Manually save each image with explicit naming
-        image_paths = []
-        for i, img in enumerate(images):
-            img_path = os.path.join(temp_dir, f'page_{i}.png')
-            logger.info(f"Saving image {i+1}/{len(images)} to {img_path}")
-            try:
-                img.save(img_path, 'PNG')
-                # Verify the file was created and has content
-                if os.path.exists(img_path) and os.path.getsize(img_path) > 0:
-                    image_paths.append((i, img_path))
-                else:
-                    logger.error(f"Failed to save image or file is empty: {img_path}")
-            except Exception as e:
-                logger.error(f"Error saving image {i}: {str(e)}", exc_info=True)
-        
-        # Check if we have all the images
-        if len(image_paths) == 0:
-            raise FileNotFoundError("No images were successfully saved from the PDF conversion")
-        
-        if len(image_paths) < len(images):
-            logger.warning(f"Only saved {len(image_paths)} of {len(images)} images")
-
-        logger.info(f"Successfully saved {len(image_paths)} images")
-
-        # Update status to show conversion is complete
-        if conversion_id in TASK_STATUS:
-            TASK_STATUS[conversion_id].update({
-                "step": "ocr",
-                "progress": 10  # 10% progress after conversion
-            })
-
-        # Record start time for performance monitoring
         start_time = time.time()
+        logger.info(
+            f"Processing {total_pages} page(s) at {dpi} DPI, engine: {ocr_engine}, "
+            f"lang: {language}, output: {output_format}"
+        )
 
-        # Create a DOCX document (only if needed)
-        if output_format == "docx":
-            document = Document()
-        
-        logger.info(f"Processing PDF with 1 worker, quality: {quality}, engine: {ocr_engine}, output: {output_format}")
-        
-        # Process images in parallel using a process pool - using only 1 worker for reliability
-        num_workers = 1 # Force single worker to avoid race conditions
-        results = {}
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            # Create tasks for each image - using our saved image paths
-            futures = {
-                executor.submit(
-                    process_image, i, img_path, ocr_engine, language, preprocess
-                ): i 
-                for i, img_path in image_paths
-            }
-            
-            # Collect results as they complete
-            completed = 0
-            for future in as_completed(futures):
-                page_idx, text = future.result()
-                results[page_idx] = text
-                
-                # Update progress (allocate 10-90% for OCR process)
-                completed += 1
-                progress = 10 + int((completed / len(image_paths)) * 80)
-                if conversion_id in TASK_STATUS:
-                    TASK_STATUS[conversion_id]["progress"] = progress
-        
-        # Update status to show we're assembling the document
-        if conversion_id in TASK_STATUS:
-            TASK_STATUS[conversion_id].update({
-                "step": "assembling",
-                "progress": 90
-            })
-            
+        results: Dict[int, str] = {}
+        # Render and OCR in batches, discarding each page's bitmap as soon as
+        # its text has been extracted so peak memory stays bounded.
+        for batch_start in range(0, total_pages, RENDER_BATCH_SIZE):
+            batch_end = min(batch_start + RENDER_BATCH_SIZE, total_pages)
+            images = convert_from_path(
+                pdf_path,
+                dpi=dpi,
+                first_page=batch_start + 1,   # Poppler page numbers are 1-based
+                last_page=batch_end,
+                thread_count=1,
+                use_pdftocairo=True,
+                fmt='png',
+            )
+
+            for offset, img in enumerate(images):
+                i = batch_start + offset
+                img_path = os.path.join(temp_dir, f'page_{i}.png')
+                try:
+                    img.save(img_path, 'PNG')
+                finally:
+                    img.close()
+
+                if not (os.path.exists(img_path) and os.path.getsize(img_path) > 0):
+                    logger.error(f"Failed to save page {i + 1} to {img_path}")
+                    results[i] = f"[Error: page {i + 1} could not be rendered]"
+                    continue
+
+                try:
+                    _, text = process_image(i, img_path, ocr_engine, language, preprocess)
+                    results[i] = text
+                finally:
+                    try:
+                        os.remove(img_path)
+                    except OSError:
+                        pass
+
+                # Allocate 5-95% of the progress bar to the OCR pass.
+                progress = 5 + int(((i + 1) / total_pages) * 90)
+                TASKS.update(conversion_id, step="ocr", progress=progress)
+
+            del images
+
+        if not results:
+            raise FileNotFoundError("No pages could be rendered from the PDF.")
+
+        TASKS.update(conversion_id, step="assembling", progress=95)
+
         # Determine output filename and path
         document_name = orig_filename or 'document.pdf'
         base_filename = os.path.splitext(document_name)[0]
         output_filename = f"{secure_clean_filename(base_filename)}.{output_format}"
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{output_filename}")
 
-        # Assemble and save the document based on the format
-        if output_format == "docx":
-            for i in range(len(image_paths)):
-                if i in results:
-                    text = results[i]
-                    document.add_paragraph(text)
-                    if i < len(image_paths) - 1:
-                        document.add_page_break()
-            document.save(output_path)
-        elif output_format == "txt":
-            with open(output_path, 'w', encoding='utf-8') as f:
-                for i in sorted(results.keys()):
-                    f.write(results[i])
-                    # Add a separator between pages for clarity
-                    if i < max(results.keys()):
-                        f.write("\n\n--- Page Break ---\n\n")
-        elif output_format == "md":
-            save_as_markdown(results, output_path)
-        elif output_format == "html":
-            save_as_html(results, output_path, title=base_filename)
-        else:
-            raise ValueError(f"Unsupported output format: {output_format}")
+        save_output(results, output_format, output_path, base_filename)
 
         # Log performance metrics
         elapsed_time = time.time() - start_time
@@ -626,10 +798,6 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         # Clean up original PDF after successful conversion
         if os.path.exists(pdf_path):
             os.remove(pdf_path)
-
-        # Update status to complete
-        if conversion_id in TASK_STATUS:
-            TASK_STATUS[conversion_id]["progress"] = 100
 
         return True, output_path, output_filename # Return the actual path and filename
 
@@ -652,39 +820,33 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                 logger.error(f"Error cleaning up temporary directory: {e}")
 
 def run_task_in_background(func: callable, task_id: str, *args: Any, **kwargs: Any) -> str:
-    """Run a function in a background thread and track its status"""
+    """Run a conversion in a background thread, recording progress in the store."""
+    flask_app = app._get_current_object()
+
     def task_wrapper():
-        try:
-            # Initialize task status with timestamp for cleanup
-            TASK_STATUS[task_id] = {
-                "status": "processing", 
-                "step": "initializing",
-                "progress": 0, 
-                "timestamp": time.time()
-            }
-            
-            # Run the actual task
-            result = func(*args, **kwargs)
-            
-            # Store results and update status
-            TASK_RESULTS[task_id] = result
-            TASK_STATUS[task_id].update({
-                "status": "completed", 
-                "progress": 100,
-                "timestamp": time.time()  # Update timestamp
-            })
-            
-        except Exception as e:
-            logger.error(f"Background task error: {str(e)}", exc_info=True)
-            TASK_STATUS[task_id] = {
-                "status": "failed", 
-                "error": str(e), 
-                "progress": 0,
-                "timestamp": time.time()
-            }
-    
-    thread = Thread(target=task_wrapper)
-    thread.daemon = True
+        # The worker touches app.config (upload folder, task store paths), so it
+        # needs an application context of its own.
+        with flask_app.app_context():
+            try:
+                success, result_path, output_filename = func(*args, **kwargs)
+                if success:
+                    TASKS.update(
+                        task_id,
+                        status="completed",
+                        step="done",
+                        progress=100,
+                        result_path=result_path,
+                        output_filename=output_filename,
+                    )
+                else:
+                    # On failure the third element carries the error message.
+                    TASKS.update(task_id, status="failed", progress=0, error=output_filename)
+            except Exception as e:
+                logger.error(f"Background task error: {str(e)}", exc_info=True)
+                TASKS.update(task_id, status="failed", progress=0, error=str(e))
+
+    TASKS.set(task_id, {"status": "processing", "step": "initializing", "progress": 0})
+    thread = Thread(target=task_wrapper, daemon=True)
     thread.start()
     return task_id
 
@@ -712,27 +874,41 @@ def upload_file():
             flash('Invalid file type. Please upload a PDF.', 'error')
             return redirect(url_for('index'))
 
+        # The extension says nothing about the content, and the file is handed
+        # straight to Poppler; require the PDF magic bytes too.
+        if not looks_like_pdf(file.stream):
+            flash('That file is not a PDF (missing %PDF- header).', 'error')
+            return redirect(url_for('index'))
+
+        # Validate the form options against allowlists. `output_format` in
+        # particular used to be interpolated straight into the output path.
+        ocr_engine = request.form.get('ocr-engine', 'tesseract')
+        if ocr_engine not in SUPPORTED_ENGINES:
+            flash('Unknown OCR engine selected.', 'error')
+            return redirect(url_for('index'))
+
+        output_format = request.form.get('output-format', 'docx')
+        if output_format not in SUPPORTED_OUTPUT_FORMATS:
+            flash('Unknown output format selected.', 'error')
+            return redirect(url_for('index'))
+
+        language = request.form.get('language', 'eng')
+        if not re.fullmatch(r'[a-zA-Z_]{2,16}(\+[a-zA-Z_]{2,16})*', language):
+            flash('Invalid language selection.', 'error')
+            return redirect(url_for('index'))
+
+        quality = 'high' if request.form.get('ocr-quality') == 'high' else 'standard'
+        preprocess = request.form.get('preprocess', '0') == '1'
+
         # Generate unique ID for this conversion
         conversion_id = str(uuid.uuid4())
-        session['conversion_id'] = conversion_id
-
-        # Save original filename for later use (but sanitize it)
-        orig_filename = secure_clean_filename(file.filename)
-        session['orig_filename'] = orig_filename
-
-        # Get OCR options from form
-        ocr_engine = request.form.get('ocr-engine', 'tesseract')
-        language = request.form.get('language', 'eng')
-        quality = request.form.get('ocr-quality', 'standard')
-        preprocess = request.form.get('preprocess', '0') == '1'
-        output_format = request.form.get('output-format', 'docx')
+        orig_filename = secure_clean_filename(file.filename) or 'document.pdf'
 
         # Log processing request
         logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}, format={output_format}")
 
         # Create a temporary filename to avoid collisions
-        temp_filename = f"{conversion_id}_{secure_clean_filename(file.filename)}"
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{orig_filename}")
 
         # Save the uploaded file
         try:
@@ -743,7 +919,10 @@ def upload_file():
             flash("An error occurred while saving the uploaded file. Please try again.", 'error')
             return redirect(url_for('index'))
 
-        session['pdf_path'] = pdf_path
+        # Remember which tasks this browser started, so results are not readable
+        # by anyone who learns a task id.
+        owned = session.get('owned_tasks', [])
+        session['owned_tasks'] = (owned + [conversion_id])[-20:]
 
         # Process asynchronously
         try:
@@ -759,7 +938,6 @@ def upload_file():
                 orig_filename,
                 output_format
             )
-            session['task_id'] = conversion_id
             return redirect(url_for('status', task_id=conversion_id))
         except Exception as e:
             logger.error(f"Error starting background task: {str(e)}", exc_info=True)
@@ -771,81 +949,84 @@ def upload_file():
         flash("An unexpected error occurred. Please try again.", 'error')
         return redirect(url_for('index'))
 
+def owns_task(task_id: str) -> bool:
+    """Whether the current browser session started this conversion."""
+    return task_id in session.get('owned_tasks', [])
+
+
+def get_owned_task(task_id: str) -> Optional[Dict[str, Any]]:
+    """Fetch a task record, or None if it is missing or not ours."""
+    if not owns_task(task_id):
+        return None
+    return TASKS.get(task_id)
+
+
 @app.route('/status/<task_id>')
 def status(task_id):
     """Display status page for an ongoing conversion."""
-    # Check if task exists
-    if task_id not in TASK_STATUS:
+    if get_owned_task(task_id) is None:
         flash("The requested conversion was not found.", 'error')
         return redirect(url_for('index'))
-        
+
     return render_template('status.html', task_id=task_id)
 
 @app.route('/api/task_status/<task_id>')
 def task_status(task_id):
     """API endpoint to check task status"""
-    if task_id in TASK_STATUS:
-        status_data = TASK_STATUS[task_id].copy()
-        
-        # If task is completed, include the path to results
-        if status_data.get("status") == "completed" and task_id in TASK_RESULTS:
-            success, result_path, output_filename = TASK_RESULTS[task_id]
-            if success:
-                # Store results in session
-                session['result_path'] = result_path # Use generic name
-                session['output_filename'] = output_filename
-                status_data["redirect"] = url_for('success')
-            else:
-                # Store error
-                status_data["error"] = output_filename
-                status_data["redirect"] = url_for('index')
-                flash(f"Conversion failed: {output_filename}", 'error')
-        
-        return jsonify(status_data)
-    
-    return jsonify({"status": "not_found"})
+    record = get_owned_task(task_id)
+    if record is None:
+        return jsonify({"status": "not_found"}), 404
 
-@app.route('/success')
-def success():
+    # Never expose the on-disk path of the result to the browser.
+    status_data = {k: v for k, v in record.items() if k != "result_path"}
+    if record.get("status") == "completed":
+        status_data["redirect"] = url_for('success', task_id=task_id)
+    elif record.get("status") == "failed":
+        status_data["redirect"] = url_for('index')
+
+    return jsonify(status_data)
+
+@app.route('/success/<task_id>')
+def success(task_id):
     """Display success page after successful conversion."""
-    # Check if we have valid session data
-    if 'result_path' not in session or 'output_filename' not in session: # Updated session key
+    record = get_owned_task(task_id)
+    if record is None or record.get("status") != "completed":
         flash('No conversion data found. Please upload a file first.', 'error')
         return redirect(url_for('index'))
 
-    return render_template('success.html', filename=session['output_filename'])
+    return render_template('success.html', filename=record.get("output_filename"), task_id=task_id)
 
-@app.route('/download')
-def download_file():
+@app.route('/download/<task_id>')
+def download_file(task_id):
     """Provide the converted file for download."""
-    # Check if we have valid session data
-    if 'result_path' not in session or 'output_filename' not in session: # Updated session key
+    record = get_owned_task(task_id)
+    if record is None or record.get("status") != "completed":
         flash('No conversion data found. Please upload a file first.', 'error')
         return redirect(url_for('index'))
 
-    result_path = session['result_path'] # Updated session key
-    output_filename = session['output_filename']
+    result_path = record.get("result_path") or ""
+    output_filename = record.get("output_filename") or "download"
 
-    # Security check - ensure file exists and is within uploads directory
-    if not os.path.exists(result_path) or not os.path.isfile(result_path):
-        flash('The converted file is no longer available.', 'error')
-        return redirect(url_for('index'))
-    
-    if not os.path.abspath(result_path).startswith(os.path.abspath(UPLOAD_FOLDER)):
-        logger.error(f"Security issue: Attempted to access file outside uploads directory: {result_path}")
+    # The path is server-generated, but confirm it still points inside the
+    # upload folder before handing the file out.
+    if not is_within_upload_folder(result_path):
+        logger.error(f"Refusing to serve a result outside the upload folder: {result_path}")
         flash('Access denied.', 'error')
+        return redirect(url_for('index'))
+
+    if not os.path.isfile(result_path):
+        flash('The converted file is no longer available.', 'error')
         return redirect(url_for('index'))
 
     # Determine MIME type based on file extension
     _, ext = os.path.splitext(output_filename)
-    ext = ext.lower()
     mime_types = {
         '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         '.txt': 'text/plain',
         '.md': 'text/markdown',
         '.html': 'text/html',
     }
-    mime_type = mime_types.get(ext, 'application/octet-stream') # Default MIME type
+    mime_type = mime_types.get(ext.lower(), 'application/octet-stream') # Default MIME type
 
     try:
         return send_file(
@@ -856,35 +1037,26 @@ def download_file():
         )
     except Exception as e:
         logger.error(f"Error during file download: {str(e)}", exc_info=True)
-        flash(f"Error downloading file: {str(e)}", 'error')
+        flash("Error downloading file.", 'error')
         return redirect(url_for('index'))
 
 @app.route('/new_conversion')
-def new_conversion():
-    """Start a new conversion, cleaning up any existing files."""
-    # Clean up session data and files
-    pdf_path = session.pop('pdf_path', None)
-    if (pdf_path and os.path.exists(pdf_path)):
-        try:
-            os.remove(pdf_path)
-            logger.info(f"Cleaned up PDF file: {pdf_path}")
-        except OSError as e:
-            logger.warning(f"Could not remove PDF file {pdf_path}: {e}")
+@app.route('/new_conversion/<task_id>')
+def new_conversion(task_id: Optional[str] = None):
+    """Start a new conversion, discarding the result of a previous one."""
+    if task_id:
+        record = get_owned_task(task_id)
+        if record is not None:
+            result_path = record.get("result_path")
+            if result_path and is_within_upload_folder(result_path):
+                try:
+                    os.remove(result_path)
+                    logger.info(f"Cleaned up result file: {result_path}")
+                except OSError as e:
+                    logger.warning(f"Could not remove result file {result_path}: {e}")
+            TASKS.delete(task_id)
+            session['owned_tasks'] = [t for t in session.get('owned_tasks', []) if t != task_id]
 
-    result_path = session.pop('result_path', None) # Updated session key
-    if (result_path and os.path.exists(result_path)):
-         try:
-            os.remove(result_path)
-            logger.info(f"Cleaned up result file: {result_path}")
-         except OSError as e:
-            logger.warning(f"Could not remove result file {result_path}: {e}")
-
-    # Clear remaining session data
-    session.pop('conversion_id', None)
-    session.pop('orig_filename', None)
-    session.pop('output_filename', None)
-
-    # Redirect to index
     return redirect(url_for('index'))
 
 @app.route('/api/check-dependency')
@@ -977,9 +1149,6 @@ def request_entity_too_large(e):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    # Set the start method for multiprocessing
-    multiprocessing.set_start_method('spawn', force=True)
-    
     # Initial dependency check
     deps_installed, message = check_dependencies()
     if not deps_installed:
