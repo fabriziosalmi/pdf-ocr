@@ -390,29 +390,44 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
                 logger.warning(f"Error closing image for page {i+1}: {str(e)}")
         # We don't delete the file here as it will be managed by the main process
 
-def fix_common_ocr_errors(text: str) -> str:
-    """Fix common OCR errors in text."""
+def fix_common_ocr_errors(text: str, reflow: bool = False) -> str:
+    """Tidy up OCR output without altering the characters the engine recognised.
+
+    This function is deliberately conservative. An earlier version applied blind
+    global substitutions ('0'->'O', '1'->'I', '5'->'S', 'rn'->'m', 'cl'->'d'),
+    which corrupted every digit in every document: an invoice total of
+    "1,250.00 EUR" came out as "I,2SO.OO EUR". Character-level disambiguation is
+    not decidable without per-glyph confidence data, which we do not have here,
+    so we do not guess. Only whitespace/punctuation layout is normalised:
+
+    - join words split by a hyphen at a line break ("exam-\\nple" -> "example"),
+      which is a genuine artefact of the source layout, not of the OCR engine;
+    - drop spaces inserted before closing punctuation;
+    - strip trailing whitespace on each line;
+    - collapse runs of 3+ blank lines into a single paragraph break.
+
+    If `reflow` is True, single newlines inside a paragraph are turned into
+    spaces. That helps continuous prose but destroys line-oriented documents
+    (tables, addresses, invoices), so it is opt-in and off by default.
+    """
     if not text:
         return text
-        
-    # Fix common OCR errors
-    replacements = {
-        # Common OCR errors
-        'l1': 'h', 'rn': 'm', 'cl': 'd', 'vv': 'w',
-        # Fix spaces
-        ' ,': ',', ' .': '.', ' ;': ';', ' :': ':', ' !': '!', ' ?': '?',
-        # Fix common misrecognitions
-        '0': 'O', '1': 'I', '5': 'S',
-    }
-    
-    # Apply replacements
-    for wrong, correct in replacements.items():
-        text = text.replace(wrong, correct)
-    
-    # Fix line breaks
-    text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)  # Replace single newlines with spaces
-    text = re.sub(r'\n{3,}', '\n\n', text)  # Replace multiple newlines with double newlines
-    
+
+    # Re-join words hyphenated across a line break.
+    text = re.sub(r'(\w)-\n(\w)', r'\1\2', text)
+
+    # Remove spaces/tabs before closing punctuation (but never across a newline).
+    text = re.sub(r'[ \t]+([,.;:!?])', r'\1', text)
+
+    # Strip trailing whitespace on every line.
+    text = re.sub(r'[ \t]+(?=\n|$)', '', text)
+
+    if reflow:
+        text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
+
+    # Collapse excessive blank lines into a single paragraph break.
+    text = re.sub(r'\n{3,}', '\n\n', text)
+
     return text
 
 def save_as_markdown(text_results: Dict[int, str], output_path: str) -> None:
