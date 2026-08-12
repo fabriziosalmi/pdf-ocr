@@ -1,5 +1,10 @@
-import unittest
 import os
+
+# The app refuses to start without SECRET_KEY outside development; declare that
+# these are tests before importing it.
+os.environ.setdefault('PDF_OCR_TESTING', '1')
+
+import unittest
 import tempfile
 import shutil
 import json
@@ -9,11 +14,12 @@ from PIL import Image
 import colorama
 from colorama import Fore, Style
 
-from app import (
+from app import (  # noqa: E402
     app, allowed_file, secure_clean_filename,
     check_dependency, sanitize_text, enhance_image,
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
-    TASK_STATUS, TASK_RESULTS
+    is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
+    process_pdf_with_progress, TASKS, TASK_TIMEOUT
 )
 
 # Initialize colorama for colored terminal output
@@ -66,13 +72,12 @@ class TestOCRApp(unittest.TestCase):
     
     def tearDown(self):
         # Clean up after tests
-        shutil.rmtree(self.test_upload_folder)
+        TASKS.clear()
+        shutil.rmtree(self.test_upload_folder, ignore_errors=True)
         app.config['UPLOAD_FOLDER'] = self.original_upload_folder
         self.app_context.pop()
-        
-        # Clear task statuses
-        TASK_STATUS.clear()
-        TASK_RESULTS.clear()
+
+        TASKS.clear()
     
     def test_allowed_file(self):
         self.assertTrue(allowed_file('test.pdf'))
@@ -321,48 +326,142 @@ class TestOCRApp(unittest.TestCase):
         self.assertIn("Error: File not found", text)
         mock_logger.error.assert_called()
     
+    # --- helpers -------------------------------------------------------
+
+    TASK_ID = "11111111-2222-3333-4444-555555555555"
+
+    def _own(self, *task_ids):
+        """Mark the given tasks as started by this test client's session."""
+        with self.app.session_transaction() as sess:
+            sess['owned_tasks'] = list(task_ids)
+
+    def _make_task(self, task_id=None, **fields):
+        """Create a task record owned by this session and return its id."""
+        task_id = task_id or self.TASK_ID
+        TASKS.set(task_id, fields)
+        self._own(task_id)
+        return task_id
+
+    # --- task status ---------------------------------------------------
+
     def test_api_task_status_not_found(self):
-        response = self.app.get('/api/task_status/nonexistent')
-        self.assertEqual(response.status_code, 200)
+        response = self.app.get(f'/api/task_status/{self.TASK_ID}')
+        self.assertEqual(response.status_code, 404)
         data = json.loads(response.data)
         self.assertEqual(data["status"], "not_found")
-    
+
     def test_api_task_status_processing(self):
-        # Set up a task in processing state
-        task_id = "test_task"
-        TASK_STATUS[task_id] = {
-            "status": "processing",
-            "step": "converting",
-            "progress": 50,
-            "timestamp": 1234567890
-        }
-        
+        task_id = self._make_task(status="processing", step="converting", progress=50)
+
         response = self.app.get(f'/api/task_status/{task_id}')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data["status"], "processing")
         self.assertEqual(data["progress"], 50)
-    
-    def test_api_task_status_completed(self):
-        # Set up a completed task
-        task_id = "test_task"
-        TASK_STATUS[task_id] = {
-            "status": "completed",
-            "progress": 100,
-            "timestamp": 1234567890
-        }
-        TASK_RESULTS[task_id] = (True, "/path/to/result.docx", "result.docx")
 
-        with self.app.session_transaction():
-            pass  # Setup session if needed
-        
+    def test_api_task_status_completed(self):
+        task_id = self._make_task(
+            status="completed", progress=100,
+            result_path="/path/to/result.docx", output_filename="result.docx",
+        )
+
         response = self.app.get(f'/api/task_status/{task_id}')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data["status"], "completed")
         self.assertEqual(data["progress"], 100)
         self.assertIn("redirect", data)  # Should have redirect URL
-    
+        # The on-disk location of the result must never reach the browser.
+        self.assertNotIn("result_path", data)
+
+    def test_task_status_of_another_session_is_not_readable(self):
+        """A task id alone must not grant access to someone else's conversion."""
+        TASKS.set(self.TASK_ID, {"status": "completed", "output_filename": "secret.docx"})
+        # No session ownership recorded for this client.
+        self.assertEqual(self.app.get(f'/api/task_status/{self.TASK_ID}').status_code, 404)
+        self.assertEqual(
+            self.app.get(f'/download/{self.TASK_ID}', follow_redirects=False).status_code, 302
+        )
+
+    def test_task_store_rejects_traversal_ids(self):
+        """A crafted task id must not escape the task directory."""
+        self.assertIsNone(TASKS.get('../../etc/passwd'))
+        TASKS.set('../../evil', {"status": "completed"})
+        self.assertFalse(os.path.exists(os.path.join(self.test_upload_folder, '..', '..', 'evil.json')))
+
+    def test_task_store_roundtrip_and_update(self):
+        TASKS.set(self.TASK_ID, {"status": "processing", "progress": 10})
+        TASKS.update(self.TASK_ID, progress=55)
+        record = TASKS.get(self.TASK_ID)
+        self.assertEqual(record["status"], "processing")
+        self.assertEqual(record["progress"], 55)
+        self.assertIn("timestamp", record)
+        TASKS.delete(self.TASK_ID)
+        self.assertIsNone(TASKS.get(self.TASK_ID))
+
+    def test_is_within_upload_folder(self):
+        inside = os.path.join(self.test_upload_folder, 'result.docx')
+        self.assertTrue(is_within_upload_folder(inside))
+        self.assertFalse(is_within_upload_folder('/etc/passwd'))
+        # A sibling directory sharing the prefix must not pass (the old check
+        # used str.startswith and would have accepted this).
+        self.assertFalse(is_within_upload_folder(self.test_upload_folder + '_evil/x'))
+
+    def test_looks_like_pdf(self):
+        import io
+        self.assertTrue(looks_like_pdf(io.BytesIO(b'%PDF-1.7\nrest')))
+        self.assertFalse(looks_like_pdf(io.BytesIO(b'<?php echo 1; ?>')))
+        self.assertFalse(looks_like_pdf(io.BytesIO(b'')))
+        # The stream must be rewound so the file can still be saved.
+        stream = io.BytesIO(b'%PDF-1.7\nrest')
+        looks_like_pdf(stream)
+        self.assertEqual(stream.tell(), 0)
+
+    def test_healthz(self):
+        response = self.app.get('/healthz')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.data)["status"], "ok")
+
+    def test_security_headers_are_set(self):
+        with patch('app.check_dependencies', return_value=(True, "All good")):
+            response = self.app.get('/')
+        self.assertEqual(response.headers['X-Content-Type-Options'], 'nosniff')
+        self.assertEqual(response.headers['X-Frame-Options'], 'DENY')
+        self.assertIn("default-src 'self'", response.headers['Content-Security-Policy'])
+
+    def test_upload_rejects_non_pdf_content(self):
+        """A file named .pdf but not containing a PDF must not reach Poppler."""
+        import io
+        with patch('app.check_dependencies', return_value=(True, "All good")):
+            response = self.app.post(
+                '/upload',
+                data={'file': (io.BytesIO(b'<?php echo 1; ?>'), 'payload.pdf')},
+                content_type='multipart/form-data',
+                follow_redirects=True,
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'not a PDF', response.data)
+
+    def test_upload_rejects_unknown_output_format(self):
+        """`output-format` used to be interpolated straight into the file path."""
+        import io
+        with patch('app.check_dependencies', return_value=(True, "All good")):
+            response = self.app.post(
+                '/upload',
+                data={
+                    'file': (io.BytesIO(b'%PDF-1.7\n'), 'doc.pdf'),
+                    'output-format': '../../../etc/cron.d/x',
+                },
+                content_type='multipart/form-data',
+                follow_redirects=True,
+            )
+        self.assertIn(b'Unknown output format', response.data)
+
+    def test_save_output_rejects_unknown_format(self):
+        with self.assertRaises(ValueError):
+            save_output({0: "text"}, "exe", os.path.join(self.test_upload_folder, "x"), "x")
+
+
     def test_api_check_dependency(self):
         with patch('app.check_dependency', return_value=(True, {"installed": True, "version": "4.1.1"})):
             response = self.app.get('/api/check-dependency?name=tesseract')
@@ -417,43 +516,65 @@ class TestOCRApp(unittest.TestCase):
         expected = "l1 rn cl vv,.;:!? 0 1 5"
         self.assertEqual(fix_common_ocr_errors(text), expected)
 
-    # Fix the EasyOCR test by mocking process_image directly instead of importing
-    @patch('app.process_image')
-    def test_process_image_easyocr(self, mock_process):
-        # Simply mock the process_image function to return a known result
-        mock_process.return_value = (0, "EasyOCR result")
-        
-        # Create a dummy image file
+    @patch('app.logger')
+    def test_process_image_easyocr(self, mock_logger):
+        """Exercise the real easyocr branch with a fake module (as for paddleocr).
+
+        The previous version of this test patched `app.process_image`, then
+        called the mock and asserted the mock had been called — it never
+        touched application code at all. Same for the pyocr case below.
+        """
+        img = Image.new('RGB', (100, 100), color='white')
         img_path = os.path.join(self.test_upload_folder, 'easyocr.png')
-        with open(img_path, 'wb') as f:
-            f.write(b'test image content')
-        
-        # Call the function with easyocr engine
-        idx, text = mock_process(0, img_path, "easyocr", "eng")
-        
-        # Verify it was called with the right arguments
-        mock_process.assert_called_once_with(0, img_path, "easyocr", "eng")
+        img.save(img_path)
+
+        fake_reader = MagicMock()
+        fake_reader.readtext.return_value = ["Hello", "World"]
+        fake_module = MagicMock()
+        fake_module.Reader = MagicMock(return_value=fake_reader)
+
+        import sys
+        with patch.dict(sys.modules, {'easyocr': fake_module}):
+            idx, text = process_image(0, img_path, "easyocr", "eng+ita")
+
         self.assertEqual(idx, 0)
-        self.assertEqual(text, "EasyOCR result")
+        self.assertEqual(text, "Hello\nWorld")
+        # 3-letter Tesseract codes are mapped to EasyOCR's 2-letter codes.
+        fake_module.Reader.assert_called_once_with(['en', 'it'])
 
-    # Fix the PyOCR test by mocking process_image directly instead of importing
-    @patch('app.process_image')
-    def test_process_image_pyocr(self, mock_process):
-        # Simply mock the process_image function to return a known result
-        mock_process.return_value = (0, "PyOCR result")
-        
-        # Create a dummy image file
+    @patch('app.logger')
+    def test_process_image_pyocr(self, mock_logger):
+        img = Image.new('RGB', (100, 100), color='white')
         img_path = os.path.join(self.test_upload_folder, 'pyocr.png')
-        with open(img_path, 'wb') as f:
-            f.write(b'test image content')
-        
-        # Call the function with pyocr engine
-        idx, text = mock_process(0, img_path, "pyocr", "eng")
+        img.save(img_path)
 
-        # Verify it was called with the right arguments
-        mock_process.assert_called_once_with(0, img_path, "pyocr", "eng")
+        fake_tool = MagicMock()
+        fake_tool.image_to_string.return_value = "PyOCR result"
+        fake_module = MagicMock()
+        fake_module.get_available_tools.return_value = [fake_tool]
+
+        import sys
+        with patch.dict(sys.modules, {'pyocr': fake_module, 'pyocr.builders': MagicMock()}):
+            idx, text = process_image(0, img_path, "pyocr", "eng")
+
         self.assertEqual(idx, 0)
         self.assertEqual(text, "PyOCR result")
+        fake_tool.image_to_string.assert_called_once()
+
+    @patch('app.logger')
+    def test_process_image_pyocr_without_tools(self, mock_logger):
+        img = Image.new('RGB', (100, 100), color='white')
+        img_path = os.path.join(self.test_upload_folder, 'pyocr_empty.png')
+        img.save(img_path)
+
+        fake_module = MagicMock()
+        fake_module.get_available_tools.return_value = []
+
+        import sys
+        with patch.dict(sys.modules, {'pyocr': fake_module, 'pyocr.builders': MagicMock()}):
+            idx, text = process_image(0, img_path, "pyocr", "eng")
+
+        self.assertIn("No OCR tool found", text)
 
     @patch('app.logger')
     def test_process_image_paddleocr(self, mock_logger):
@@ -491,31 +612,43 @@ class TestOCRApp(unittest.TestCase):
         fake_paddle_cls.assert_called_once_with(use_angle_cls=True, lang="en", show_log=False)
         fake_reader.ocr.assert_called_once_with(img_path, cls=True)
 
-    # Test cleanup function directly instead of through the periodic mechanism
-    @patch('app.CLEANUP_INTERVAL', 0)  # Force cleanup to always run
     def test_cleanup_old_files_removes_old(self):
-        # Create a test file
+        """Call the app's own cleanup, not a reimplementation of it.
+
+        The previous version defined a local `force_cleanup` helper and
+        asserted on that, so `cleanup_old_files` was never executed.
+        """
         old_file = os.path.join(self.test_upload_folder, "old.pdf")
-        with open(old_file, 'w') as f:
-            f.write("test content")
-        
-        # Modify file timestamp to make it very old (7 days ago)
-        file_mod_time = time.time() - (7 * 24 * 60 * 60)
-        os.utime(old_file, (file_mod_time, file_mod_time))
-        
-        # Create a direct test function that uses app's cleanup logic
-        def force_cleanup(file_path):
-            # Delete if file is older than 24 hours
-            current_time = time.time()
-            if os.path.isfile(file_path) and current_time - os.path.getmtime(file_path) > 86400:
-                os.remove(file_path)
-                return True
-            return False
-        
-        # Force delete the old file
-        was_deleted = force_cleanup(old_file)
-        self.assertTrue(was_deleted)
+        recent_file = os.path.join(self.test_upload_folder, "recent.pdf")
+        for path in (old_file, recent_file):
+            with open(path, 'w') as f:
+                f.write("test content")
+
+        # Make one of them seven days old.
+        old_mtime = time.time() - (7 * 24 * 60 * 60)
+        os.utime(old_file, (old_mtime, old_mtime))
+
+        # An expired task record, plus the result file it points at. Written
+        # directly because TaskStore.set() always stamps the current time.
+        expired_result = os.path.join(self.test_upload_folder, "expired.docx")
+        with open(expired_result, 'w') as f:
+            f.write("docx")
+        task_file = os.path.join(self.test_upload_folder, '.tasks', f'{self.TASK_ID}.json')
+        os.makedirs(os.path.dirname(task_file), exist_ok=True)
+        with open(task_file, 'w') as f:
+            json.dump({
+                "status": "completed",
+                "result_path": expired_result,
+                "timestamp": time.time() - (2 * TASK_TIMEOUT),
+            }, f)
+
+        with patch('app.LAST_CLEANUP_TIME', 0):
+            cleanup_old_files()
+
         self.assertFalse(os.path.exists(old_file))
+        self.assertTrue(os.path.exists(recent_file))
+        self.assertIsNone(TASKS.get(self.TASK_ID))
+        self.assertFalse(os.path.exists(expired_result))
 
     def test_save_as_markdown_empty(self):
         test_results = {}
@@ -543,30 +676,150 @@ class TestOCRApp(unittest.TestCase):
             if os.path.exists(test_output):
                 os.remove(test_output)
 
-    def test_download_route_missing_session(self):
-        # Should redirect to index with error if session data missing
-        response = self.app.get('/download', follow_redirects=True)
+    def test_download_route_unknown_task(self):
+        # Should redirect to index with an error when the task is unknown
+        response = self.app.get(f'/download/{self.TASK_ID}', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'No conversion data found', response.data)
 
+    def test_download_serves_the_result(self):
+        result_path = os.path.join(self.test_upload_folder, "dummy.txt")
+        with open(result_path, "w") as f:
+            f.write("converted text")
+        task_id = self._make_task(
+            status="completed", progress=100,
+            result_path=result_path, output_filename="dummy.txt",
+        )
+
+        response = self.app.get(f'/download/{task_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, b"converted text")
+        self.assertIn('attachment', response.headers['Content-Disposition'])
+
+    def test_download_refuses_result_outside_upload_folder(self):
+        outside = tempfile.mktemp(suffix='.txt')
+        with open(outside, 'w') as f:
+            f.write("secret")
+        try:
+            task_id = self._make_task(
+                status="completed", result_path=outside, output_filename="x.txt",
+            )
+            response = self.app.get(f'/download/{task_id}', follow_redirects=True)
+            self.assertIn(b'Access denied', response.data)
+        finally:
+            os.remove(outside)
+
     def test_new_conversion_route_cleans_files(self):
-        # Create dummy files and set in session
-        pdf_path = os.path.join(self.test_upload_folder, "dummy.pdf")
         result_path = os.path.join(self.test_upload_folder, "dummy.docx")
-        with open(pdf_path, "w") as f:
-            f.write("pdf")
         with open(result_path, "w") as f:
             f.write("docx")
-        with self.app.session_transaction() as sess:
-            sess['pdf_path'] = pdf_path
-            sess['result_path'] = result_path
-            sess['conversion_id'] = "dummy"
-            sess['orig_filename'] = "dummy.pdf"
-            sess['output_filename'] = "dummy.docx"
-        response = self.app.get('/new_conversion', follow_redirects=True)
+        task_id = self._make_task(
+            status="completed", result_path=result_path, output_filename="dummy.docx",
+        )
+
+        response = self.app.get(f'/new_conversion/{task_id}', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(result_path))
+        self.assertIsNone(TASKS.get(task_id))
+
+def _poppler_available() -> bool:
+    return shutil.which('pdftoppm') is not None
+
+
+@unittest.skipUnless(_poppler_available(), "Poppler (pdftoppm) is not installed")
+class TestConversionPipeline(unittest.TestCase):
+    """End-to-end cover for `process_pdf_with_progress`.
+
+    Poppler does the rendering for real; only the OCR call is stubbed, so this
+    exercises page counting, batched rendering, progress reporting, output
+    assembly and cleanup — none of which had any test coverage.
+    """
+
+    def setUp(self):
+        app.config['TESTING'] = True
+        self.app_context = app.app_context()
+        self.app_context.push()
+        self.upload_folder = tempfile.mkdtemp()
+        self.original_upload_folder = app.config['UPLOAD_FOLDER']
+        app.config['UPLOAD_FOLDER'] = self.upload_folder
+
+    def tearDown(self):
+        TASKS.clear()
+        shutil.rmtree(self.upload_folder, ignore_errors=True)
+        app.config['UPLOAD_FOLDER'] = self.original_upload_folder
+        self.app_context.pop()
+
+    def _make_pdf(self, pages: int) -> str:
+        """Write a real multi-page PDF into the upload folder."""
+        images = [Image.new('RGB', (200, 280), color='white') for _ in range(pages)]
+        pdf_path = os.path.join(self.upload_folder, 'input.pdf')
+        images[0].save(pdf_path, 'PDF', save_all=True, append_images=images[1:])
+        return pdf_path
+
+    def test_converts_a_multi_page_pdf_to_txt(self):
+        pdf_path = self._make_pdf(3)
+        task_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        TASKS.set(task_id, {"status": "processing", "progress": 0})
+
+        with patch('app.process_image', side_effect=lambda i, *a, **k: (i, f"page {i}")):
+            success, out_path, out_name = process_pdf_with_progress(
+                pdf_path, task_id, output_format="txt", orig_filename="input.pdf"
+            )
+
+        self.assertTrue(success, msg=out_name)
+        self.assertEqual(out_name, "input.txt")
+        with open(out_path, encoding='utf-8') as f:
+            content = f.read()
+        for i in range(3):
+            self.assertIn(f"page {i}", content)
+        self.assertEqual(content.count("--- Page Break ---"), 2)
+
+        # The uploaded PDF is removed once the conversion succeeds.
+        self.assertFalse(os.path.exists(pdf_path))
+        # Progress reached the assembly stage.
+        self.assertGreaterEqual(TASKS.get(task_id)["progress"], 95)
+        # No page images are left behind in a temp directory.
+        self.assertEqual(
+            [p for p in os.listdir(self.upload_folder) if p.endswith('.png')], []
+        )
+
+    def test_refuses_a_pdf_over_the_page_limit(self):
+        pdf_path = self._make_pdf(3)
+        task_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        TASKS.set(task_id, {"status": "processing", "progress": 0})
+
+        with patch('app.MAX_PAGES', 2):
+            success, out_path, message = process_pdf_with_progress(
+                pdf_path, task_id, output_format="txt", orig_filename="input.pdf"
+            )
+
+        self.assertFalse(success)
+        self.assertIn("limit is 2", message)
+
+    def test_renders_in_batches_rather_than_all_at_once(self):
+        """Peak memory depends on this: one Poppler call per RENDER_BATCH_SIZE."""
+        pdf_path = self._make_pdf(5)
+        task_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        TASKS.set(task_id, {"status": "processing", "progress": 0})
+
+        import pdf2image
+        real_convert = pdf2image.convert_from_path
+        calls = []
+
+        def counting_convert(*args, **kwargs):
+            calls.append((kwargs.get('first_page'), kwargs.get('last_page')))
+            return real_convert(*args, **kwargs)
+
+        with patch('app.process_image', side_effect=lambda i, *a, **k: (i, f"page {i}")), \
+                patch('pdf2image.convert_from_path', side_effect=counting_convert), \
+                patch('app.RENDER_BATCH_SIZE', 2):
+            success, _, message = process_pdf_with_progress(
+                pdf_path, task_id, output_format="md", orig_filename="input.pdf"
+            )
+
+        self.assertTrue(success, msg=message)
+        self.assertEqual(calls, [(1, 2), (3, 4), (5, 5)])
+
 
 if __name__ == '__main__':
     unittest.main(testRunner=ColorTextTestRunner(verbosity=2))
