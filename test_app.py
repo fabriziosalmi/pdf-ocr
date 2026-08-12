@@ -97,16 +97,37 @@ class TestOCRApp(unittest.TestCase):
         self.assertEqual(sanitize_text(None), "")
     
     def test_fix_common_ocr_errors(self):
-        # Test replacements
-        self.assertEqual(fix_common_ocr_errors("l1e rn"), "he m")
-        self.assertEqual(fix_common_ocr_errors("Hel1o"), "Heho")  # Updated expected value
-        # Test line breaks
-        # The function replaces '1' with 'I', so "Line1\nLine2" becomes "LineI Line2"
-        self.assertEqual(fix_common_ocr_errors("Line1\nLine2"), "LineI Line2")  # Updated expected value
-        self.assertEqual(fix_common_ocr_errors("Para1\n\n\n\nPara2"), "ParaI\n\nPara2")  # Updated expected value
+        # Punctuation spacing is normalised.
+        self.assertEqual(fix_common_ocr_errors("Hello , world ."), "Hello, world.")
+        # Words hyphenated across a line break are re-joined.
+        self.assertEqual(fix_common_ocr_errors("exam-\nple"), "example")
+        # Trailing whitespace is stripped, excessive blank lines collapsed.
+        self.assertEqual(fix_common_ocr_errors("Para1   \n\n\n\nPara2"), "Para1\n\nPara2")
+        # Line structure is preserved by default (no reflow).
+        self.assertEqual(fix_common_ocr_errors("Line1\nLine2"), "Line1\nLine2")
+        # Reflow is opt-in.
+        self.assertEqual(fix_common_ocr_errors("Line1\nLine2", reflow=True), "Line1 Line2")
         # Test with empty
         self.assertEqual(fix_common_ocr_errors(""), "")
         self.assertEqual(fix_common_ocr_errors(None), None)
+
+    def test_fix_common_ocr_errors_never_corrupts_content(self):
+        """Regression guard: the clean-up pass must not rewrite characters.
+
+        A previous implementation applied blind substitutions ('0'->'O',
+        '1'->'I', '5'->'S', 'rn'->'m', 'cl'->'d'), silently destroying every
+        digit in every converted document. Nothing may reintroduce that.
+        """
+        invoice = (
+            "ACME Corporation\n"
+            "Invoice No. 2024-0042\n"
+            "IBAN: IT60X0542811101000000123456\n"
+            "Total due: 1,250.00 EUR"
+        )
+        self.assertEqual(fix_common_ocr_errors(invoice), invoice)
+        # The specific substitutions that used to corrupt output.
+        self.assertEqual(fix_common_ocr_errors("015"), "015")
+        self.assertEqual(fix_common_ocr_errors("modern class vvv"), "modern class vvv")
     
     @patch('PIL.ImageEnhance.Contrast')
     @patch('PIL.Image.Image.filter')
@@ -389,9 +410,11 @@ class TestOCRApp(unittest.TestCase):
     def test_sanitize_text_only_control(self):
         self.assertEqual(sanitize_text("\x00\x01\x02"), "")
 
-    def test_fix_common_ocr_errors_all_replacements(self):
+    def test_fix_common_ocr_errors_punctuation_only(self):
         text = "l1 rn cl vv , . ; : ! ? 0 1 5"
-        expected = "h m d w,.;:!? O I S"
+        # Only the spaces before punctuation are removed; every character the
+        # OCR engine produced survives verbatim.
+        expected = "l1 rn cl vv,.;:!? 0 1 5"
         self.assertEqual(fix_common_ocr_errors(text), expected)
 
     # Fix the EasyOCR test by mocking process_image directly instead of importing
@@ -462,9 +485,8 @@ class TestOCRApp(unittest.TestCase):
             idx, text = process_image(0, img_path, "paddleocr", "eng")
 
         self.assertEqual(idx, 0)
-        # Only the two well-formed lines survive; single newline is normalised to a space
-        # by fix_common_ocr_errors.
-        self.assertEqual(text, "Hello World")
+        # Only the two well-formed lines survive; line structure is preserved.
+        self.assertEqual(text, "Hello\nWorld")
         # Built with the PaddleOCR 2.x API and 'eng' mapped to 'en'
         fake_paddle_cls.assert_called_once_with(use_angle_cls=True, lang="en", show_log=False)
         fake_reader.ocr.assert_called_once_with(img_path, cls=True)
