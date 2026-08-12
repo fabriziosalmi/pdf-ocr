@@ -1,6 +1,6 @@
 # Python 3.9 reached end of life in October 2025 and stopped receiving security
 # fixes; 3.12 is the version the CI test matrix covers.
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
