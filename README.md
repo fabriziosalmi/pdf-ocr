@@ -29,8 +29,13 @@ so you don't have to install anything else:
 ```bash
 git clone https://github.com/fabriziosalmi/pdf-ocr.git
 cd pdf-ocr
+cp .env.example .env && python -c 'import secrets; print("SECRET_KEY=" + secrets.token_hex(32))' >> .env
 docker compose up --build
 ```
+
+`SECRET_KEY` signs the session cookie. The app refuses to start without it unless
+`FLASK_ENV=development` is set — a key generated per process would differ in every
+gunicorn worker, silently invalidating sessions.
 
 Then open <http://localhost:8011>, drop a PDF onto the page, pick an output format,
 and download the result.
@@ -46,7 +51,13 @@ brew install tesseract poppler
 # sudo apt-get install -y tesseract-ocr poppler-utils
 
 pip install -r requirements.txt
-python app.py                     # serves on http://127.0.0.1:8011
+
+# Development server (Werkzeug, single-threaded — local use only)
+FLASK_ENV=development python app.py             # http://127.0.0.1:8011
+
+# Or the way the container serves it
+SECRET_KEY=$(python -c 'import secrets; print(secrets.token_hex(32))') \
+  gunicorn --bind 127.0.0.1:8011 --workers 2 --threads 4 app:app
 ```
 
 To confirm the OCR toolchain is actually wired up on your machine:
@@ -97,36 +108,45 @@ the code.
   **PyOCR**, and **PaddleOCR** if you install their optional dependencies.
 - **Tesseract language selection** (e.g. `eng`, `ita`, `fra`, `deu`, `chi_sim`, `+`-joined
   for multiple), with sensible 3-letter → EasyOCR code mapping.
-- **Basic image preprocessing** (opt-in): sharpen filter + contrast boost + grayscale.
+- **Image preprocessing** (opt-in): grayscale, sharpen, a contrast slider, and Otsu
+  binarisation — each wired to its own control in the form.
 - **Quality toggle:** standard (300 DPI) or high (600 DPI) rendering.
-- **Light OCR clean-up:** control-character stripping and a small substitution pass for
-  common misreads, plus paragraph splitting on blank lines.
+- **Conservative OCR clean-up:** control-character stripping, re-joining words hyphenated
+  across a line break, punctuation spacing, and blank-line collapsing. It never rewrites a
+  character the engine recognised.
 - **Self-diagnostics:** dependency checks for Tesseract/Poppler (plus an optional PaddleOCR
-  lazy-import probe) and a `/system-check` JSON endpoint.
-- **Docker image** bundling Tesseract (with several language packs) and Poppler.
+  lazy-import probe), a `/system-check` JSON endpoint, and a `/healthz` probe used by the
+  container HEALTHCHECK.
+- **Bounded resource use:** pages are rendered in small batches rather than all at once, with
+  caps on upload size (`MAX_UPLOAD_MB`) and page count (`MAX_PAGES`).
+- **Multi-worker safe:** task state lives on the filesystem, so gunicorn can run more than
+  one worker.
+- **Docker image** bundling Tesseract (with several language packs) and Poppler, running as
+  an unprivileged user on a read-only root filesystem.
 - **Automatic cleanup** of old uploads and finished tasks.
-- **35 unit tests** (`test_app.py`) covering the pure logic and Flask routes.
+- **57 unit tests** (`test_app.py`), including an end-to-end pass over the real Poppler
+  render path with only the OCR call stubbed.
 
 ### Roadmap / not implemented yet
 
 These are referenced in the UI or were previously advertised, but are **not** in the code
 today. Contributions welcome.
 
-- **Advanced preprocessing** — denoising, deskewing, thresholding, border removal, and the
-  named preset profiles (text-heavy / scanned / low-quality / handwriting). Only
-  sharpen+contrast+grayscale exist right now.
+- **Advanced preprocessing** — denoising, deskewing, border removal, and the named preset
+  profiles (text-heavy / scanned / low-quality / handwriting). These need OpenCV, which is a
+  ~60 MB dependency, so they are not in the image yet. The controls have been removed from
+  the UI rather than left as no-ops; grayscale, sharpen, contrast and thresholding are real.
 - **DOCX layout/formatting preservation** — output is currently plain paragraphs, not a
   faithful reproduction of the source layout.
 - **Heading / structure detection** in the output.
 - **Real task cancellation** — the "Cancel" link on the status page only navigates home;
   the background OCR job keeps running to completion.
-- **Parallel page processing** — OCR currently runs one page at a time (single worker) on
-  purpose, to avoid multiprocessing races. Throughput work is pending.
+- **Parallel page processing** — OCR runs one page at a time within a conversion. Concurrent
+  conversions are handled by separate gunicorn workers.
 - **Batch / folder processing** — there is no batch mode; each conversion is one uploaded
   PDF via the web UI.
-- **Env-configurable `UPLOAD_FOLDER`, `MAX_CONTENT_LENGTH`, `HOST`, and cleanup intervals**
-  — these are currently constants in `app.py` (see [Configuration](#configuration) for
-  what is actually read from the environment).
+- **Authentication and rate limiting** — there is none. See [SECURITY.md](SECURITY.md) for
+  the threat model; put the app on a private network or behind an authenticating proxy.
 
 ## Installation
 
@@ -171,30 +191,54 @@ in optional engines.
 
 ## Configuration
 
-Only the following environment variables are actually read by `app.py` today:
+Copy [`.env.example`](.env.example) and adjust. These are all read by `app.py` or
+`entrypoint.sh`:
 
-| Variable      | Effect                                                        | Default            |
-|---------------|---------------------------------------------------------------|--------------------|
-| `SECRET_KEY`  | Flask session secret. A random one is generated if unset.     | random per start   |
-| `PORT`        | Port to listen on.                                            | `8011`             |
-| `FLASK_ENV`   | `development` enables Flask debug mode.                       | production         |
-| `DOCKER_ENV`  | `true` skips local dependency checks (set in the image).      | `false`            |
+| Variable                | Effect                                                             | Default    |
+|-------------------------|--------------------------------------------------------------------|------------|
+| `SECRET_KEY`            | **Required.** Signs the session cookie; the app will not start without it (unless `FLASK_ENV=development`). | —          |
+| `PORT`                  | Port to listen on.                                                 | `8011`     |
+| `UPLOAD_FOLDER`         | Where uploads, results and task records are stored.                | `uploads`  |
+| `MAX_UPLOAD_MB`         | Upload size limit; larger requests get a 413.                      | `64`       |
+| `MAX_PAGES`             | Maximum pages per PDF.                                             | `200`      |
+| `RENDER_BATCH_SIZE`     | Pages rendered per Poppler call — this is what bounds peak memory. | `4`        |
+| `SESSION_COOKIE_SECURE` | `true` when serving over HTTPS: marks the cookie Secure, adds HSTS.| `false`    |
+| `LOG_LEVEL`             | Python logging level.                                              | `INFO`     |
+| `LOG_FILE`              | If set, also log to this file (rotating, 10 MB x 3).               | stdout only|
+| `WEB_CONCURRENCY`       | gunicorn worker processes (`entrypoint.sh`).                       | `2`        |
+| `WEB_THREADS`           | gunicorn threads per worker (`entrypoint.sh`).                     | `4`        |
+| `WEB_TIMEOUT`           | gunicorn request timeout, seconds (`entrypoint.sh`).               | `120`      |
+| `FLASK_ENV`             | `development` enables the Werkzeug debugger. **Never set this in a deployment** — it is remote code execution. | production |
+| `DOCKER_ENV`            | `true` skips local dependency checks (set in the image).           | `false`    |
 
-Other settings (upload folder, 64 MB max upload size, `0.0.0.0` bind host, cleanup timings)
-are constants in `app.py`. Making them env-configurable is on the roadmap.
+## Deployment
+
+Tagging `vX.Y.Z` publishes a multi-arch image to
+`ghcr.io/fabriziosalmi/pdf-ocr` (see [`.github/workflows/release.yml`](.github/workflows/release.yml)):
+
+```bash
+docker run -d -p 8011:8011 \
+  -e SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')" \
+  -v "$PWD/uploads:/app/uploads" \
+  ghcr.io/fabriziosalmi/pdf-ocr:latest
+```
+
+Read [SECURITY.md](SECURITY.md) before exposing it: there is no authentication and no rate
+limiting, and Poppler/Tesseract parse untrusted input.
 
 ## Running the tests
 
-The unit tests mock the Tesseract/Poppler binaries, so they run anywhere with just the
-Python dependencies — no OCR engines required:
+The tests mock Tesseract, so no OCR engine is required. Poppler is optional: install it and
+the end-to-end conversion tests run for real; without it those three skip.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-python -m unittest test_app -v          # 35 tests
+python -m unittest test_app -v          # 57 tests
 ruff check .                            # lint (same gate as CI)
 ```
 
-CI runs both of these on every push and pull request — see
+CI runs lint, the tests on Python 3.11/3.12 with Poppler installed, and a Docker job that
+builds the image, waits for its HEALTHCHECK and asserts it is not running as root — see
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Troubleshooting
@@ -206,8 +250,15 @@ install dir is on `PATH`. On Windows you may need to set it explicitly in `app.p
 **Poppler / PDF conversion errors** — confirm `pdftoppm -v` works and Poppler's `bin/` is
 on `PATH`; restart your terminal after changing `PATH`.
 
-**Empty or poor OCR output** — try High quality (600 DPI), enable preprocessing, or switch
-engines. OCR is only as good as the source scan.
+**Empty or poor OCR output** — try High quality (600 DPI), enable preprocessing (thresholding
+helps on clean scans and hurts on photographs), or switch engines. OCR is only as good as the
+source scan.
+
+**"SECRET_KEY environment variable is required" on startup** — set one (see
+[Configuration](#configuration)), or `FLASK_ENV=development` for local work.
+
+**A large PDF fails with a page limit error** — raise `MAX_PAGES`. If it runs out of memory
+instead, lower `RENDER_BATCH_SIZE` or use standard rather than high quality.
 
 **First EasyOCR run is slow** — it downloads language models on first use.
 

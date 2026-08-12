@@ -1,9 +1,8 @@
-# Core requirements for Tesseract OCR (basic setup)
-Flask>=2.0.0
-werkzeug>=2.0.0
-pytesseract>=0.3.8
-pdf2image>=1.16.0
-python-docx>=0.8.11
-Pillow>=8.0.0
-gunicorn>=20.1.0
-python-dotenv>=0.19.0
+# Tesseract is the default engine and needs nothing beyond the core
+# requirements — pytesseract is already pinned there. This file is kept only
+# so `install_dependencies.py --engine tesseract` and older docs still resolve.
+#
+# You still need the Tesseract binary itself:
+#   macOS  brew install tesseract tesseract-lang
+#   Debian apt-get install tesseract-ocr tesseract-ocr-<lang>
+-r requirements.txt

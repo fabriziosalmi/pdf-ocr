@@ -1,11 +1,13 @@
-# Requirements for EasyOCR engine
-Flask>=2.0.0
-werkzeug>=2.0.0
-pdf2image>=1.16.0
-python-docx>=0.8.11
-Pillow>=8.0.0
-easyocr>=1.5.0
-torch>=1.7.0
-torchvision>=0.8.1
-opencv-python>=4.5.0
-scikit-image>=0.18.0
+# EasyOCR engine — additive on top of the pinned core requirements.
+# Install with: pip install -r requirements-easyocr.txt
+#
+# This file used to restate Flask/Werkzeug/Pillow with floating `>=` bounds,
+# which silently overrode the pins in requirements.txt.
+-r requirements.txt
+
+easyocr>=1.7,<2.0
+# PyTorch: if the default wheel is wrong for your platform/CUDA, install it
+# first from https://pytorch.org/get-started/locally/
+torch>=2.0
+torchvision>=0.15
+opencv-python-headless>=4.8   # headless: no GUI libs needed on a server

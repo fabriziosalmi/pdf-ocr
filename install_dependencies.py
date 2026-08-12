@@ -87,24 +87,18 @@ def install_core_requirements():
         return False
     print_success("pytesseract installed successfully")
     
-    # Install other core dependencies
-    print_info("Installing other core dependencies...")
-    requirements = [
-        "Flask>=2.0.0",
-        "werkzeug>=2.0.0",
-        "python-docx>=0.8.11", 
-        "Pillow>=8.0.0",
-        "gunicorn>=20.1.0",
-        "python-dotenv>=0.19.0"
-    ]
-    
-    for req in requirements:
-        print_info(f"Installing {req}...")
-        success, output = run_command([sys.executable, "-m", "pip", "install", req])
-        if not success:
-            print_error(f"Failed to install {req}: {output}")
-            return False
-    
+    # Install the rest from requirements.txt rather than a second, floating
+    # list of versions that would silently disagree with the pinned one.
+    print_info("Installing other core dependencies from requirements.txt...")
+    if not os.path.exists("requirements.txt"):
+        print_error("requirements.txt not found — run this script from the repository root")
+        return False
+
+    success, output = run_command([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    if not success:
+        print_error(f"Failed to install core requirements: {output}")
+        return False
+
     print_success("Core Python dependencies installed successfully")
     return True
 
