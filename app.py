@@ -402,42 +402,127 @@ def sanitize_text(text: Optional[str]) -> str:
         return ""
     return re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', text)
 
-def enhance_image(image: Image.Image) -> Image.Image:
-    """Enhance image quality for better OCR results."""
+DEFAULT_PREPROCESS_OPTIONS: Dict[str, Any] = {
+    "grayscale": True,
+    "sharpen": True,
+    "contrast": 1.5,
+    "threshold": False,
+}
+
+
+def parse_preprocess_options(form) -> Dict[str, Any]:
+    """Read the preprocessing checkboxes/slider off the upload form."""
+    try:
+        contrast = float(form.get('pre-contrast', DEFAULT_PREPROCESS_OPTIONS["contrast"]))
+    except (TypeError, ValueError):
+        contrast = DEFAULT_PREPROCESS_OPTIONS["contrast"]
+    return {
+        "grayscale": form.get('pre-grayscale') == '1',
+        "sharpen": form.get('pre-sharpen') == '1',
+        # The slider runs 0.5-2.5; clamp so a hand-crafted request cannot ask
+        # for an absurd enhancement factor.
+        "contrast": min(max(contrast, 0.5), 2.5),
+        "threshold": form.get('pre-threshold') == '1',
+    }
+
+
+def otsu_threshold(image: Image.Image) -> int:
+    """Pick a global binarisation cutoff with Otsu's method.
+
+    Computed from the 8-bit histogram so that thresholding does not require
+    OpenCV/NumPy, which would add ~60 MB to the image for one checkbox.
+    """
+    histogram = image.histogram()[:256]
+    total = sum(histogram)
+    if total == 0:
+        return 128
+
+    sum_all = sum(level * count for level, count in enumerate(histogram))
+    sum_background = 0.0
+    weight_background = 0
+    best_variance = -1.0
+    best_cutoff = 128
+
+    for level, count in enumerate(histogram):
+        weight_background += count
+        if weight_background == 0:
+            continue
+        weight_foreground = total - weight_background
+        if weight_foreground == 0:
+            break
+        sum_background += level * count
+        mean_background = sum_background / weight_background
+        mean_foreground = (sum_all - sum_background) / weight_foreground
+        variance = weight_background * weight_foreground * (mean_background - mean_foreground) ** 2
+        if variance > best_variance:
+            best_variance = variance
+            best_cutoff = level
+
+    return best_cutoff
+
+
+def enhance_image(image: Image.Image, options: Optional[Dict[str, Any]] = None) -> Image.Image:
+    """Enhance image quality for better OCR results.
+
+    Every step here is backed by a control in the upload form. Options the UI
+    used to offer but nothing implemented (denoise, deskew, border removal and
+    the preset profiles) have been removed from the form rather than stubbed.
+    """
+    settings = {**DEFAULT_PREPROCESS_OPTIONS, **(options or {})}
     try:
         # Import here to avoid requiring these packages unless needed
         from PIL import ImageEnhance, ImageFilter
-        
+
         # Apply a slight sharpening filter
-        image = image.filter(ImageFilter.SHARPEN)
-        
-        # Increase contrast slightly
-        enhancer = ImageEnhance.Contrast(image)
-        image = enhancer.enhance(1.5)
-        
-        # Convert to grayscale if not already
-        if image.mode != 'L':
+        if settings["sharpen"]:
+            image = image.filter(ImageFilter.SHARPEN)
+
+        # Adjust contrast
+        contrast = float(settings["contrast"])
+        if abs(contrast - 1.0) > 0.01:
+            enhancer = ImageEnhance.Contrast(image)
+            image = enhancer.enhance(contrast)
+
+        # Convert to grayscale if not already (thresholding needs it too)
+        if (settings["grayscale"] or settings["threshold"]) and image.mode != 'L':
             image = image.convert('L')
-        
+
+        # Binarise, which usually helps Tesseract on clean scans and hurts on
+        # photographs, hence off by default.
+        if settings["threshold"]:
+            cutoff = otsu_threshold(image)
+            image = image.point(lambda p: 255 if p > cutoff else 0, mode='L')
+
         return image
     except Exception as e:
         logger.warning(f"Image enhancement failed: {e}")
         return image  # Return original image if enhancement fails
 
-def process_image(i: int, image_path: str, ocr_engine: str, language: str, preprocess: bool = False) -> Tuple[int, str]:
-    """Process a single image with OCR (to be used in parallel processing)"""
+def process_image(i: int, image_path: str, ocr_engine: str, language: str, preprocess: bool = False, preprocess_options: Optional[Dict[str, Any]] = None) -> Tuple[int, str]:
+    """Run OCR on a single rendered page and return (page index, text)."""
     img_to_process = None
+    preprocessed_path = None
     try:
         text = ""
         # Open image
         logger.debug(f"Attempting to open image: {image_path}")  # Debugging log
         img_to_process = Image.open(image_path)
         logger.debug(f"Image opened successfully: {image_path}")  # Debugging log
-        
+
         # Preprocess image if requested
         if preprocess:
-            img_to_process = enhance_image(img_to_process)
-        
+            img_to_process = enhance_image(img_to_process, preprocess_options)
+            # EasyOCR and PaddleOCR read the file from disk rather than taking
+            # the PIL object, so without writing the enhanced image back out
+            # they silently received the untouched page.
+            preprocessed_path = f"{image_path}.pre.png"
+            try:
+                img_to_process.save(preprocessed_path, 'PNG')
+                image_path = preprocessed_path
+            except Exception as e:
+                logger.warning(f"Could not persist preprocessed page {i+1}: {e}")
+                preprocessed_path = None
+
         # Log OCR engine being used for debugging
         logger.info(f"Processing page {i+1} with OCR engine: {ocr_engine}")
         
@@ -580,7 +665,13 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
                 img_to_process.close()
             except Exception as e:
                 logger.warning(f"Error closing image for page {i+1}: {str(e)}")
-        # We don't delete the file here as it will be managed by the main process
+        # The rendered page itself is owned by the caller, but the preprocessed
+        # copy is ours to remove.
+        if preprocessed_path:
+            try:
+                os.remove(preprocessed_path)
+            except OSError:
+                pass
 
 def fix_common_ocr_errors(text: str, reflow: bool = False) -> str:
     """Tidy up OCR output without altering the characters the engine recognised.
@@ -696,7 +787,7 @@ def save_output(results: Dict[int, str], output_format: str, output_path: str, b
         raise ValueError(f"Unsupported output format: {output_format}")
 
 
-def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str = "tesseract", language: str = "eng", quality: str = "standard", preprocess: bool = False, orig_filename: Optional[str] = None, output_format: str = "docx") -> Tuple[bool, Optional[str], str]:
+def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str = "tesseract", language: str = "eng", quality: str = "standard", preprocess: bool = False, orig_filename: Optional[str] = None, output_format: str = "docx", preprocess_options: Optional[Dict[str, Any]] = None) -> Tuple[bool, Optional[str], str]:
     """Render a PDF page by page, OCR each page, and write the chosen format."""
     if output_format not in {"docx", "txt", "md", "html"}:
         return False, None, f"Unsupported output format: {output_format}"
@@ -763,7 +854,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                     continue
 
                 try:
-                    _, text = process_image(i, img_path, ocr_engine, language, preprocess)
+                    _, text = process_image(i, img_path, ocr_engine, language, preprocess, preprocess_options)
                     results[i] = text
                 finally:
                     try:
@@ -899,6 +990,7 @@ def upload_file():
 
         quality = 'high' if request.form.get('ocr-quality') == 'high' else 'standard'
         preprocess = request.form.get('preprocess', '0') == '1'
+        preprocess_options = parse_preprocess_options(request.form) if preprocess else None
 
         # Generate unique ID for this conversion
         conversion_id = str(uuid.uuid4())
@@ -936,7 +1028,8 @@ def upload_file():
                 quality,
                 preprocess,
                 orig_filename,
-                output_format
+                output_format,
+                preprocess_options,
             )
             return redirect(url_for('status', task_id=conversion_id))
         except Exception as e:
