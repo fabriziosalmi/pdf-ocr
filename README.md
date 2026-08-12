@@ -1,7 +1,7 @@
 # pdf-ocr
 
 [![CI](https://github.com/fabriziosalmi/pdf-ocr/actions/workflows/ci.yml/badge.svg)](https://github.com/fabriziosalmi/pdf-ocr/actions/workflows/ci.yml)
-[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A small **Flask web app** that turns scanned/image PDFs into editable text formats
@@ -21,7 +21,7 @@ feature-by-feature breakdown before you rely on any specific capability.
 ![screenshot3](screenshot_3.png)
 ![screenshot4](screenshot_4.png)
 
-## Quickstart (Docker, 3 commands)
+## Quickstart (Docker)
 
 Docker is the fastest path because the image already contains Tesseract and Poppler,
 so you don't have to install anything else:
@@ -152,7 +152,8 @@ today. Contributions welcome.
 
 ### Prerequisites
 
-- **Python 3.9+** and `pip`.
+- **Python 3.11+** and `pip`. CI covers 3.11 and 3.12; the Docker image uses 3.12. Older
+  versions no longer resolve the pinned dependencies (click 8.4 requires 3.10+).
 - **Tesseract OCR** — `brew install tesseract tesseract-lang` (macOS),
   `apt-get install tesseract-ocr` + language packs (Debian/Ubuntu), or the
   [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) on Windows
@@ -265,7 +266,8 @@ instead, lower `RENDER_BATCH_SIZE` or use standard rather than high quality.
 ## Contributing
 
 Issues and pull requests are welcome. Please run `ruff check .` and
-`python -m unittest test_app` before opening a PR.
+`python -m unittest test_app` before opening a PR — CI gates on both, plus a Docker build.
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
