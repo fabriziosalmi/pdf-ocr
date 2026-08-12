@@ -1,0 +1,35 @@
+# `COPY . .` used to pull the whole repository into the image, including the
+# ~30 MB of screenshots and the .git history.
+.git
+.github
+.gitignore
+.dockerignore
+
+# Docs and media
+*.md
+!README.md
+screenshot*.png
+test_ocr.png
+
+# Local state
+uploads/
+app.log
+.env
+.env.*
+
+# Python / tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Tests and dev-only tooling do not belong in the runtime image
+test_app.py
+ocr_test.py
+requirements-dev.txt
+ruff.toml

@@ -1,0 +1,26 @@
+# Keeps the pinned requirements and the CI actions current. A Werkzeug security
+# update (PR #1, werkzeug 2.3.7 -> 3.0.6) was opened and closed unmerged before
+# this config existed; with requirements.txt now pinned, these PRs are the
+# mechanism for staying patched.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for routine bumps; security updates still come through alone.
+      python-dependencies:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
