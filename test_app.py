@@ -622,7 +622,8 @@ class TestOCRApp(unittest.TestCase):
         out = tempfile.mktemp(suffix='.html')
         try:
             save_as_html({0: "body"}, out, title='x"><script>alert(1)</script>')
-            content = open(out, encoding='utf-8').read()
+            with open(out, encoding='utf-8') as fh:
+                content = fh.read()
             self.assertNotIn("<script>", content)
             self.assertIn("&lt;script&gt;", content)
             self.assertIn("&quot;", content)
@@ -909,6 +910,9 @@ class TestOCRApp(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, b"converted text")
         self.assertIn('attachment', response.headers['Content-Disposition'])
+        # send_file keeps the file object open on the response; close it so the
+        # suite does not emit a ResourceWarning on every run.
+        response.close()
 
     def test_download_refuses_result_outside_upload_folder(self):
         outside = tempfile.mktemp(suffix='.txt')
