@@ -75,13 +75,13 @@
                     </div>
                     
                     <!-- Dark mode toggle button -->
-                    <button id="theme-toggle" type="button" class="text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white rounded-lg p-2">
+                    <button id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" class="text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white rounded-lg p-2">
                         <!-- Sun icon (for dark mode - will show when dark mode is on) -->
-                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <svg id="theme-toggle-dark-icon" aria-hidden="true" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
                         </svg>
                         <!-- Moon icon (for light mode - will show when light mode is on) -->
-                        <svg id="theme-toggle-light-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <svg id="theme-toggle-light-icon" aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
                         </svg>
                     </button>
@@ -156,9 +156,21 @@
                     <p>You'll be redirected automatically when processing is complete</p>
                 </div>
                 
-                <!-- Cancel button -->
-                <div class="mt-6 text-center">
-                    <a href="/" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm">Return to home (the conversion keeps running)</a>
+                <!-- Cancel / leave -->
+                <div class="mt-6 text-center space-y-2">
+                    <button type="button" id="cancel-button"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span id="cancel-button-text">Cancel conversion</span>
+                    </button>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        Stops after the page currently being read finishes.
+                    </p>
+                    <p>
+                        <a href="/" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm">Leave this page (the conversion keeps running)</a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -170,6 +182,8 @@
         let checkInterval = 1000; // Start checking every second
         let elapsed = 0;
         let maxTime = 600000; // 10 minutes max processing time
+        const cancelButton = document.getElementById('cancel-button');
+        const cancelButtonText = document.getElementById('cancel-button-text');
         let networkRetries = 0;
         const maxNetworkRetries = 12; // ~1 minute of transport failures before giving up
         let startTime = Date.now();
@@ -362,6 +376,19 @@
                 setTimeout(() => {
                     window.location.href = data.redirect;
                 }, 1000);
+            } else if (data.status === 'cancelled') {
+                statusMessage.textContent = 'Conversion cancelled';
+                substatusMessage.textContent = 'Nothing was saved. Returning to the home page...';
+                progressBar.classList.remove('progress-indeterminate');
+                progressBar.style.width = '100%';
+                progressBar.style.backgroundColor = '#9CA3AF'; // Grey: stopped, not failed
+                progressPercentage.textContent = '';
+                timeRemaining.textContent = '';
+                cancelButton.disabled = true;
+
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/';
+                }, 2000);
             } else if (data.status === 'failed') {
                 statusMessage.textContent = 'Processing failed';
                 substatusMessage.textContent = 'An error occurred during processing';
@@ -456,6 +483,36 @@
                 });
         }
         
+        // --- Cancellation -------------------------------------------------
+        // The request only sets a flag; the worker notices it at the next page
+        // boundary. Say that plainly rather than pretending the job stops dead.
+        cancelButton.addEventListener('click', function () {
+            if (cancelButton.disabled) return;
+            cancelButton.disabled = true;
+            cancelButtonText.textContent = 'Cancelling...';
+
+            fetch(`/cancel/${taskId}`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+            })
+                .then(response => response.json().catch(() => ({})))
+                .then(data => {
+                    if (data.cancelled) {
+                        document.getElementById('substatus-message').textContent =
+                            'Cancelling — finishing the page currently being read...';
+                    } else {
+                        // Already finished or failed in the meantime; the next
+                        // poll will move the page on by itself.
+                        cancelButtonText.textContent = 'Cancel conversion';
+                    }
+                })
+                .catch(() => {
+                    // Let the user try again rather than stranding the button.
+                    cancelButton.disabled = false;
+                    cancelButtonText.textContent = 'Cancel conversion';
+                });
+        });
+
         // Start checking status
         checkStatus();
     </script>

@@ -829,6 +829,15 @@ def save_as_html(text_results: Dict[int, str], output_path: str, title: str = "C
         f.write('</body>\n')
         f.write('</html>\n')
 
+class ConversionCancelled(Exception):
+    """Raised when the user asks for a running conversion to stop.
+
+    A distinct type rather than a sentinel return value, so the broad
+    `except Exception` in the conversion body cannot mistake a cancellation
+    for a failure and report it as one.
+    """
+
+
 MAX_PAGES = env_int('MAX_PAGES', 200)
 # Pages rendered per Poppler call. Rendering the whole document in one go
 # materialises every page as a full-resolution bitmap at once: a 100-page PDF
@@ -904,6 +913,10 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         # Render and OCR in batches, discarding each page's bitmap as soon as
         # its text has been extracted so peak memory stays bounded.
         for batch_start in range(0, total_pages, RENDER_BATCH_SIZE):
+            record = TASKS.get(conversion_id)
+            if record and record.get("cancel_requested"):
+                raise ConversionCancelled()
+
             batch_end = min(batch_start + RENDER_BATCH_SIZE, total_pages)
             images = convert_from_path(
                 pdf_path,
@@ -941,6 +954,13 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                 progress = 5 + int(((i + 1) / total_pages) * 90)
                 TASKS.update(conversion_id, step="ocr", progress=progress)
 
+                # Between pages is the natural place to stop: a single page at
+                # 600 DPI can take a while, so cancellation is not instant and
+                # the UI says so rather than implying it is.
+                record = TASKS.get(conversion_id)
+                if record and record.get("cancel_requested"):
+                    raise ConversionCancelled()
+
             del images
 
         if not results:
@@ -965,6 +985,13 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
 
         return True, output_path, output_filename # Return the actual path and filename
 
+    except ConversionCancelled:
+        # Not a failure: let run_task_in_background record it as cancelled.
+        # The uploaded PDF and the page images are removed by the finally
+        # block below, and no output file has been written yet, so a cancelled
+        # conversion leaves nothing behind.
+        logger.info(f"Conversion {conversion_id} cancelled by the user")
+        raise
     except ImportError as e:
         # Specific handling for missing OCR engine imports
         error_message = f"Error: The required OCR engine '{ocr_engine}' is not properly installed. Please install it with pip: {str(e)}"
@@ -1013,6 +1040,8 @@ def run_task_in_background(func: callable, task_id: str, *args: Any, **kwargs: A
                 else:
                     # On failure the third element carries the error message.
                     TASKS.update(task_id, status="failed", progress=0, error=output_filename)
+            except ConversionCancelled:
+                TASKS.update(task_id, status="cancelled", progress=0)
             except Exception as e:
                 logger.error(f"Background task error: {str(e)}", exc_info=True)
                 TASKS.update(task_id, status="failed", progress=0, error=str(e))
@@ -1184,10 +1213,32 @@ def task_status(task_id):
     status_data = {k: v for k, v in record.items() if k != "result_path"}
     if record.get("status") == "completed":
         status_data["redirect"] = url_for('success', task_id=task_id)
-    elif record.get("status") == "failed":
+    elif record.get("status") in ("failed", "cancelled"):
         status_data["redirect"] = url_for('index')
 
     return jsonify(status_data)
+
+@app.route('/cancel/<task_id>', methods=['POST'])
+def cancel_task(task_id):
+    """Ask a running conversion to stop at the next page boundary.
+
+    POST rather than GET because it changes state. There is no CSRF token in
+    this app, but the session cookie is SameSite=Lax, which browsers do not
+    attach to a cross-site POST — so a third-party page cannot cancel a
+    conversion it does not own. The ownership check below is the real gate.
+    """
+    record = get_owned_task(task_id)
+    if record is None:
+        return jsonify({"status": "not_found"}), 404
+
+    if record.get("status") != "processing":
+        # Already finished, failed or cancelled — nothing to stop.
+        return jsonify({"status": record.get("status"), "cancelled": False})
+
+    TASKS.update(task_id, cancel_requested=True)
+    logger.info(f"Cancellation requested for task {task_id}")
+    return jsonify({"status": "cancelling", "cancelled": True})
+
 
 @app.route('/success/<task_id>')
 def success(task_id):

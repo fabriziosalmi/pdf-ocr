@@ -22,7 +22,7 @@ from app import (  # noqa: E402
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
     process_pdf_with_progress, parse_preprocess_options, otsu_threshold,
-    run_task_in_background, env_int, log_safe,
+    run_task_in_background, env_int, log_safe, ConversionCancelled,
     TASKS, TASK_TIMEOUT, STALE_TASK_TIMEOUT
 )
 
@@ -689,6 +689,34 @@ class TestOCRApp(unittest.TestCase):
                 installed, data = check_dependency('tesseract')
         self.assertFalse(installed)
         self.assertNotIn("secret", json.dumps(data))
+    def test_cancel_marks_the_task(self):
+        task_id = self._make_task(status="processing", progress=40)
+        with patch('app.logger'):
+            response = self.app.post(f'/cancel/{task_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.data)["cancelled"])
+        self.assertTrue(TASKS.get(task_id)["cancel_requested"])
+
+    def test_cancel_is_a_noop_on_a_finished_task(self):
+        task_id = self._make_task(status="completed", progress=100)
+        response = self.app.post(f'/cancel/{task_id}')
+        self.assertEqual(response.status_code, 200)
+        body = json.loads(response.data)
+        self.assertFalse(body["cancelled"])
+        self.assertEqual(body["status"], "completed")
+        self.assertNotIn("cancel_requested", TASKS.get(task_id))
+
+    def test_cancel_requires_ownership(self):
+        """A task id alone must not let a stranger stop someone's conversion."""
+        TASKS.set(self.TASK_ID, {"status": "processing", "progress": 10})
+        response = self.app.post(f'/cancel/{self.TASK_ID}')
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn("cancel_requested", TASKS.get(self.TASK_ID))
+
+    def test_cancel_rejects_get(self):
+        """Cancellation changes state, so it must not be reachable by GET."""
+        task_id = self._make_task(status="processing")
+        self.assertEqual(self.app.get(f'/cancel/{task_id}').status_code, 405)
 
     def test_save_output_rejects_unknown_format(self):
         with self.assertRaises(ValueError):
@@ -1061,6 +1089,65 @@ class TestConversionPipeline(unittest.TestCase):
         # only after a successful conversion, so a rejected document sat in the
         # upload folder until the next daily sweep.
         self.assertFalse(os.path.exists(pdf_path))
+
+    def test_cancellation_stops_the_conversion_partway(self):
+        """Cancel a real conversion mid-run and check it stops and leaves nothing.
+
+        The flag is set from inside the OCR callback, i.e. while the worker is
+        between pages — the same moment the /cancel route would set it.
+        """
+        pdf_path = self._make_pdf(6)
+        task_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        TASKS.set(task_id, {"status": "processing", "progress": 0})
+
+        pages_seen = []
+
+        def ocr_then_cancel(i, *args, **kwargs):
+            pages_seen.append(i)
+            if i == 1:
+                # Ask for cancellation the way the route does.
+                TASKS.update(task_id, cancel_requested=True)
+            return (i, f"page {i}")
+
+        with patch('app.process_image', side_effect=ocr_then_cancel):
+            with self.assertRaises(ConversionCancelled):
+                process_pdf_with_progress(
+                    pdf_path, task_id, output_format="txt", orig_filename="input.pdf"
+                )
+
+        # It stopped early rather than running to the end.
+        self.assertLess(len(pages_seen), 6)
+        self.assertIn(1, pages_seen)
+
+        # Nothing is left behind: no output file, and the upload is gone.
+        self.assertFalse(os.path.exists(pdf_path))
+        leftovers = [f for f in os.listdir(self.upload_folder) if not f.startswith('.')]
+        self.assertEqual(leftovers, [])
+
+    def test_cancelled_conversion_is_recorded_as_cancelled_not_failed(self):
+        pdf_path = self._make_pdf(4)
+        task_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        TASKS.set(task_id, {"status": "processing", "progress": 0})
+
+        def ocr_then_cancel(i, *args, **kwargs):
+            TASKS.update(task_id, cancel_requested=True)
+            return (i, "text")
+
+        with patch('app.process_image', side_effect=ocr_then_cancel), patch('app.logger'):
+            run_task_in_background(
+                process_pdf_with_progress, task_id,
+                pdf_path, task_id, "tesseract", "eng", "standard", False, "input.pdf", "txt",
+            )
+            for _ in range(100):
+                record = TASKS.get(task_id)
+                if record and record.get("status") != "processing":
+                    break
+                time.sleep(0.05)
+
+        record = TASKS.get(task_id)
+        self.assertEqual(record["status"], "cancelled")
+        # A cancellation is not an error, so it must carry no error message.
+        self.assertNotIn("error", record)
 
     def test_renders_in_batches_rather_than_all_at_once(self):
         """Peak memory depends on this: one Poppler call per RENDER_BATCH_SIZE."""
