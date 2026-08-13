@@ -35,11 +35,14 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
-      # Poppler is needed by TestConversionPipeline, which renders a real PDF
-      # end to end (only the OCR call is stubbed). Without it those tests skip
-      # silently and the conversion path goes untested.
-      - name: Install Poppler
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
+      # Poppler renders the PDFs in TestConversionPipeline; Tesseract is what
+      # TestRealOCR actually measures. Both gate real tests that skip silently
+      # when the binary is missing, so CI is the only place they reliably run.
+      - name: Install Poppler and Tesseract
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils tesseract-ocr tesseract-ocr-eng fonts-dejavu-core
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
