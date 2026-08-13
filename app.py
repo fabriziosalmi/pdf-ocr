@@ -641,7 +641,20 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
 
         elif ocr_engine == "paddleocr":
             try:
+                import paddleocr as paddleocr_module
                 from paddleocr import PaddleOCR
+
+                # This branch is written against the 2.x API. Say so plainly
+                # rather than letting 3.x fail with a bare TypeError about an
+                # unexpected keyword argument, which points at nothing useful.
+                installed_version = str(getattr(paddleocr_module, '__version__', ''))
+                if installed_version and not installed_version.startswith('2.'):
+                    return i, (
+                        f"[Error: PaddleOCR {installed_version} is installed, but this app "
+                        f"targets the 2.x API. Install it with "
+                        f"'pip install -r requirements-paddleocr.txt', or use another engine.]"
+                    )
+
                 # Map common ISO codes (3-letter Tesseract or 2-letter) to PaddleOCR codes
                 lang_map = {
                     'eng': 'en', 'en': 'en', 'ita': 'it', 'it': 'it',

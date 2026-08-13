@@ -787,6 +787,7 @@ class TestOCRApp(unittest.TestCase):
         fake_reader.ocr.return_value = fake_result
         fake_paddle_cls = MagicMock(return_value=fake_reader)
         fake_module = MagicMock()
+        fake_module.__version__ = '2.7.0'   # the API this branch targets
         fake_module.PaddleOCR = fake_paddle_cls
 
         import sys
@@ -799,6 +800,31 @@ class TestOCRApp(unittest.TestCase):
         # Built with the PaddleOCR 2.x API and 'eng' mapped to 'en'
         fake_paddle_cls.assert_called_once_with(use_angle_cls=True, lang="en", show_log=False)
         fake_reader.ocr.assert_called_once_with(img_path, cls=True)
+
+    @patch('app.logger')
+    def test_process_image_paddleocr_3x_reports_the_mismatch(self, mock_logger):
+        """A 3.x install must say so, not fail with a bare TypeError.
+
+        The dispatch targets the 2.x API (use_angle_cls/cls/show_log, .ocr()).
+        CI cannot catch a bad bump here — paddleocr is a lazy import and is not
+        installed there — so the runtime message has to be the useful one.
+        """
+        img = Image.new('RGB', (100, 100), color='white')
+        img_path = os.path.join(self.test_upload_folder, 'paddle3.png')
+        img.save(img_path)
+
+        fake_module = MagicMock()
+        fake_module.__version__ = '3.7.0'
+
+        import sys
+        with patch.dict(sys.modules, {'paddleocr': fake_module}):
+            idx, text = process_image(0, img_path, "paddleocr", "eng")
+
+        self.assertEqual(idx, 0)
+        self.assertIn("3.7.0", text)
+        self.assertIn("targets the 2.x API", text)
+        # It must not have tried to build a reader with the removed arguments.
+        fake_module.PaddleOCR.assert_not_called()
 
     def test_cleanup_old_files_removes_old(self):
         """Call the app's own cleanup, not a reimplementation of it.
