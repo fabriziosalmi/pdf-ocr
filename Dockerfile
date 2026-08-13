@@ -1,5 +1,6 @@
-# Python 3.9 reached end of life in October 2025 and stopped receiving security
-# fixes; 3.12 is the version the CI test matrix covers.
+# Kept in step with the CI test matrix in .github/workflows/ci.yml, which
+# currently covers Python 3.11 to 3.14. Never set this higher than the highest
+# version that matrix tests, or the image ships on an untested interpreter.
 FROM python:3.14-slim
 
 # Install required system dependencies

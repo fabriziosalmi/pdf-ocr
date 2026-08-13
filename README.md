@@ -231,8 +231,10 @@ limiting, and Poppler/Tesseract parse untrusted input.
 
 ## Running the tests
 
-The tests mock Tesseract, so no OCR engine is required. Poppler is optional: install it and
-the end-to-end conversion tests run for real; without it those three skip.
+Most tests mock the OCR engine and run anywhere. Two groups need real binaries and skip
+cleanly without them: `TestConversionPipeline` needs **Poppler**, and `TestRealOCR` needs
+**Tesseract** — the latter renders text to an image, OCRs it for real, and requires the words
+and digits back. CI installs both, so those groups always run there.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
