@@ -33,7 +33,11 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      # Weekly rather than monthly: the monthly cadence left docker/login-action
+      # and docker/metadata-action a major behind for weeks after the rest of
+      # the workflow had moved on, which is how the Node 20 deprecation warning
+      # survived a full release cycle.
+      interval: "weekly"
 
   - package-ecosystem: "docker"
     directory: "/"
