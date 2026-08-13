@@ -320,7 +320,7 @@ def cleanup_old_files() -> None:
                 except OSError:
                     pass
             TASKS.delete(task_id)
-            logger.info(f"Removed expired task: {task_id}")
+            logger.info(f"Removed expired task: {log_safe(task_id)}")
 
 _dependency_check_cache: Dict[str, Tuple[float, Tuple[bool, str]]] = {}
 
@@ -608,7 +608,7 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
                 preprocessed_path = None
 
         # Log OCR engine being used for debugging
-        logger.info(f"Processing page {i+1} with OCR engine: {ocr_engine}")
+        logger.info(f"Processing page {i+1} with OCR engine: {log_safe(ocr_engine)}")
         
         if ocr_engine == "tesseract":
             try:
@@ -623,7 +623,7 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
                 logger.info(f"Using Tesseract version: {tesseract_version}")
                 
                 # Log what language is being used
-                logger.info(f"OCR language settings: {language}, config: {config}")
+                logger.info(f"OCR language settings: {log_safe(language)}, config: {log_safe(config)}")
                 
                 text = pytesseract.image_to_string(img_to_process, config=config)
                 if not text.strip():
@@ -753,7 +753,7 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
         logger.error(f"File not found error processing page {i+1}: {str(e)}", exc_info=True)
         return i, f"[Error: File not found: {str(e)}. Ensure the file exists and is accessible.]"
     except Exception as e:
-        logger.error(f"Error processing page {i+1} with {ocr_engine}: {str(e)}", exc_info=True)
+        logger.error(f"Error processing page {i+1} with {log_safe(ocr_engine)}: {e}", exc_info=True)
         return i, f"[Error processing page {i+1}: {str(e)}]"
     finally:
         # Ensure PIL Image is properly closed to prevent resource leaks
@@ -1021,7 +1021,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         # The uploaded PDF and the page images are removed by the finally
         # block below, and no output file has been written yet, so a cancelled
         # conversion leaves nothing behind.
-        logger.info(f"Conversion {conversion_id} cancelled by the user")
+        logger.info(f"Conversion {log_safe(conversion_id)} cancelled by the user")
         raise
     except ImportError as e:
         # Specific handling for missing OCR engine imports
@@ -1205,7 +1205,7 @@ def fail_if_stale(task_id: str, record: Dict[str, Any]) -> Dict[str, Any]:
     if time.time() - record.get("timestamp", 0) <= STALE_TASK_TIMEOUT:
         return record
 
-    logger.warning(f"Task {task_id} has not progressed in {STALE_TASK_TIMEOUT}s; marking failed")
+    logger.warning(f"Task {log_safe(task_id)} has not progressed in {STALE_TASK_TIMEOUT}s; marking failed")
     TASKS.update(
         task_id,
         status="failed",
