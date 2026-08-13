@@ -1,0 +1,46 @@
+name: CodeQL
+
+# Static analysis for the paths that matter in this app: the upload handler's
+# file handling, the subprocess calls into the Tesseract and Poppler binaries,
+# and path construction around the upload folder.
+#
+# It runs on a schedule as well as on pushes because CodeQL's query pack is
+# updated independently of this repository — a query added next month can find
+# something in code that has not changed since today.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Mondays, 04:17 UTC. Off the hour so as not to queue with everyone else's
+    # cron on the shared runners.
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (python)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # required to upload the results
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: python
+          # security-extended adds lower-severity security queries on top of
+          # the default set. The codebase is ~1.2k lines, so the extra noise is
+          # manageable and the extra coverage is worth it.
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:python"

@@ -203,6 +203,7 @@ Copy [`.env.example`](.env.example) and adjust. These are all read by `app.py` o
 | `MAX_UPLOAD_MB`         | Upload size limit; larger requests get a 413.                      | `64`       |
 | `MAX_PAGES`             | Maximum pages per PDF.                                             | `200`      |
 | `RENDER_BATCH_SIZE`     | Pages rendered per Poppler call — this is what bounds peak memory. | `4`        |
+| `STALE_TASK_TIMEOUT`    | Seconds without progress before a conversion is reported as failed.| `1800`     |
 | `SESSION_COOKIE_SECURE` | `true` when serving over HTTPS: marks the cookie Secure, adds HSTS.| `false`    |
 | `LOG_LEVEL`             | Python logging level.                                              | `INFO`     |
 | `LOG_FILE`              | If set, also log to this file (rotating, 10 MB x 3).               | stdout only|

@@ -48,8 +48,29 @@ UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'uploads')
 ALLOWED_EXTENSIONS = {'pdf'}
 SUPPORTED_ENGINES = {'tesseract', 'easyocr', 'pyocr', 'paddleocr'}
 SUPPORTED_OUTPUT_FORMATS = {'docx', 'txt', 'md', 'html'}
+
+
+def env_int(name: str, default: int, minimum: int = 1) -> int:
+    """Read a positive integer setting, failing with a message that names it.
+
+    These are documented, user-set knobs; a bare
+    `ValueError: invalid literal for int()` at import time gives an operator
+    nothing to go on when the container crash-loops.
+    """
+    raw = os.environ.get(name)
+    if raw is None or raw == '':
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        raise RuntimeError(f"{name} must be an integer, got {raw!r}") from None
+    if value < minimum:
+        raise RuntimeError(f"{name} must be >= {minimum}, got {value}")
+    return value
+
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_UPLOAD_MB', '64')) * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = env_int('MAX_UPLOAD_MB', 64) * 1024 * 1024
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Session timeout
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -93,7 +114,24 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Setup periodic cleanup
 CLEANUP_INTERVAL = 3600  # 1 hour in seconds
 TASK_TIMEOUT = 3600  # 1 hour in seconds
+# A conversion refreshes its record after every page, so a "processing" task
+# that has not been touched for this long is not slow, it is gone: the worker
+# was recycled or the container restarted mid-conversion. Without this the
+# progress page polls a task that will never finish.
+STALE_TASK_TIMEOUT = env_int('STALE_TASK_TIMEOUT', 1800)
 LAST_CLEANUP_TIME = time.time()
+
+
+def log_safe(value: Any, limit: int = 200) -> str:
+    """Flatten a value for logging so it cannot forge log structure.
+
+    Newlines in a logged value let an attacker append what look like genuine
+    log lines. Most of the values we log are already run through
+    `secure_filename` or an allowlist, but that guarantee lives far from the
+    log call — making it local means it cannot be lost by a later refactor.
+    """
+    text = str(value).replace('\r', ' ').replace('\n', ' ')
+    return text[:limit] + '...' if len(text) > limit else text
 
 
 class TaskStore:
@@ -129,7 +167,7 @@ class TaskStore:
             with path.open(encoding='utf-8') as fh:
                 return json.load(fh)
         except (OSError, ValueError) as exc:
-            logger.error(f"Could not read task {task_id}: {exc}")
+            logger.error(f"Could not read task {log_safe(task_id)}: {exc}")
             return None
 
     def set(self, task_id: str, data: Dict[str, Any]) -> None:
@@ -144,7 +182,7 @@ class TaskStore:
                 json.dump(data, fh)
             tmp.replace(path)
         except OSError as exc:
-            logger.error(f"Could not write task {task_id}: {exc}")
+            logger.error(f"Could not write task {log_safe(task_id)}: {exc}")
 
     def update(self, task_id: str, **fields: Any) -> None:
         current = self.get(task_id)
@@ -159,7 +197,7 @@ class TaskStore:
             try:
                 path.unlink(missing_ok=True)
             except OSError as exc:
-                logger.warning(f"Could not delete task {task_id}: {exc}")
+                logger.warning(f"Could not delete task {log_safe(task_id)}: {exc}")
 
     def items(self):
         for path in sorted(self._dir().glob('*.json')):
@@ -287,7 +325,8 @@ def check_dependencies() -> Tuple[bool, str]:
         _dependency_check_cache[cache_key] = (now, result)
         return result
     except Exception as e:
-        result = (False, f"Error checking dependencies: {str(e)}")
+        logger.error(f"Error checking dependencies: {e}", exc_info=True)
+        result = (False, "Error checking dependencies. See the server log for details.")
         _dependency_check_cache[cache_key] = (now, result)
         return result
 
@@ -337,7 +376,18 @@ def check_dependency(name: str) -> Tuple[bool, Dict[str, Any]]:
             return False, {"installed": False, "message": f"Unknown dependency: {name}"}
     
     except Exception as e:
-        return False, {"installed": False, "message": f"Error checking {name}: {str(e)}"}
+        # The detail goes to the log, not to an anonymous HTTP caller: this
+        # endpoint needs no authentication, and exception text leaks paths and
+        # library internals.
+        logger.error(f"Error checking dependency {log_safe(name)}: {e}", exc_info=True)
+        return False, {"installed": False, "message": f"Error checking {log_safe(name)}"}
+
+# Endpoints that must not create a session. Touching `session.permanent`
+# writes `_permanent` into the session dict, which marks it modified and makes
+# Flask emit Set-Cookie — so an uptime monitor polling /healthz was being
+# handed a cookie on every probe.
+SESSIONLESS_ENDPOINTS = {'healthz', 'system_check', 'api_check_dependency', 'static'}
+
 
 @app.before_request
 def before_request():
@@ -345,8 +395,9 @@ def before_request():
     # Run cleanup periodically
     cleanup_old_files()
 
-    # Make session permanent but with a timeout
-    session.permanent = True
+    if request.endpoint not in SESSIONLESS_ENDPOINTS:
+        # Make session permanent but with a timeout
+        session.permanent = True
 
 
 # The page loads Tailwind from static/vendor and defines inline styles/handlers,
@@ -607,7 +658,20 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
 
         elif ocr_engine == "paddleocr":
             try:
+                import paddleocr as paddleocr_module
                 from paddleocr import PaddleOCR
+
+                # This branch is written against the 2.x API. Say so plainly
+                # rather than letting 3.x fail with a bare TypeError about an
+                # unexpected keyword argument, which points at nothing useful.
+                installed_version = str(getattr(paddleocr_module, '__version__', ''))
+                if installed_version and not installed_version.startswith('2.'):
+                    return i, (
+                        f"[Error: PaddleOCR {installed_version} is installed, but this app "
+                        f"targets the 2.x API. Install it with "
+                        f"'pip install -r requirements-paddleocr.txt', or use another engine.]"
+                    )
+
                 # Map common ISO codes (3-letter Tesseract or 2-letter) to PaddleOCR codes
                 lang_map = {
                     'eng': 'en', 'en': 'en', 'ita': 'it', 'it': 'it',
@@ -726,8 +790,19 @@ def save_as_markdown(text_results: Dict[int, str], output_path: str) -> None:
             if i < max(text_results.keys()):
                 f.write('---\n\n')
 
+def escape_html(text: str) -> str:
+    """Escape the characters that would otherwise close out of a text node."""
+    return (text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                .replace('"', '&quot;'))
+
+
 def save_as_html(text_results: Dict[int, str], output_path: str, title: str = "Converted Document") -> None:
     """Save the extracted text results as a basic HTML file."""
+    # The title reaches here from the uploaded filename. secure_clean_filename
+    # already strips angle brackets, so this is defence in depth rather than a
+    # live hole — but the paragraphs below were escaped and the title was not,
+    # which is exactly the asymmetry that becomes a hole after a refactor.
+    title = escape_html(title)
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write('<!DOCTYPE html>\n')
         f.write('<html lang="en">\n')
@@ -745,7 +820,7 @@ def save_as_html(text_results: Dict[int, str], output_path: str, title: str = "C
             paragraphs = text.split('\n\n')
             for para in paragraphs:
                 # Escape basic HTML characters
-                escaped_para = para.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                escaped_para = escape_html(para)
                 f.write(f'<p>{escaped_para.strip()}</p>\n')
             # Add a visual separator or page break indicator
             if i < max(text_results.keys()):
@@ -754,11 +829,11 @@ def save_as_html(text_results: Dict[int, str], output_path: str, title: str = "C
         f.write('</body>\n')
         f.write('</html>\n')
 
-MAX_PAGES = int(os.environ.get('MAX_PAGES', '200'))
+MAX_PAGES = env_int('MAX_PAGES', 200)
 # Pages rendered per Poppler call. Rendering the whole document in one go
 # materialises every page as a full-resolution bitmap at once: a 100-page PDF
 # at 600 DPI is several GB of RSS, which the 2 GB container limit cannot hold.
-RENDER_BATCH_SIZE = int(os.environ.get('RENDER_BATCH_SIZE', '4'))
+RENDER_BATCH_SIZE = env_int('RENDER_BATCH_SIZE', 4)
 
 
 def save_output(results: Dict[int, str], output_format: str, output_path: str, base_filename: str) -> None:
@@ -886,9 +961,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         pages_per_second = total_pages / elapsed_time if elapsed_time > 0 else 0
         logger.info(f"PDF processing completed. Pages: {total_pages}, Time: {elapsed_time:.2f}s, Pages/sec: {pages_per_second:.2f}, Output: {output_path}")
 
-        # Clean up original PDF after successful conversion
-        if os.path.exists(pdf_path):
-            os.remove(pdf_path)
+        # (the uploaded PDF is removed in the finally block, on every path)
 
         return True, output_path, output_filename # Return the actual path and filename
 
@@ -909,6 +982,15 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                 logger.info(f"Cleaned up temporary directory: {temp_dir}") # Log temp dir cleanup
             except Exception as e:
                 logger.error(f"Error cleaning up temporary directory: {e}")
+
+        # Remove the uploaded PDF whatever the outcome. It used to be deleted
+        # only on the success path, so a failed conversion left the user's
+        # document sitting in the upload folder until the next daily sweep.
+        if os.path.exists(pdf_path):
+            try:
+                os.remove(pdf_path)
+            except OSError as e:
+                logger.warning(f"Could not remove uploaded PDF {pdf_path}: {e}")
 
 def run_task_in_background(func: callable, task_id: str, *args: Any, **kwargs: Any) -> str:
     """Run a conversion in a background thread, recording progress in the store."""
@@ -996,7 +1078,11 @@ def upload_file():
         orig_filename = secure_clean_filename(file.filename) or 'document.pdf'
 
         # Log processing request
-        logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}, format={output_format}")
+        logger.info(
+            f"Processing request: file={log_safe(orig_filename)}, engine={log_safe(ocr_engine)}, "
+            f"lang={log_safe(language)}, quality={quality}, preprocess={preprocess}, "
+            f"format={log_safe(output_format)}"
+        )
 
         # Create a temporary filename to avoid collisions
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{orig_filename}")
@@ -1046,11 +1132,36 @@ def owns_task(task_id: str) -> bool:
     return task_id in session.get('owned_tasks', [])
 
 
+def fail_if_stale(task_id: str, record: Dict[str, Any]) -> Dict[str, Any]:
+    """Mark an abandoned conversion as failed instead of leaving it pending.
+
+    The conversion refreshes its record after every page, so a task still
+    claiming to be "processing" long after its last update is not slow — its
+    worker was recycled or the container restarted. Nothing would ever have
+    moved it out of that state, so the progress page polled forever.
+    """
+    if record.get("status") != "processing":
+        return record
+    if time.time() - record.get("timestamp", 0) <= STALE_TASK_TIMEOUT:
+        return record
+
+    logger.warning(f"Task {task_id} has not progressed in {STALE_TASK_TIMEOUT}s; marking failed")
+    TASKS.update(
+        task_id,
+        status="failed",
+        error="The conversion stopped unexpectedly (the server may have restarted). Please try again.",
+    )
+    return TASKS.get(task_id) or record
+
+
 def get_owned_task(task_id: str) -> Optional[Dict[str, Any]]:
     """Fetch a task record, or None if it is missing or not ours."""
     if not owns_task(task_id):
         return None
-    return TASKS.get(task_id)
+    record = TASKS.get(task_id)
+    if record is None:
+        return None
+    return fail_if_stale(task_id, record)
 
 
 @app.route('/status/<task_id>')
@@ -1170,8 +1281,10 @@ def system_check():
         "dependencies": {}
     }
     
-    # Check Python version
-    results["python_version"] = sys.version
+    # Major.minor only. The full sys.version string carries the patch level,
+    # build date and compiler — free fingerprinting for an endpoint that needs
+    # no authentication.
+    results["python_version"] = f"{sys.version_info.major}.{sys.version_info.minor}"
     
     # Check Tesseract
     try:
@@ -1182,9 +1295,10 @@ def system_check():
             results["status"] = "error"
             results["errors"].append("Tesseract OCR is not installed or not found in PATH")
     except Exception as e:
-        results["dependencies"]["tesseract"] = {"error": str(e)}
+        logger.error(f"Error checking Tesseract: {e}", exc_info=True)
+        results["dependencies"]["tesseract"] = {"error": "check failed"}
         results["status"] = "error"
-        results["errors"].append(f"Error checking Tesseract: {str(e)}")
+        results["errors"].append("Error checking Tesseract. See the server log for details.")
     
     # Check Poppler
     try:
@@ -1195,16 +1309,18 @@ def system_check():
             results["status"] = "error"
             results["errors"].append("Poppler is not installed or not found in PATH")
     except Exception as e:
-        results["dependencies"]["poppler"] = {"error": str(e)}
+        logger.error(f"Error checking Poppler: {e}", exc_info=True)
+        results["dependencies"]["poppler"] = {"error": "check failed"}
         results["status"] = "error"
-        results["errors"].append(f"Error checking Poppler: {str(e)}")
+        results["errors"].append("Error checking Poppler. See the server log for details.")
 
     # Check PaddleOCR (optional engine — reported for info, does not gate overall status)
     try:
         _, paddleocr_data = check_dependency('paddleocr')
         results["dependencies"]["paddleocr"] = paddleocr_data
     except Exception as e:
-        results["dependencies"]["paddleocr"] = {"error": str(e)}
+        logger.error(f"Error checking PaddleOCR: {e}", exc_info=True)
+        results["dependencies"]["paddleocr"] = {"error": "check failed"}
 
     # Check upload directory
     upload_dir = app.config['UPLOAD_FOLDER']
