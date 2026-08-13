@@ -21,7 +21,7 @@ from app import (  # noqa: E402
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
     process_pdf_with_progress, parse_preprocess_options, otsu_threshold,
-    run_task_in_background, TASKS, TASK_TIMEOUT
+    run_task_in_background, env_int, TASKS, TASK_TIMEOUT, STALE_TASK_TIMEOUT
 )
 
 # Initialize colorama for colored terminal output
@@ -583,6 +583,68 @@ class TestOCRApp(unittest.TestCase):
         self.assertEqual(record["status"], "failed")
         self.assertIn("conversion exploded", record["error"])
 
+    def test_stale_processing_task_is_marked_failed(self):
+        """A conversion whose worker died must not stay pending forever.
+
+        The record refreshes after every page, so a "processing" task with an
+        old timestamp is abandoned. Nothing used to move it out of that state
+        and the progress page polled it indefinitely.
+        """
+        task_file = os.path.join(self.test_upload_folder, '.tasks', f'{self.TASK_ID}.json')
+        os.makedirs(os.path.dirname(task_file), exist_ok=True)
+        with open(task_file, 'w') as f:
+            json.dump({
+                "status": "processing", "progress": 40,
+                "timestamp": time.time() - (STALE_TASK_TIMEOUT + 60),
+            }, f)
+        self._own(self.TASK_ID)
+
+        with patch('app.logger'):
+            response = self.app.get(f'/api/task_status/{self.TASK_ID}')
+
+        data = json.loads(response.data)
+        self.assertEqual(data["status"], "failed")
+        self.assertIn("stopped unexpectedly", data["error"])
+
+    def test_recent_processing_task_is_left_alone(self):
+        task_id = self._make_task(status="processing", progress=40)
+        response = self.app.get(f'/api/task_status/{task_id}')
+        self.assertEqual(json.loads(response.data)["status"], "processing")
+
+    def test_health_and_diagnostic_endpoints_do_not_set_a_cookie(self):
+        """An uptime monitor polling /healthz was handed a session cookie."""
+        for path in ('/healthz', '/system-check'):
+            with patch('app.check_dependency', return_value=(True, {"installed": True})):
+                response = self.app.get(path)
+            self.assertIsNone(response.headers.get('Set-Cookie'), msg=path)
+
+    def test_save_as_html_escapes_the_title(self):
+        out = tempfile.mktemp(suffix='.html')
+        try:
+            save_as_html({0: "body"}, out, title='x"><script>alert(1)</script>')
+            content = open(out, encoding='utf-8').read()
+            self.assertNotIn("<script>", content)
+            self.assertIn("&lt;script&gt;", content)
+            self.assertIn("&quot;", content)
+        finally:
+            if os.path.exists(out):
+                os.remove(out)
+
+    def test_env_int_reports_the_variable_it_could_not_parse(self):
+        with patch.dict(os.environ, {'MAX_PAGES': 'abc'}):
+            with self.assertRaises(RuntimeError) as ctx:
+                env_int('MAX_PAGES', 200)
+        self.assertIn("MAX_PAGES", str(ctx.exception))
+        self.assertIn("abc", str(ctx.exception))
+
+        with patch.dict(os.environ, {'MAX_PAGES': '0'}):
+            with self.assertRaises(RuntimeError):
+                env_int('MAX_PAGES', 200)
+
+        # Unset and empty both fall back to the default.
+        with patch.dict(os.environ, {'MAX_PAGES': ''}):
+            self.assertEqual(env_int('MAX_PAGES', 200), 200)
+
     def test_save_output_rejects_unknown_format(self):
         with self.assertRaises(ValueError):
             save_output({0: "text"}, "exe", os.path.join(self.test_upload_folder, "x"), "x")
@@ -725,6 +787,7 @@ class TestOCRApp(unittest.TestCase):
         fake_reader.ocr.return_value = fake_result
         fake_paddle_cls = MagicMock(return_value=fake_reader)
         fake_module = MagicMock()
+        fake_module.__version__ = '2.7.0'   # the API this branch targets
         fake_module.PaddleOCR = fake_paddle_cls
 
         import sys
@@ -737,6 +800,31 @@ class TestOCRApp(unittest.TestCase):
         # Built with the PaddleOCR 2.x API and 'eng' mapped to 'en'
         fake_paddle_cls.assert_called_once_with(use_angle_cls=True, lang="en", show_log=False)
         fake_reader.ocr.assert_called_once_with(img_path, cls=True)
+
+    @patch('app.logger')
+    def test_process_image_paddleocr_3x_reports_the_mismatch(self, mock_logger):
+        """A 3.x install must say so, not fail with a bare TypeError.
+
+        The dispatch targets the 2.x API (use_angle_cls/cls/show_log, .ocr()).
+        CI cannot catch a bad bump here — paddleocr is a lazy import and is not
+        installed there — so the runtime message has to be the useful one.
+        """
+        img = Image.new('RGB', (100, 100), color='white')
+        img_path = os.path.join(self.test_upload_folder, 'paddle3.png')
+        img.save(img_path)
+
+        fake_module = MagicMock()
+        fake_module.__version__ = '3.7.0'
+
+        import sys
+        with patch.dict(sys.modules, {'paddleocr': fake_module}):
+            idx, text = process_image(0, img_path, "paddleocr", "eng")
+
+        self.assertEqual(idx, 0)
+        self.assertIn("3.7.0", text)
+        self.assertIn("targets the 2.x API", text)
+        # It must not have tried to build a reader with the removed arguments.
+        fake_module.PaddleOCR.assert_not_called()
 
     def test_cleanup_old_files_removes_old(self):
         """Call the app's own cleanup, not a reimplementation of it.
@@ -921,6 +1009,10 @@ class TestConversionPipeline(unittest.TestCase):
 
         self.assertFalse(success)
         self.assertIn("limit is 2", message)
+        # The upload is removed on the failure path too; it used to be deleted
+        # only after a successful conversion, so a rejected document sat in the
+        # upload folder until the next daily sweep.
+        self.assertFalse(os.path.exists(pdf_path))
 
     def test_renders_in_batches_rather_than_all_at_once(self):
         """Peak memory depends on this: one Poppler call per RENDER_BATCH_SIZE."""

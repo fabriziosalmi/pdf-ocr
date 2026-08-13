@@ -14,6 +14,21 @@ updates:
       python-dependencies:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+    ignore:
+      # app.py dispatches against the PaddleOCR *2.x* API: it passes
+      # use_angle_cls/cls/show_log and calls .ocr(). 3.x removed all three
+      # arguments and renamed the method to .predict(), so a major bump breaks
+      # the PaddleOCR engine outright.
+      #
+      # The dangerous part is that CI would not notice: paddleocr is a lazy
+      # import and is deliberately not installed in CI, so every check stays
+      # green while the engine is broken for anyone who selects it. That makes
+      # this a bump a human has to make together with the code change, not one
+      # to merge on a green tick.
+      - dependency-name: "paddleocr"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "paddlepaddle"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
