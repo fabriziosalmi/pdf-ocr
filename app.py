@@ -122,6 +122,18 @@ STALE_TASK_TIMEOUT = env_int('STALE_TASK_TIMEOUT', 1800)
 LAST_CLEANUP_TIME = time.time()
 
 
+def log_safe(value: Any, limit: int = 200) -> str:
+    """Flatten a value for logging so it cannot forge log structure.
+
+    Newlines in a logged value let an attacker append what look like genuine
+    log lines. Most of the values we log are already run through
+    `secure_filename` or an allowlist, but that guarantee lives far from the
+    log call — making it local means it cannot be lost by a later refactor.
+    """
+    text = str(value).replace('\r', ' ').replace('\n', ' ')
+    return text[:limit] + '...' if len(text) > limit else text
+
+
 class TaskStore:
     """Filesystem-backed store for background conversion tasks.
 
@@ -155,7 +167,7 @@ class TaskStore:
             with path.open(encoding='utf-8') as fh:
                 return json.load(fh)
         except (OSError, ValueError) as exc:
-            logger.error(f"Could not read task {task_id}: {exc}")
+            logger.error(f"Could not read task {log_safe(task_id)}: {exc}")
             return None
 
     def set(self, task_id: str, data: Dict[str, Any]) -> None:
@@ -170,7 +182,7 @@ class TaskStore:
                 json.dump(data, fh)
             tmp.replace(path)
         except OSError as exc:
-            logger.error(f"Could not write task {task_id}: {exc}")
+            logger.error(f"Could not write task {log_safe(task_id)}: {exc}")
 
     def update(self, task_id: str, **fields: Any) -> None:
         current = self.get(task_id)
@@ -185,7 +197,7 @@ class TaskStore:
             try:
                 path.unlink(missing_ok=True)
             except OSError as exc:
-                logger.warning(f"Could not delete task {task_id}: {exc}")
+                logger.warning(f"Could not delete task {log_safe(task_id)}: {exc}")
 
     def items(self):
         for path in sorted(self._dir().glob('*.json')):
@@ -313,7 +325,8 @@ def check_dependencies() -> Tuple[bool, str]:
         _dependency_check_cache[cache_key] = (now, result)
         return result
     except Exception as e:
-        result = (False, f"Error checking dependencies: {str(e)}")
+        logger.error(f"Error checking dependencies: {e}", exc_info=True)
+        result = (False, "Error checking dependencies. See the server log for details.")
         _dependency_check_cache[cache_key] = (now, result)
         return result
 
@@ -363,7 +376,11 @@ def check_dependency(name: str) -> Tuple[bool, Dict[str, Any]]:
             return False, {"installed": False, "message": f"Unknown dependency: {name}"}
     
     except Exception as e:
-        return False, {"installed": False, "message": f"Error checking {name}: {str(e)}"}
+        # The detail goes to the log, not to an anonymous HTTP caller: this
+        # endpoint needs no authentication, and exception text leaks paths and
+        # library internals.
+        logger.error(f"Error checking dependency {log_safe(name)}: {e}", exc_info=True)
+        return False, {"installed": False, "message": f"Error checking {log_safe(name)}"}
 
 # Endpoints that must not create a session. Touching `session.permanent`
 # writes `_permanent` into the session dict, which marks it modified and makes
@@ -1061,7 +1078,11 @@ def upload_file():
         orig_filename = secure_clean_filename(file.filename) or 'document.pdf'
 
         # Log processing request
-        logger.info(f"Processing request: file={orig_filename}, engine={ocr_engine}, lang={language}, quality={quality}, preprocess={preprocess}, format={output_format}")
+        logger.info(
+            f"Processing request: file={log_safe(orig_filename)}, engine={log_safe(ocr_engine)}, "
+            f"lang={log_safe(language)}, quality={quality}, preprocess={preprocess}, "
+            f"format={log_safe(output_format)}"
+        )
 
         # Create a temporary filename to avoid collisions
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{conversion_id}_{orig_filename}")
@@ -1260,8 +1281,10 @@ def system_check():
         "dependencies": {}
     }
     
-    # Check Python version
-    results["python_version"] = sys.version
+    # Major.minor only. The full sys.version string carries the patch level,
+    # build date and compiler — free fingerprinting for an endpoint that needs
+    # no authentication.
+    results["python_version"] = f"{sys.version_info.major}.{sys.version_info.minor}"
     
     # Check Tesseract
     try:
@@ -1272,9 +1295,10 @@ def system_check():
             results["status"] = "error"
             results["errors"].append("Tesseract OCR is not installed or not found in PATH")
     except Exception as e:
-        results["dependencies"]["tesseract"] = {"error": str(e)}
+        logger.error(f"Error checking Tesseract: {e}", exc_info=True)
+        results["dependencies"]["tesseract"] = {"error": "check failed"}
         results["status"] = "error"
-        results["errors"].append(f"Error checking Tesseract: {str(e)}")
+        results["errors"].append("Error checking Tesseract. See the server log for details.")
     
     # Check Poppler
     try:
@@ -1285,16 +1309,18 @@ def system_check():
             results["status"] = "error"
             results["errors"].append("Poppler is not installed or not found in PATH")
     except Exception as e:
-        results["dependencies"]["poppler"] = {"error": str(e)}
+        logger.error(f"Error checking Poppler: {e}", exc_info=True)
+        results["dependencies"]["poppler"] = {"error": "check failed"}
         results["status"] = "error"
-        results["errors"].append(f"Error checking Poppler: {str(e)}")
+        results["errors"].append("Error checking Poppler. See the server log for details.")
 
     # Check PaddleOCR (optional engine — reported for info, does not gate overall status)
     try:
         _, paddleocr_data = check_dependency('paddleocr')
         results["dependencies"]["paddleocr"] = paddleocr_data
     except Exception as e:
-        results["dependencies"]["paddleocr"] = {"error": str(e)}
+        logger.error(f"Error checking PaddleOCR: {e}", exc_info=True)
+        results["dependencies"]["paddleocr"] = {"error": "check failed"}
 
     # Check upload directory
     upload_dir = app.config['UPLOAD_FOLDER']
