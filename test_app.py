@@ -1167,8 +1167,16 @@ class TestRealOCR(unittest.TestCase):
 
         _, text = process_image(0, img_path, "tesseract", "eng")
 
-        self.assertIn("2024", text, msg=f"digits were mangled: {text!r}")
-        self.assertIn("1250", text, msg=f"digits were mangled: {text!r}")
+        # Compare with separators removed. Tesseract legitimately reads
+        # "1250" as "1 250" or "1,250" depending on version and spacing, and a
+        # test that forbids that would go red on a runner image update without
+        # anything being wrong. What must hold is that the digits come back as
+        # digits — the old clean-up pass turned them into O, I and S.
+        digits_only = re.sub(r'[^0-9]', '', text)
+        self.assertIn("2024", digits_only, msg=f"digits were mangled: {text!r}")
+        self.assertIn("1250", digits_only, msg=f"digits were mangled: {text!r}")
+        # And that no digit was silently replaced by its letter lookalike.
+        self.assertNotIn("2O24", text)
 
     @unittest.skipUnless(_poppler_available(), "Poppler (pdftoppm) is not installed")
     def test_pdf_to_text_end_to_end(self):
