@@ -21,8 +21,20 @@ from app import (  # noqa: E402
     process_image, fix_common_ocr_errors, save_as_markdown, save_as_html,
     is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
     process_pdf_with_progress, parse_preprocess_options, otsu_threshold,
-    run_task_in_background, env_int, TASKS, TASK_TIMEOUT, STALE_TASK_TIMEOUT
+    run_task_in_background, env_int, log_safe,
+    TASKS, TASK_TIMEOUT, STALE_TASK_TIMEOUT
 )
+
+def _temp_path(suffix: str) -> str:
+    """Reserve a temporary path without tempfile.mktemp.
+
+    `tempfile.mktemp` only returns a name, leaving a window in which another
+    process can create the file first; mkstemp creates it atomically.
+    """
+    fd, path = tempfile.mkstemp(suffix=suffix)
+    os.close(fd)
+    return path
+
 
 # Initialize colorama for colored terminal output
 colorama.init(autoreset=True)
@@ -261,7 +273,7 @@ class TestOCRApp(unittest.TestCase):
 
     def test_save_as_markdown(self):
         test_results = {0: "Test page 1", 1: "Test page 2\n\nParagraph 2"}
-        test_output = tempfile.mktemp(suffix='.md')
+        test_output = _temp_path('.md')
         
         try:
             save_as_markdown(test_results, test_output)
@@ -283,7 +295,7 @@ class TestOCRApp(unittest.TestCase):
     
     def test_save_as_html(self):
         test_results = {0: "Test page 1", 1: "Test page 2\n\nParagraph 2", 2: "Test with <html> & entities"}
-        test_output = tempfile.mktemp(suffix='.html')
+        test_output = _temp_path('.html')
         test_title = "Test Document"
         
         try:
@@ -619,7 +631,7 @@ class TestOCRApp(unittest.TestCase):
             self.assertIsNone(response.headers.get('Set-Cookie'), msg=path)
 
     def test_save_as_html_escapes_the_title(self):
-        out = tempfile.mktemp(suffix='.html')
+        out = _temp_path('.html')
         try:
             save_as_html({0: "body"}, out, title='x"><script>alert(1)</script>')
             with open(out, encoding='utf-8') as fh:
@@ -645,6 +657,37 @@ class TestOCRApp(unittest.TestCase):
         # Unset and empty both fall back to the default.
         with patch.dict(os.environ, {'MAX_PAGES': ''}):
             self.assertEqual(env_int('MAX_PAGES', 200), 200)
+
+    def test_log_safe_flattens_forged_log_lines(self):
+        self.assertEqual(log_safe("normal.pdf"), "normal.pdf")
+        # A newline in a logged value would otherwise let an attacker append
+        # something that reads like a genuine log entry.
+        forged = "evil.pdf\n2026-01-01 - app - INFO - Admin logged in"
+        self.assertNotIn("\n", log_safe(forged))
+        self.assertNotIn("\r", log_safe("a\rb"))
+        # Long values are truncated rather than flooding the log.
+        self.assertLessEqual(len(log_safe("x" * 5000)), 210)
+
+    def test_system_check_does_not_leak_internals(self):
+        """It needs no authentication, so it must not fingerprint the host."""
+        with patch('app.check_dependency', side_effect=Exception("boom: /usr/local/secret")):
+            with patch('app.logger'):
+                response = self.app.get('/system-check')
+        body = response.data.decode()
+        self.assertNotIn("/usr/local/secret", body)
+        self.assertNotIn("boom", body)
+
+        data = json.loads(body)
+        # Major.minor only — the full sys.version carries patch level, build
+        # date and compiler.
+        self.assertRegex(data["python_version"], r'^\d+\.\d+$')
+
+    def test_check_dependency_error_does_not_reach_the_caller(self):
+        with patch('app.subprocess.check_output', side_effect=Exception("boom: /usr/local/secret")):
+            with patch('app.logger'):
+                installed, data = check_dependency('tesseract')
+        self.assertFalse(installed)
+        self.assertNotIn("secret", json.dumps(data))
 
     def test_save_output_rejects_unknown_format(self):
         with self.assertRaises(ValueError):
@@ -867,7 +910,7 @@ class TestOCRApp(unittest.TestCase):
 
     def test_save_as_markdown_empty(self):
         test_results = {}
-        test_output = tempfile.mktemp(suffix='.md')
+        test_output = _temp_path('.md')
         try:
             save_as_markdown(test_results, test_output)
             self.assertTrue(os.path.exists(test_output))
@@ -880,7 +923,7 @@ class TestOCRApp(unittest.TestCase):
 
     def test_save_as_html_empty(self):
         test_results = {}
-        test_output = tempfile.mktemp(suffix='.html')
+        test_output = _temp_path('.html')
         try:
             save_as_html(test_results, test_output, "EmptyDoc")
             self.assertTrue(os.path.exists(test_output))
@@ -915,7 +958,7 @@ class TestOCRApp(unittest.TestCase):
         response.close()
 
     def test_download_refuses_result_outside_upload_folder(self):
-        outside = tempfile.mktemp(suffix='.txt')
+        outside = _temp_path('.txt')
         with open(outside, 'w') as f:
             f.write("secret")
         try:
