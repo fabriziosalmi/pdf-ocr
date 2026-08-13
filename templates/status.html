@@ -495,16 +495,20 @@
                 method: 'POST',
                 headers: { 'Accept': 'application/json' },
             })
-                .then(response => response.json().catch(() => ({})))
-                .then(data => {
-                    if (data.cancelled) {
+                .then(response => response.json().catch(() => ({})).then(data => ({
+                    ok: response.ok, data,
+                })))
+                .then(({ ok, data }) => {
+                    if (ok && data.cancelled) {
                         document.getElementById('substatus-message').textContent =
                             'Cancelling — finishing the page currently being read...';
-                    } else {
-                        // Already finished or failed in the meantime; the next
-                        // poll will move the page on by itself.
-                        cancelButtonText.textContent = 'Cancel conversion';
+                        return;
                     }
+                    // Either the task already finished (the next poll will move
+                    // the page on) or the request was rejected. Re-enable the
+                    // button in both cases rather than stranding it disabled.
+                    cancelButton.disabled = false;
+                    cancelButtonText.textContent = 'Cancel conversion';
                 })
                 .catch(() => {
                     // Let the user try again rather than stranding the button.

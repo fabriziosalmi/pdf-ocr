@@ -694,7 +694,7 @@ class TestOCRApp(unittest.TestCase):
             response = self.app.post(f'/cancel/{task_id}')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.data)["cancelled"])
-        self.assertTrue(TASKS.get(task_id)["cancel_requested"])
+        self.assertTrue(TASKS.is_cancel_requested(task_id))
 
     def test_cancel_is_a_noop_on_a_finished_task(self):
         task_id = self._make_task(status="completed", progress=100)
@@ -703,14 +703,40 @@ class TestOCRApp(unittest.TestCase):
         body = json.loads(response.data)
         self.assertFalse(body["cancelled"])
         self.assertEqual(body["status"], "completed")
-        self.assertNotIn("cancel_requested", TASKS.get(task_id))
+        self.assertFalse(TASKS.is_cancel_requested(task_id))
 
     def test_cancel_requires_ownership(self):
         """A task id alone must not let a stranger stop someone's conversion."""
         TASKS.set(self.TASK_ID, {"status": "processing", "progress": 10})
         response = self.app.post(f'/cancel/{self.TASK_ID}')
         self.assertEqual(response.status_code, 404)
-        self.assertNotIn("cancel_requested", TASKS.get(self.TASK_ID))
+        self.assertFalse(TASKS.is_cancel_requested(self.TASK_ID))
+
+    def test_cancel_flag_survives_a_concurrent_progress_write(self):
+        """The flag must not be clobbered by the worker's own record writes.
+
+        `TaskStore.update()` is a read-modify-write with no cross-process
+        locking. Had the flag lived in the task record, this sequence would
+        lose it: the worker reads the record, the cancel lands, the worker
+        writes its stale copy back. The marker file has a single writer.
+        """
+        task_id = self._make_task(status="processing", progress=10)
+
+        stale = TASKS.get(task_id)          # worker reads...
+        TASKS.request_cancel(task_id)       # ...cancel arrives...
+        stale["progress"] = 20
+        TASKS.set(task_id, stale)           # ...worker writes its stale copy
+
+        self.assertTrue(TASKS.is_cancel_requested(task_id))
+
+    def test_deleting_a_task_removes_its_cancel_marker(self):
+        task_id = self._make_task(status="processing")
+        TASKS.request_cancel(task_id)
+        TASKS.delete(task_id)
+        self.assertFalse(TASKS.is_cancel_requested(task_id))
+        # A later task reusing the id must not start out cancelled.
+        TASKS.set(task_id, {"status": "processing"})
+        self.assertFalse(TASKS.is_cancel_requested(task_id))
 
     def test_cancel_rejects_get(self):
         """Cancellation changes state, so it must not be reachable by GET."""
@@ -1105,7 +1131,7 @@ class TestConversionPipeline(unittest.TestCase):
             pages_seen.append(i)
             if i == 1:
                 # Ask for cancellation the way the route does.
-                TASKS.update(task_id, cancel_requested=True)
+                TASKS.request_cancel(task_id)
             return (i, f"page {i}")
 
         with patch('app.process_image', side_effect=ocr_then_cancel):
@@ -1129,7 +1155,7 @@ class TestConversionPipeline(unittest.TestCase):
         TASKS.set(task_id, {"status": "processing", "progress": 0})
 
         def ocr_then_cancel(i, *args, **kwargs):
-            TASKS.update(task_id, cancel_requested=True)
+            TASKS.request_cancel(task_id)
             return (i, "text")
 
         with patch('app.process_image', side_effect=ocr_then_cancel), patch('app.logger'):
