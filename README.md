@@ -9,10 +9,10 @@ A small **Flask web app** that turns scanned/image PDFs into editable text forma
 each page to an image with Poppler, runs OCR (Tesseract by default), and gives you the
 extracted text back as a downloadable file.
 
-This is a working single-file application (`app.py`, ~920 lines) with a unit-test suite
-— not a stub. It is a **useful local/self-hosted tool**, not a hardened multi-tenant
-service. See [What works today vs. Roadmap](#what-works-today-vs-roadmap) for an honest
-feature-by-feature breakdown before you rely on any specific capability.
+It is a single-module Flask application (`app.py`) with a real test suite — not a stub —
+and a **local or self-hosted tool**, not a hardened multi-tenant service. See
+[What works today](#what-works-today) for a feature-by-feature breakdown, and
+[SECURITY.md](SECURITY.md) before putting it anywhere other people can reach.
 
 ## Screenshots
 
@@ -29,7 +29,8 @@ so you don't have to install anything else:
 ```bash
 git clone https://github.com/fabriziosalmi/pdf-ocr.git
 cd pdf-ocr
-cp .env.example .env && python -c 'import secrets; print("SECRET_KEY=" + secrets.token_hex(32))' >> .env
+cp .env.example .env
+sed -i.bak "s|^SECRET_KEY=.*|SECRET_KEY=$(python -c 'import secrets; print(secrets.token_hex(32))')|" .env && rm .env.bak
 docker compose up --build
 ```
 
@@ -63,8 +64,12 @@ SECRET_KEY=$(python -c 'import secrets; print(secrets.token_hex(32))') \
 To confirm the OCR toolchain is actually wired up on your machine:
 
 ```bash
-python ocr_test.py                # renders a test image, OCRs it, prints PASS/FAIL
+python ocr_test.py    # checks Tesseract and Poppler, exits non-zero if either fails
 ```
+
+It renders a small image, runs OCR on it, converts a generated PDF through Poppler, and
+prints a verdict per check. It writes `test_pdf_conversion.png` and `test_pdf.pdf` into the
+working directory; both are gitignored.
 
 ## Demo (input → output)
 
@@ -91,23 +96,23 @@ Thank you for your business.
 
 The same pages exported as HTML wrap each paragraph in `<p>` tags, escape HTML entities,
 and insert `<hr class="page-break">` between pages. DOCX output writes one paragraph per
-text block with a page break between pages (plain text — see the roadmap note on layout).
+text block with a page break between pages — plain text, not a reproduction of the source
+layout (see [What it does not do](#what-it-does-not-do)).
 
-## What works today vs. Roadmap
-
-The application genuinely does the core job. Some capabilities described in older versions
-of this README were aspirational; they are listed under Roadmap below so expectations match
-the code.
-
-### Works today (verified in the code)
+## What works today
 
 - **Web upload → convert → download** flow with a background worker and a live progress
   page (`/status/<id>` polling `/api/task_status/<id>`).
 - **Four output formats:** DOCX, TXT, Markdown, HTML.
-- **Four OCR engines:** Tesseract (default, always available), plus **EasyOCR**,
-  **PyOCR**, and **PaddleOCR** if you install their optional dependencies.
-- **Tesseract language selection** (e.g. `eng`, `ita`, `fra`, `deu`, `chi_sim`, `+`-joined
-  for multiple), with sensible 3-letter → EasyOCR code mapping.
+- **Four OCR engines:** Tesseract (the default, and the only one whose Python dependency is
+  installed by default), plus **EasyOCR**, **PyOCR** and **PaddleOCR** once you install their
+  optional dependencies. All four still need their engine present — Tesseract and PyOCR need
+  the `tesseract` binary.
+- **Language selection** — the form offers `eng`, `fra`, `deu`, `spa`, `ita`, `por`,
+  `chi_sim`, `chi_tra`, `jpn`, `kor`, `rus`, `ara`, `hin`, and one `+`-joined combination.
+  Any `+`-joined set of Tesseract codes is accepted by the server. EasyOCR and PaddleOCR get
+  these 3-letter codes mapped to their own; PaddleOCR loads one language per reader, so it
+  uses the first of a `+`-joined set.
 - **Image preprocessing** (opt-in): grayscale, sharpen, a contrast slider, and Otsu
   binarisation — each wired to its own control in the form.
 - **Quality toggle:** standard (300 DPI) or high (600 DPI) rendering.
@@ -121,44 +126,70 @@ the code.
   caps on upload size (`MAX_UPLOAD_MB`) and page count (`MAX_PAGES`).
 - **Multi-worker safe:** task state lives on the filesystem, so gunicorn can run more than
   one worker.
-- **Docker image** bundling Tesseract (with several language packs) and Poppler, running as
-  an unprivileged user on a read-only root filesystem.
+- **Docker image** bundling Tesseract (with several language packs) and Poppler. It runs as
+  an unprivileged user; the read-only root filesystem and dropped capabilities come from how
+  you run it — `docker-compose.yml` sets them, and the [Deployment](#deployment) command
+  below passes the equivalent flags.
 - **Cancellation:** a running conversion can be stopped from the progress page. It stops at
   the next page boundary and leaves nothing behind — no output file, no uploaded PDF. Simply
   navigating away does *not* cancel it; the conversion continues in the background.
-- **Automatic cleanup** of old uploads and finished tasks.
-- **57 unit tests** (`test_app.py`), including an end-to-end pass over the real Poppler
-  render path with only the OCR call stubbed.
+- **Automatic cleanup**, swept at most once an hour: files in the upload folder older than
+  24 hours are deleted, and task records — with the file each points at — are dropped an hour
+  after their last update.
+- **79 tests** (`test_app.py`). Most mock the OCR call; `TestConversionPipeline` renders real
+  PDFs through Poppler, and `TestRealOCR` runs text through actual Tesseract and requires the
+  words and digits back.
 
-### Roadmap / not implemented yet
+## What it does not do
 
-These are referenced in the UI or were previously advertised, but are **not** in the code
-today. Contributions welcome.
+Two separate lists, because "we have not got to it" and "we decided against it" are
+different promises.
 
-- **Advanced preprocessing is out of scope, not pending.** Denoising, deskewing, border
-  removal and the named preset profiles were once checkboxes the server never read. They were
-  removed from the UI rather than stubbed, and after review they are not coming back: doing
-  them properly needs OpenCV, roughly 60 MB added to an image that already carries Tesseract
-  with a dozen language packs, for three checkboxes. Deskew is the only one that would
-  meaningfully help on crooked scans, and on its own it does not justify the weight. What
-  exists — grayscale, sharpen, a contrast slider and Otsu thresholding — is real, wired to the
-  form, and Pillow-only. If your scans need more than that, preprocess them before uploading.
-- **DOCX layout/formatting preservation** — output is currently plain paragraphs, not a
-  faithful reproduction of the source layout.
-- **Heading / structure detection** in the output.
-- **Parallel page processing** — OCR runs one page at a time within a conversion. Concurrent
+### Decided against
+
+- **Advanced preprocessing.** Denoising, deskewing, border removal and the named preset
+  profiles were once checkboxes the server never read. They were removed from the UI rather
+  than stubbed, and they are not coming back: doing them properly needs OpenCV, roughly 60 MB
+  on an image that already carries Tesseract with a dozen language packs, for three
+  checkboxes. Deskew is the only one that would meaningfully help crooked scans, and alone it
+  does not justify the weight. Preprocess such scans before uploading.
+- **Authentication and rate limiting.** Deliberately absent rather than half-built. Run the
+  app on a private network or behind an authenticating proxy — see [SECURITY.md](SECURITY.md).
+
+### Not built yet
+
+- **DOCX layout preservation** — output is plain paragraphs, not a reproduction of the source
+  layout.
+- **Heading and structure detection** in the output.
+- **Parallel page processing** — one page at a time within a conversion. Concurrent
   conversions are handled by separate gunicorn workers.
-- **Batch / folder processing** — there is no batch mode; each conversion is one uploaded
-  PDF via the web UI.
-- **Authentication and rate limiting** — there is none. See [SECURITY.md](SECURITY.md) for
-  the threat model; put the app on a private network or behind an authenticating proxy.
+- **Batch or folder processing** — one uploaded PDF per conversion, via the web UI.
+
+## Endpoints
+
+| Method | Path                        | Purpose                                                        |
+|--------|-----------------------------|----------------------------------------------------------------|
+| GET    | `/`                         | Upload form.                                                    |
+| POST   | `/upload`                   | Accepts the PDF, starts a conversion, redirects to its status.   |
+| GET    | `/status/<task_id>`         | Progress page.                                                  |
+| GET    | `/api/task_status/<task_id>`| Progress as JSON; the page polls this. 404 if unknown or not yours. |
+| POST   | `/cancel/<task_id>`         | Stops a running conversion at the next page boundary.            |
+| GET    | `/success/<task_id>`        | Result page for a finished conversion.                          |
+| GET    | `/download/<task_id>`       | Downloads the converted file.                                   |
+| GET    | `/new_conversion/<task_id>` | Discards a result and returns to the form.                      |
+| GET    | `/healthz`                  | Liveness probe; used by the image HEALTHCHECK.                  |
+| GET    | `/system-check`             | Dependency diagnostics as JSON.                                 |
+| GET    | `/api/check-dependency`     | Checks one dependency by `?name=`.                              |
+
+Conversions are **scoped to the browser session that started them**: a task id on its own
+gets a 404 from the status, cancel, success and download routes.
 
 ## Installation
 
 ### Prerequisites
 
-- **Python 3.11+** and `pip`. CI covers 3.11 and 3.12; the Docker image uses 3.12. Older
-  versions no longer resolve the pinned dependencies (click 8.4 requires 3.10+).
+- **Python 3.11+** and `pip`. CI runs the tests on 3.11, 3.12, 3.13 and 3.14; the Docker
+  image uses 3.14. 3.9 and 3.10 are out: the pinned dependencies do not resolve on them.
 - **Tesseract OCR** — `brew install tesseract tesseract-lang` (macOS),
   `apt-get install tesseract-ocr` + language packs (Debian/Ubuntu), or the
   [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) on Windows
@@ -191,9 +222,10 @@ renamed `.ocr()` to `.predict()`, so it is intentionally pinned below 3.0.
 
 ### Helper script
 
-`python install_dependencies.py` installs the core Python packages and checks whether
-Tesseract and Poppler are reachable on your `PATH`. Use `--engine easyocr|all` to pull
-in optional engines.
+`python install_dependencies.py` installs the pinned core requirements and reports whether
+Tesseract and Poppler are reachable on your `PATH`. `--engine` accepts `tesseract`,
+`easyocr`, `pyocr`, `paddleocr` or `all`. It cannot install the Tesseract or Poppler
+binaries themselves — those are system packages.
 
 ## Configuration
 
@@ -227,11 +259,21 @@ Tagging `vX.Y.Z` publishes a multi-arch image to
 docker run -d -p 8011:8011 \
   -e SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')" \
   -v "$PWD/uploads:/app/uploads" \
+  --read-only --tmpfs /tmp \
+  --cap-drop ALL --security-opt no-new-privileges \
   ghcr.io/fabriziosalmi/pdf-ocr:latest
 ```
 
+The hardening flags are not decoration: the image runs as an unprivileged user on its own,
+but the read-only root filesystem and dropped capabilities come from the runtime, and
+[SECURITY.md](SECURITY.md) assumes you pass them. `docker-compose.yml` sets the same options.
+The app only ever writes to `/app/uploads` and `/tmp`.
+
+Prefer a version tag over `:latest` for anything you care about — `:latest` follows the
+default branch, and v0.4.0 was a breaking release.
+
 Read [SECURITY.md](SECURITY.md) before exposing it: there is no authentication and no rate
-limiting, and Poppler/Tesseract parse untrusted input.
+limiting, and Poppler and Tesseract parse untrusted input.
 
 ## Running the tests
 
@@ -242,19 +284,23 @@ and digits back. CI installs both, so those groups always run there.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-python -m unittest test_app -v          # 57 tests
+python -m unittest test_app -v          # 79 tests
 ruff check .                            # lint (same gate as CI)
 ```
 
-CI runs lint, the tests on Python 3.11/3.12 with Poppler installed, and a Docker job that
-builds the image, waits for its HEALTHCHECK and asserts it is not running as root — see
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+CI ([`ci.yml`](.github/workflows/ci.yml)) runs four things on every push and pull request:
+ruff, the tests on Python 3.11 to 3.14 with Poppler and Tesseract installed, and a Docker job
+that builds the image, waits for its HEALTHCHECK to report healthy and asserts the process is
+not running as root. [`codeql.yml`](.github/workflows/codeql.yml) adds static analysis on push,
+pull request and weekly. The first three are required for a pull request to merge.
 
 ## Troubleshooting
 
 **Tesseract not found** — confirm `tesseract --version` works in your shell and that the
-install dir is on `PATH`. On Windows you may need to set it explicitly in `app.py`:
-`pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'`.
+install directory is on `PATH`. The app has no setting for the binary's location, so on
+Windows the fallback is editing `app.py` to add
+`pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'`
+after the imports. Putting Tesseract on `PATH` is the better fix.
 
 **Poppler / PDF conversion errors** — confirm `pdftoppm -v` works and Poppler's `bin/` is
 on `PATH`; restart your terminal after changing `PATH`.

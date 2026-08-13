@@ -272,12 +272,14 @@ def test_dependencies():
     pdf_result = test_pdf_to_image()
     
     print("\nTest Summary:")
-    print(f"Tesseract OCR: {GREEN}✅ Passed{RESET} "
-          f"if {GREEN if tesseract_result else RED}{tesseract_result}{RESET} else "
-          f"{RED}❌ Failed{RESET}")
-    print(f"PDF to Image: {GREEN}✅ Passed{RESET} "
-          f"if {GREEN if pdf_result else RED}{pdf_result}{RESET} else "
-          f"{RED}❌ Failed{RESET}")
+    # The conditional has to be inside the braces. Written the other way round
+    # this printed the literal words "Passed if False else Failed", showing both
+    # outcomes on every run and telling the reader nothing.
+    def verdict(passed):
+        return f"{GREEN}✅ Passed{RESET}" if passed else f"{RED}❌ Failed{RESET}"
+
+    print(f"Tesseract OCR: {verdict(tesseract_result)}")
+    print(f"PDF to Image:  {verdict(pdf_result)}")
     
     # Give combined advice
     if not (tesseract_result and pdf_result):
