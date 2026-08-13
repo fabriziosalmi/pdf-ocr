@@ -135,10 +135,14 @@ the code.
 These are referenced in the UI or were previously advertised, but are **not** in the code
 today. Contributions welcome.
 
-- **Advanced preprocessing** — denoising, deskewing, border removal, and the named preset
-  profiles (text-heavy / scanned / low-quality / handwriting). These need OpenCV, which is a
-  ~60 MB dependency, so they are not in the image yet. The controls have been removed from
-  the UI rather than left as no-ops; grayscale, sharpen, contrast and thresholding are real.
+- **Advanced preprocessing is out of scope, not pending.** Denoising, deskewing, border
+  removal and the named preset profiles were once checkboxes the server never read. They were
+  removed from the UI rather than stubbed, and after review they are not coming back: doing
+  them properly needs OpenCV, roughly 60 MB added to an image that already carries Tesseract
+  with a dozen language packs, for three checkboxes. Deskew is the only one that would
+  meaningfully help on crooked scans, and on its own it does not justify the weight. What
+  exists — grayscale, sharpen, a contrast slider and Otsu thresholding — is real, wired to the
+  form, and Pillow-only. If your scans need more than that, preprocess them before uploading.
 - **DOCX layout/formatting preservation** — output is currently plain paragraphs, not a
   faithful reproduction of the source layout.
 - **Heading / structure detection** in the output.
