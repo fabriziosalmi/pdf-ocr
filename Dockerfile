@@ -1,5 +1,5 @@
-# Python 3.9 reached end of life in October 2025 and stopped receiving security
-# fixes; 3.12 is the version the CI test matrix covers.
+# Kept in step with the CI test matrix, which covers 3.11 through 3.14.
+# Do not raise this past a version the matrix in ci.yml tests.
 FROM python:3.14-slim
 
 # Install required system dependencies
