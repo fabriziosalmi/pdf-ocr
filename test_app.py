@@ -10,6 +10,7 @@ import shutil
 import json
 import time
 import threading
+import re
 from unittest.mock import patch, MagicMock
 from PIL import Image
 import colorama
@@ -1084,6 +1085,112 @@ class TestConversionPipeline(unittest.TestCase):
 
         self.assertTrue(success, msg=message)
         self.assertEqual(calls, [(1, 2), (3, 4), (5, 5)])
+
+
+def _tesseract_available() -> bool:
+    return shutil.which('tesseract') is not None
+
+
+def _find_font() -> str:
+    """Locate any TrueType font. PIL's built-in bitmap font is too small to OCR."""
+    for path in (
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",          # Debian/Ubuntu
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans.ttf",                   # Fedora
+        "/System/Library/Fonts/Supplemental/Arial.ttf",             # macOS
+        "/Library/Fonts/Arial.ttf",
+    ):
+        if os.path.exists(path):
+            return path
+    return ""
+
+
+@unittest.skipUnless(_tesseract_available(), "Tesseract is not installed")
+@unittest.skipUnless(_find_font(), "no TrueType font available to build the fixture")
+class TestRealOCR(unittest.TestCase):
+    """Run text through the real Tesseract, not a mock.
+
+    Everything else stubs the OCR call, which leaves the part users actually
+    care about untested: the --oem/--psm config, the empty-result retry on a
+    different PSM, the language argument, and what the clean-up pass does to
+    genuine engine output rather than to hand-written strings.
+    """
+
+    def setUp(self):
+        app.config['TESTING'] = True
+        self.app_context = app.app_context()
+        self.app_context.push()
+        self.upload_folder = tempfile.mkdtemp()
+        self.original_upload_folder = app.config['UPLOAD_FOLDER']
+        app.config['UPLOAD_FOLDER'] = self.upload_folder
+
+    def tearDown(self):
+        TASKS.clear()
+        shutil.rmtree(self.upload_folder, ignore_errors=True)
+        app.config['UPLOAD_FOLDER'] = self.original_upload_folder
+        self.app_context.pop()
+
+    def _render_page(self, lines):
+        """Draw text large and clean — this tests our plumbing, not Tesseract."""
+        from PIL import ImageDraw, ImageFont
+        image = Image.new('RGB', (1240, 1754), color='white')  # A4 at 150 DPI
+        draw = ImageDraw.Draw(image)
+        font = ImageFont.truetype(_find_font(), 48)
+        y = 120
+        for line in lines:
+            draw.text((100, y), line, fill='black', font=font)
+            y += 90
+        return image
+
+    def test_ocr_reads_back_what_was_written(self):
+        image = self._render_page(["Hello world", "OCR test page"])
+        img_path = os.path.join(self.upload_folder, 'page.png')
+        image.save(img_path)
+
+        _, text = process_image(0, img_path, "tesseract", "eng")
+
+        normalised = re.sub(r'[^a-z0-9 ]', ' ', text.lower())
+        for word in ("hello", "world", "ocr", "test", "page"):
+            self.assertIn(word, normalised, msg=f"missing {word!r} in {text!r}")
+
+    def test_digits_survive_the_full_pipeline(self):
+        """The headline regression, measured against real engine output.
+
+        The corrupting clean-up pass ('0'->'O', '1'->'I', '5'->'S') is covered
+        by a unit test on synthetic strings. This asserts the same property
+        end to end: render digits, OCR them for real, and require them back as
+        digits.
+        """
+        image = self._render_page(["Invoice 2024", "Total 1250 EUR"])
+        img_path = os.path.join(self.upload_folder, 'invoice.png')
+        image.save(img_path)
+
+        _, text = process_image(0, img_path, "tesseract", "eng")
+
+        self.assertIn("2024", text, msg=f"digits were mangled: {text!r}")
+        self.assertIn("1250", text, msg=f"digits were mangled: {text!r}")
+
+    @unittest.skipUnless(_poppler_available(), "Poppler (pdftoppm) is not installed")
+    def test_pdf_to_text_end_to_end(self):
+        """PDF in, text file out, with nothing stubbed anywhere in between."""
+        page = self._render_page(["Real end to end", "Page one"])
+        pdf_path = os.path.join(self.upload_folder, 'input.pdf')
+        page.save(pdf_path, 'PDF')
+
+        task_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        TASKS.set(task_id, {"status": "processing", "progress": 0})
+
+        success, out_path, out_name = process_pdf_with_progress(
+            pdf_path, task_id, output_format="txt", orig_filename="input.pdf"
+        )
+
+        self.assertTrue(success, msg=out_name)
+        with open(out_path, encoding='utf-8') as fh:
+            content = fh.read()
+
+        normalised = re.sub(r'[^a-z ]', ' ', content.lower())
+        for word in ("real", "end", "page", "one"):
+            self.assertIn(word, normalised, msg=f"missing {word!r} in {content!r}")
 
 
 if __name__ == '__main__':
