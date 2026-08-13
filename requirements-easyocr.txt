@@ -5,7 +5,7 @@
 # which silently overrode the pins in requirements.txt.
 -r requirements.txt
 
-easyocr>=1.7,<2.0
+easyocr>=1.7.2,<2.0
 # PyTorch: if the default wheel is wrong for your platform/CUDA, install it
 # first from https://pytorch.org/get-started/locally/
 torch>=2.13.0
