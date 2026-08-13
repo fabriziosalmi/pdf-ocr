@@ -34,9 +34,19 @@ What the app does provide:
   result's path on disk is never sent to the client.
 - Baseline security headers, including a same-origin CSP; no third-party assets
   are loaded (Tailwind is vendored under `static/vendor/`).
-- The container runs as an unprivileged user with no added capabilities and a
-  read-only root filesystem.
-- Uploads and finished tasks are deleted automatically.
+- The image runs as an unprivileged user (uid 10001). The read-only root
+  filesystem, dropped capabilities and `no-new-privileges` are **runtime**
+  options, not properties of the image: `docker-compose.yml` sets them, and the
+  `docker run` command in the README passes the equivalent flags. A plain
+  `docker run` without them still runs unprivileged, but with a writable root
+  filesystem and the default capability set.
+- Uploads, results and finished tasks are deleted automatically. A cancelled
+  conversion leaves nothing behind at all.
+- A conversion whose worker dies is reported as failed after
+  `STALE_TASK_TIMEOUT` rather than pending forever.
+- Static analysis (CodeQL, `security-extended`) runs on every push and pull
+  request, plus weekly, because its query pack updates independently of this
+  code.
 
 What it does **not** provide, and what you must add yourself before exposing it:
 
@@ -44,14 +54,26 @@ What it does **not** provide, and what you must add yourself before exposing it:
 - **No rate limiting.** OCR is CPU- and memory-intensive; a handful of
   concurrent uploads will saturate a small host. Put it behind a reverse proxy
   that enforces limits, or behind an authenticating proxy.
-- **No sandboxing of Poppler/Tesseract** beyond the container boundary.
+- **No sandboxing of Poppler or Tesseract** beyond the container boundary.
 - **No encryption at rest** for uploaded or converted files.
+- **No CSRF tokens.** The session cookie is `SameSite=Lax`, which keeps
+  mainstream browsers from attaching it to a cross-site POST, but that is a
+  mitigation rather than a guarantee. State-changing routes rely on the
+  session-ownership check, not on a token.
+- **No audit log.** Conversions are logged, but nothing is retained about who
+  did what — there is no identity to retain.
 
 The intended deployment is on a private network, or behind an authenticating
 reverse proxy, with TLS terminated in front of it (set
 `SESSION_COOKIE_SECURE=true` in that case).
 
-## Never enable in a deployment
+## Never set these in a deployment
 
-`FLASK_ENV=development` turns on the Werkzeug debugger, which allows arbitrary
-code execution over HTTP. It exists for local development only.
+- **`FLASK_ENV=development`** turns on the Werkzeug debugger, which allows
+  arbitrary code execution over HTTP. It exists for local development only.
+- **`PDF_OCR_TESTING=1`** makes the app start without `SECRET_KEY`, using a key
+  generated per process. The test suite sets it so importing the app does not
+  require configuration; in a deployment it means every worker signs cookies
+  with a different key and every restart invalidates all sessions.
+
+Neither is read from `.env.example`, and neither is set by the image.

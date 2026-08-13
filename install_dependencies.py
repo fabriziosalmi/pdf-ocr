@@ -48,8 +48,11 @@ def check_python_version():
     print_step("Checking Python version")
     
     version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 7):
-        print_error(f"Python version 3.7+ is required. Detected {sys.version.split()[0]}")
+    if (version.major, version.minor) < (3, 11):
+        print_error(
+            f"Python 3.11+ is required; the pinned requirements do not resolve on older "
+            f"versions. Detected {sys.version.split()[0]}"
+        )
         return False
     
     print_success(f"Python version is compatible: {sys.version.split()[0]}")
@@ -71,25 +74,10 @@ def install_core_requirements():
     """Install core Python dependencies"""
     print_step("Installing core Python dependencies")
     
-    # Install pdf2image specifically (since it was missing in the test)
-    print_info("Installing pdf2image...")
-    success, output = run_command([sys.executable, "-m", "pip", "install", "pdf2image>=1.16.0"])
-    if not success:
-        print_error(f"Failed to install pdf2image: {output}")
-        return False
-    print_success("pdf2image installed successfully")
-    
-    # Install pytesseract (core OCR library)
-    print_info("Installing pytesseract...")
-    success, output = run_command([sys.executable, "-m", "pip", "install", "pytesseract>=0.3.8"])
-    if not success:
-        print_error(f"Failed to install pytesseract: {output}")
-        return False
-    print_success("pytesseract installed successfully")
-    
-    # Install the rest from requirements.txt rather than a second, floating
-    # list of versions that would silently disagree with the pinned one.
-    print_info("Installing other core dependencies from requirements.txt...")
+    # Everything comes from the pinned file, in one call. Installing
+    # pdf2image and pytesseract first with floating bounds, as this used to,
+    # pulls unpinned versions that the pins then have to correct.
+    print_info("Installing pinned core dependencies from requirements.txt...")
     if not os.path.exists("requirements.txt"):
         print_error("requirements.txt not found — run this script from the repository root")
         return False
@@ -163,8 +151,9 @@ def install_specific_ocr_engine(engine):
             # Note: PyTorch might need separate installation depending on the system/CUDA
             packages = ["easyocr>=1.5.0"] 
         elif engine == "pyocr":
+            # The only engine without a requirements file: it is a single
+            # package that wraps the tesseract binary.
             packages = ["pyocr>=0.8.0"]
-        # Removed paddleocr and kraken
         
         if packages:
             for pkg in packages:
@@ -187,7 +176,7 @@ def main():
     """Main function"""
     parser = argparse.ArgumentParser(description="Install dependencies for OCR PDF to DOCX converter")
     # Updated choices to reflect supported engines
-    parser.add_argument('--engine', choices=['tesseract', 'easyocr', 'pyocr', 'all'], 
+    parser.add_argument('--engine', choices=['tesseract', 'easyocr', 'pyocr', 'paddleocr', 'all'], 
                         default='tesseract', help="Specify OCR engine to install dependencies for (tesseract is core)")
     args = parser.parse_args()
     
@@ -212,8 +201,7 @@ def main():
     
     # Install specific OCR engine if requested
     if args.engine == 'all':
-        # Updated loop for supported optional engines
-        for engine in ['easyocr', 'pyocr']: 
+        for engine in ['easyocr', 'pyocr', 'paddleocr']:
             install_specific_ocr_engine(engine)
     elif args.engine != 'tesseract':  # tesseract dependencies (pytesseract) are installed as core
         install_specific_ocr_engine(args.engine)
