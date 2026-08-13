@@ -153,11 +153,18 @@ class TaskStore:
         return path
 
     def _path(self, task_id: str) -> Optional[Path]:
-        # Task ids are server-generated UUIDs; reject anything else rather than
-        # letting a crafted id escape the task directory.
+        """Resolve a task id to its record path, or None if the id is not ours.
+
+        Two independent guards, because this takes a value straight off the
+        URL. The allowlist is the real one: task ids are server-generated
+        UUIDs, and hex-and-dashes cannot express `..` or a separator. The
+        basename() is belt and braces, and it is also the form static analysis
+        recognises as a path sanitiser — worth keeping so a genuine finding
+        here is never lost in a known false positive.
+        """
         if not re.fullmatch(r'[0-9a-fA-F-]{1,64}', task_id or ''):
             return None
-        return self._dir() / f"{task_id}.json"
+        return self._dir() / os.path.basename(f"{task_id}.json")
 
     def get(self, task_id: str) -> Optional[Dict[str, Any]]:
         path = self._path(task_id)
