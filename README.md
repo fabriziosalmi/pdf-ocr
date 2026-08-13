@@ -123,6 +123,8 @@ the code.
   one worker.
 - **Docker image** bundling Tesseract (with several language packs) and Poppler, running as
   an unprivileged user on a read-only root filesystem.
+- **Cancellation:** a running conversion can be stopped from the progress page. It stops at
+  the next page boundary and leaves nothing behind — no output file, no uploaded PDF.
 - **Automatic cleanup** of old uploads and finished tasks.
 - **57 unit tests** (`test_app.py`), including an end-to-end pass over the real Poppler
   render path with only the OCR call stubbed.
@@ -139,8 +141,6 @@ today. Contributions welcome.
 - **DOCX layout/formatting preservation** — output is currently plain paragraphs, not a
   faithful reproduction of the source layout.
 - **Heading / structure detection** in the output.
-- **Real task cancellation** — the "Cancel" link on the status page only navigates home;
-  the background OCR job keeps running to completion.
 - **Parallel page processing** — OCR runs one page at a time within a conversion. Concurrent
   conversions are handled by separate gunicorn workers.
 - **Batch / folder processing** — there is no batch mode; each conversion is one uploaded
