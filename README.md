@@ -124,7 +124,8 @@ the code.
 - **Docker image** bundling Tesseract (with several language packs) and Poppler, running as
   an unprivileged user on a read-only root filesystem.
 - **Cancellation:** a running conversion can be stopped from the progress page. It stops at
-  the next page boundary and leaves nothing behind — no output file, no uploaded PDF.
+  the next page boundary and leaves nothing behind — no output file, no uploaded PDF. Simply
+  navigating away does *not* cancel it; the conversion continues in the background.
 - **Automatic cleanup** of old uploads and finished tasks.
 - **57 unit tests** (`test_app.py`), including an end-to-end pass over the real Poppler
   render path with only the OCR call stubbed.

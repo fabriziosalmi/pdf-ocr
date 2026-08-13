@@ -191,13 +191,39 @@ class TaskStore:
         current.update(fields)
         self.set(task_id, current)
 
-    def delete(self, task_id: str) -> None:
+    def _cancel_path(self, task_id: str) -> Optional[Path]:
         path = self._path(task_id)
-        if path is not None:
-            try:
-                path.unlink(missing_ok=True)
-            except OSError as exc:
-                logger.warning(f"Could not delete task {log_safe(task_id)}: {exc}")
+        return None if path is None else path.with_suffix('.cancel')
+
+    def request_cancel(self, task_id: str) -> None:
+        """Signal cancellation by creating a marker file.
+
+        Deliberately not a field in the task record. `update()` is a
+        read-modify-write with no cross-process locking, so a cancel flag
+        written into the record races with the worker's per-page progress
+        writes: the worker can read the record before the flag lands and then
+        write its own copy back over it, losing the cancellation entirely.
+        A separate file has a single writer and cannot be clobbered.
+        """
+        path = self._cancel_path(task_id)
+        if path is None:
+            return
+        try:
+            path.touch(exist_ok=True)
+        except OSError as exc:
+            logger.error(f"Could not request cancellation for {log_safe(task_id)}: {exc}")
+
+    def is_cancel_requested(self, task_id: str) -> bool:
+        path = self._cancel_path(task_id)
+        return path is not None and path.exists()
+
+    def delete(self, task_id: str) -> None:
+        for path in (self._path(task_id), self._cancel_path(task_id)):
+            if path is not None:
+                try:
+                    path.unlink(missing_ok=True)
+                except OSError as exc:
+                    logger.warning(f"Could not delete task {log_safe(task_id)}: {exc}")
 
     def items(self):
         for path in sorted(self._dir().glob('*.json')):
@@ -206,7 +232,7 @@ class TaskStore:
                 yield path.stem, record
 
     def clear(self) -> None:
-        for path in self._dir().glob('*.json'):
+        for path in list(self._dir().glob('*.json')) + list(self._dir().glob('*.cancel')):
             try:
                 path.unlink(missing_ok=True)
             except OSError:
@@ -913,8 +939,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         # Render and OCR in batches, discarding each page's bitmap as soon as
         # its text has been extracted so peak memory stays bounded.
         for batch_start in range(0, total_pages, RENDER_BATCH_SIZE):
-            record = TASKS.get(conversion_id)
-            if record and record.get("cancel_requested"):
+            if TASKS.is_cancel_requested(conversion_id):
                 raise ConversionCancelled()
 
             batch_end = min(batch_start + RENDER_BATCH_SIZE, total_pages)
@@ -957,8 +982,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                 # Between pages is the natural place to stop: a single page at
                 # 600 DPI can take a while, so cancellation is not instant and
                 # the UI says so rather than implying it is.
-                record = TASKS.get(conversion_id)
-                if record and record.get("cancel_requested"):
+                if TASKS.is_cancel_requested(conversion_id):
                     raise ConversionCancelled()
 
             del images
@@ -1222,10 +1246,11 @@ def task_status(task_id):
 def cancel_task(task_id):
     """Ask a running conversion to stop at the next page boundary.
 
-    POST rather than GET because it changes state. There is no CSRF token in
-    this app, but the session cookie is SameSite=Lax, which browsers do not
-    attach to a cross-site POST — so a third-party page cannot cancel a
-    conversion it does not own. The ownership check below is the real gate.
+    POST rather than GET because it changes state. The ownership check below
+    is the gate that matters: there is no CSRF token in this app, and while
+    SameSite=Lax means mainstream browsers do not attach the session cookie to
+    a cross-site POST, that is a mitigation with known variation across
+    browsers and versions, not a guarantee.
     """
     record = get_owned_task(task_id)
     if record is None:
@@ -1235,8 +1260,8 @@ def cancel_task(task_id):
         # Already finished, failed or cancelled — nothing to stop.
         return jsonify({"status": record.get("status"), "cancelled": False})
 
-    TASKS.update(task_id, cancel_requested=True)
-    logger.info(f"Cancellation requested for task {task_id}")
+    TASKS.request_cancel(task_id)
+    logger.info(f"Cancellation requested for task {log_safe(task_id)}")
     return jsonify({"status": "cancelling", "cancelled": True})
 
 
