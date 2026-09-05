@@ -39,3 +39,8 @@ env/
 test_pdf_conversion.png
 test_pdf.pdf
 test_ocr.png
+
+# Docs site build
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/

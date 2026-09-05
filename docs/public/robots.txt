@@ -1,0 +1,5 @@
+# https://fabriziosalmi.github.io/pdf-ocr/
+User-agent: *
+Allow: /
+
+Sitemap: https://fabriziosalmi.github.io/pdf-ocr/sitemap.xml

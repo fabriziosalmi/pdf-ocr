@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="pdf-ocr">
+  <rect width="32" height="32" rx="6" fill="#4f46e5"/>
+  <path d="M9 8h9l5 5v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z" fill="#fff" opacity=".95"/>
+  <path d="M18 8v5h5" fill="#c7d2fe"/>
+  <rect x="10" y="16" width="12" height="1.8" rx=".9" fill="#4f46e5"/>
+  <rect x="10" y="20" width="8" height="1.8" rx=".9" fill="#4f46e5"/>
+</svg>

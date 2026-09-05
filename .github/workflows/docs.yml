@@ -1,0 +1,88 @@
+name: Docs
+
+# Builds the VitePress site and publishes it to GitHub Pages.
+# Pull requests build it too, without deploying, so a broken link or a failed
+# docs-vs-code check is caught before it merges rather than after.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/docs.yml'
+      - 'scripts/check_docs_match_code.py'
+      # The checker reads these, so a change to either can break the build.
+      - 'app.py'
+      - 'entrypoint.sh'
+      - 'README.md'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # lastUpdated timestamps come from git history
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # Cheap, and it is the check that stops the documentation drifting away
+      # from the code again.
+      - name: Docs match the code
+        run: python scripts/check_docs_match_code.py
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - name: Build
+        run: npm run docs:build
+
+      - name: Verify the required static files survived the build
+        run: |
+          set -e
+          for f in llms.txt robots.txt sitemap.xml favicon.svg .well-known/security.txt; do
+            test -s "docs/.vitepress/dist/$f" || { echo "missing or empty: $f"; exit 1; }
+          done
+          grep -q 'application/ld+json' docs/.vitepress/dist/index.html \
+            || { echo "JSON-LD missing from the home page"; exit 1; }
+          echo "all present"
+
+      - uses: actions/configure-pages@v5
+        if: github.ref == 'refs/heads/main'
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    name: Deploy to Pages
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
