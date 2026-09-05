@@ -1,20 +1,31 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest something this should do
 title: ''
-labels: ''
+labels: enhancement
 assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Please check this first**
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+The README lists things that have been [decided against](https://github.com/fabriziosalmi/pdf-ocr#what-it-does-not-do),
+with the reasoning — mainly advanced preprocessing that needs OpenCV, and built-in
+authentication or rate limiting. Arguing against one of those decisions is welcome; just
+say so directly and address the reasoning, rather than opening it as a fresh idea.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+**What you are trying to do**
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+<!-- The task, not the feature. It often turns out there is already a way. -->
+
+
+**What you would like it to do**
+
+
+**What you do today instead**
+
+
+**Scope**
+
+This is a single-user, self-hosted tool. Things that only make sense for a multi-tenant
+service are unlikely to land — see [SECURITY.md](https://github.com/fabriziosalmi/pdf-ocr/blob/main/SECURITY.md)
+for the intended deployment.

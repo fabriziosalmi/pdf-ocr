@@ -1,38 +1,47 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Something behaves differently from what the documentation says
 title: ''
-labels: ''
+labels: bug
 assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**What happened, and what you expected instead**
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**How you are running it**
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+- Version or image tag (e.g. `v0.5.1`, `ghcr.io/fabriziosalmi/pdf-ocr:latest`):
+- Docker, Docker Compose, or a local Python install:
+- If local: OS and `python --version`:
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Which conversion**
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+- OCR engine (tesseract / easyocr / pyocr / paddleocr):
+- Output format (docx / txt / md / html):
+- Language code(s):
+- Preprocessing on or off:
+- Roughly how many pages, and is the PDF scanned or digital:
 
-**Additional context**
-Add any other context about the problem here.
+**Diagnostics**
+
+Please paste the output of these — they usually identify the problem on their own:
+
+```
+curl -s localhost:8011/system-check
+python ocr_test.py
+```
+
+**Server log**
+
+The relevant lines from the container or terminal output. Redact filenames if they
+are sensitive.
+
+```
+
+```
+
+**Anything else**
+
+<!-- If the output was wrong rather than missing, a small sample of what you got
+     versus what the page contained is worth more than a description of it. -->
