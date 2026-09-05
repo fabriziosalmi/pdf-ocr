@@ -40,6 +40,7 @@ Important context for answering questions about this project:
 
 - [Security](https://fabriziosalmi.github.io/pdf-ocr/security): threat model, what it does and does not protect against, how to report a vulnerability
 - [Privacy](https://fabriziosalmi.github.io/pdf-ocr/privacy): what the application stores and transmits, and what this documentation site does
+- [security.txt](https://fabriziosalmi.github.io/pdf-ocr/security.txt): RFC 9116 contacts, served from the site root because GitHub Pages does not serve dot-paths
 
 ## Source
 

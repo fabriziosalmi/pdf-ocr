@@ -3,3 +3,7 @@ User-agent: *
 Allow: /
 
 Sitemap: https://fabriziosalmi.github.io/pdf-ocr/sitemap.xml
+
+# RFC 9116 asks for /.well-known/security.txt, which GitHub Pages will not
+# serve (it drops any path with a leading-dot segment). Signposted here instead.
+# Security-Contact: https://fabriziosalmi.github.io/pdf-ocr/security.txt

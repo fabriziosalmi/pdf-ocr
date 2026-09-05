@@ -6,6 +6,12 @@ repository. This page says the same things.
 
 ## Reporting a vulnerability
 
+::: tip Machine-readable contact
+[`/security.txt`](/security.txt) carries the same contacts in RFC 9116 format. It is served
+from the site root rather than `/.well-known/`, because GitHub Pages does not serve paths
+whose segment begins with a dot.
+:::
+
 Report privately through
 [GitHub Security Advisories](https://github.com/fabriziosalmi/pdf-ocr/security/advisories/new),
 or by email to `fabrizio.salmi@gmail.com`. **Please do not open a public issue.**
