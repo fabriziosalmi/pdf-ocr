@@ -10,5 +10,10 @@
   },
   "devDependencies": {
     "vitepress": "^1.6.4"
-  }
+  },
+  "overrides": {
+    "vite": "^6.4.3",
+    "esbuild": "^0.25.0"
+  },
+  "overridesReason": "vitepress 1.6.x pins vite ^5.4.14, which resolves to a version with four published advisories (one high). All four are dev-server issues and this project only ever runs `vitepress build`, but leaving them open would mask the next real one. vitepress 2.x uses a patched vite but is still alpha. Forcing vite 6 / esbuild 0.25 keeps the build working and npm audit clean; drop these overrides once vitepress ships a stable release on vite 6+."
 }
