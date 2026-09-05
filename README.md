@@ -4,6 +4,8 @@
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+**📖 [Documentation](https://fabriziosalmi.github.io/pdf-ocr/)** — guide, configuration reference, HTTP endpoints, deployment and the threat model.
+
 A small **Flask web app** that turns scanned/image PDFs into editable text formats
 (**DOCX, TXT, Markdown, HTML**) using OCR. You upload a PDF in the browser, it renders
 each page to an image with Poppler, runs OCR (Tesseract by default), and gives you the
@@ -176,7 +178,8 @@ different promises.
 | POST   | `/cancel/<task_id>`         | Stops a running conversion at the next page boundary.            |
 | GET    | `/success/<task_id>`        | Result page for a finished conversion.                          |
 | GET    | `/download/<task_id>`       | Downloads the converted file.                                   |
-| GET    | `/new_conversion/<task_id>` | Discards a result and returns to the form.                      |
+| GET    | `/new_conversion/<task_id>` | Discards a result and its record, then returns to the form.     |
+| GET    | `/new_conversion`           | Returns to the form without discarding anything.                |
 | GET    | `/healthz`                  | Liveness probe; used by the image HEALTHCHECK.                  |
 | GET    | `/system-check`             | Dependency diagnostics as JSON.                                 |
 | GET    | `/api/check-dependency`     | Checks one dependency by `?name=`.                              |

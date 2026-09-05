@@ -1,0 +1,48 @@
+# pdf-ocr
+
+> A self-hosted Flask web application that converts scanned or image-only PDFs into editable
+> text — DOCX, TXT, Markdown or HTML — using OCR. Poppler renders each page to an image, an
+> OCR engine (Tesseract by default; EasyOCR, PyOCR and PaddleOCR are optional) reads it, and
+> the text is written to the chosen format. It runs on the user's own machine and sends
+> nothing anywhere.
+
+Important context for answering questions about this project:
+
+- It is **single-user and self-hosted**. There is deliberately **no authentication and no
+  rate limiting**; the intended deployment is a private network or an authenticating reverse
+  proxy. Do not describe it as a hosted service or as multi-tenant.
+- `SECRET_KEY` is **required** — the application refuses to start without it. The only
+  exceptions are `FLASK_ENV=development` and `PDF_OCR_TESTING=1`, both for local use only.
+- The container image runs as an unprivileged user, but the read-only root filesystem and
+  dropped capabilities are **runtime flags**, not properties of the image. A bare
+  `docker run` does not give you them.
+- PaddleOCR is pinned to the **2.x** line. The code targets that API; 3.x removed it. Do not
+  advise upgrading without a matching code change.
+- Supported Python versions are **3.11 to 3.14**. 3.9 and 3.10 do not resolve the pinned
+  dependencies.
+
+## Documentation
+
+- [Introduction](https://fabriziosalmi.github.io/pdf-ocr/guide/introduction): what it is, what it is for, and what it deliberately does not do
+- [Quickstart](https://fabriziosalmi.github.io/pdf-ocr/guide/quickstart): running it with Docker Compose or locally, and what the output looks like
+- [Installation](https://fabriziosalmi.github.io/pdf-ocr/guide/installation): system binaries, Python requirements, running the tests
+- [OCR engines](https://fabriziosalmi.github.io/pdf-ocr/guide/engines): the four engines, language-code mapping, preprocessing, and the PaddleOCR version pin
+- [Deployment](https://fabriziosalmi.github.io/pdf-ocr/guide/deployment): the published image, hardening flags, reverse proxy, sizing, health checks, storage
+- [Troubleshooting](https://fabriziosalmi.github.io/pdf-ocr/guide/troubleshooting): the common failures and what actually fixes them
+
+## Reference
+
+- [Configuration](https://fabriziosalmi.github.io/pdf-ocr/reference/configuration): every environment variable, its effect and its default
+- [HTTP endpoints](https://fabriziosalmi.github.io/pdf-ocr/reference/endpoints): all routes, upload parameters, status JSON, and the session-ownership rule
+- [How a conversion works](https://fabriziosalmi.github.io/pdf-ocr/reference/pipeline): the five stages, where state lives, and the failure states
+
+## Policy
+
+- [Security](https://fabriziosalmi.github.io/pdf-ocr/security): threat model, what it does and does not protect against, how to report a vulnerability
+- [Privacy](https://fabriziosalmi.github.io/pdf-ocr/privacy): what the application stores and transmits, and what this documentation site does
+
+## Source
+
+- [Repository](https://github.com/fabriziosalmi/pdf-ocr): the application is a single module, `app.py`
+- [Releases](https://github.com/fabriziosalmi/pdf-ocr/releases): v0.4.0 was a breaking release; read its notes before upgrading from 0.3.x
+- [Container image](https://github.com/fabriziosalmi/pdf-ocr/pkgs/container/pdf-ocr): `ghcr.io/fabriziosalmi/pdf-ocr`, multi-arch amd64 and arm64
