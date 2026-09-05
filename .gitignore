@@ -7,6 +7,10 @@ models/
 # Secrets / local environment (never commit these)
 .env
 .env.*
+# ...except the template, which is documentation and has no secrets in it.
+# Without this negation `.env.*` swallowed it and it was never committed, so
+# the documented `cp .env.example .env` failed for anyone who cloned the repo.
+!.env.example
 *.pem
 *.key
 secrets.*
@@ -29,6 +33,9 @@ env/
 .pytest_cache/
 .mypy_cache/
 
-# Generated test artifacts
+# Generated test artifacts. ocr_test.py writes all three into the working
+# directory; test_ocr.png used to be committed as well, so running the
+# diagnostic dirtied the tree with a tracked file.
 test_pdf_conversion.png
 test_pdf.pdf
+test_ocr.png
