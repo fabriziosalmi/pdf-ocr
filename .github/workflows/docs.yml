@@ -58,13 +58,9 @@ jobs:
       - name: Verify the required static files survived the build
         run: |
           set -e
-          for f in llms.txt robots.txt sitemap.xml favicon.svg .well-known/security.txt; do
+          for f in llms.txt robots.txt sitemap.xml favicon.svg security.txt; do
             test -s "docs/.vitepress/dist/$f" || { echo "missing or empty: $f"; exit 1; }
           done
-          # Without .nojekyll, Pages drops anything whose path starts with a
-          # dot — which silently 404'd .well-known/security.txt even though it
-          # was present in the build output.
-          test -f docs/.vitepress/dist/.nojekyll || { echo "missing .nojekyll"; exit 1; }
           grep -q 'application/ld+json' docs/.vitepress/dist/index.html \
             || { echo "JSON-LD missing from the home page"; exit 1; }
           echo "all present"
@@ -90,3 +86,18 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      # Checking the artifact is not the same as checking what is served: the
+      # first version of this workflow asserted .well-known/security.txt was in
+      # the build output while the live site returned 404 for it.
+      - name: Verify the deployed site actually serves them
+        run: |
+          set -e
+          base="${{ steps.deployment.outputs.page_url }}"
+          base="${base%/}"
+          for p in / /security.txt /llms.txt /robots.txt /sitemap.xml; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 10 \
+                     --retry-all-errors "$base$p")
+            echo "$p -> $code"
+            [ "$code" = "200" ] || { echo "not served: $p"; exit 1; }
+          done

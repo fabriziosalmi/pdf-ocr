@@ -1,0 +1,20 @@
+# Security contact for the pdf-ocr project.
+# https://securitytxt.org/  (RFC 9116)
+#
+# This covers the source code and the published container image. It does not
+# cover any deployment you or anyone else runs — those are the operator's.
+#
+# NOTE ON THE LOCATION: RFC 9116 puts this file at /.well-known/security.txt.
+# GitHub Pages does not serve any path whose segment begins with a dot, so that
+# URL returns 404 here regardless of what the build produces (.nojekyll cannot
+# help — it is unreachable for the same reason). Until this site moves to a
+# host that serves dot-paths, the file lives at /security.txt and Canonical
+# points at where it is actually retrievable rather than where the RFC says it
+# should be.
+
+Contact: https://github.com/fabriziosalmi/pdf-ocr/security/advisories/new
+Contact: mailto:fabrizio.salmi@gmail.com
+Expires: 2027-08-13T00:00:00.000Z
+Preferred-Languages: en, it
+Canonical: https://fabriziosalmi.github.io/pdf-ocr/security.txt
+Policy: https://github.com/fabriziosalmi/pdf-ocr/blob/main/SECURITY.md
