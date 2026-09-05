@@ -319,9 +319,9 @@ instead, lower `RENDER_BATCH_SIZE` or use standard rather than high quality.
 
 ## Contributing
 
-Issues and pull requests are welcome. Please run `ruff check .` and
-`python -m unittest test_app` before opening a PR — CI gates on both, plus a Docker build.
-By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) — how to run the checks, which decisions are already
+settled, and the handful of house rules that exist because each one was a real defect. By
+participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
