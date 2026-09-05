@@ -61,6 +61,10 @@ jobs:
           for f in llms.txt robots.txt sitemap.xml favicon.svg .well-known/security.txt; do
             test -s "docs/.vitepress/dist/$f" || { echo "missing or empty: $f"; exit 1; }
           done
+          # Without .nojekyll, Pages drops anything whose path starts with a
+          # dot — which silently 404'd .well-known/security.txt even though it
+          # was present in the build output.
+          test -f docs/.vitepress/dist/.nojekyll || { echo "missing .nojekyll"; exit 1; }
           grep -q 'application/ld+json' docs/.vitepress/dist/index.html \
             || { echo "JSON-LD missing from the home page"; exit 1; }
           echo "all present"
