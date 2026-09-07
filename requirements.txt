@@ -19,7 +19,7 @@ Pillow==12.3.0             # image handling
 pytesseract==0.3.13        # Tesseract wrapper
 pdf2image==1.17.0          # PDF -> image, shells out to Poppler
 python-docx==1.2.0         # DOCX creation
-lxml==6.1.2                # python-docx dependency
+lxml==6.1.3                # python-docx dependency
 
 # Serving
 gunicorn==26.2.0           # WSGI server used by entrypoint.sh
