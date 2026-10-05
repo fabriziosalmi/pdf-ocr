@@ -7,7 +7,7 @@
 
 # Core
 Flask==3.1.3
-Werkzeug==3.1.8            # 2.3.7 had a DoS advisory; do not float back below 3.0.6
+Werkzeug==3.1.9            # 2.3.7 had a DoS advisory; do not float back below 3.0.6
 Jinja2==3.1.6
 itsdangerous==2.2.0        # signs the session cookie
 MarkupSafe==3.0.3
@@ -23,7 +23,7 @@ lxml==6.1.3                # python-docx dependency
 
 # Serving
 gunicorn==26.2.0           # WSGI server used by entrypoint.sh
-python-dotenv==1.2.3       # loads .env in local development
+python-dotenv==1.2.4       # loads .env in local development
 
 # --- Optional OCR engines --------------------------------------------------
 # Not installed by default; each is a large dependency tree pulled in lazily by
