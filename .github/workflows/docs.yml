@@ -85,7 +85,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       # Checking the artifact is not the same as checking what is served: the
       # first version of this workflow asserted .well-known/security.txt was in
