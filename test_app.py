@@ -23,7 +23,8 @@ from app import (  # noqa: E402
     is_within_upload_folder, looks_like_pdf, save_output, cleanup_old_files,
     process_pdf_with_progress, parse_preprocess_options, otsu_threshold,
     run_task_in_background, env_int, log_safe, ConversionCancelled,
-    TASKS, TASK_TIMEOUT, STALE_TASK_TIMEOUT
+    TASKS, TASK_TIMEOUT, STALE_TASK_TIMEOUT,
+    detect_and_correct_orientation, estimate_skew_angle, extract_native_page_text
 )
 
 def _temp_path(suffix: str) -> str:
@@ -195,20 +196,85 @@ class TestOCRApp(unittest.TestCase):
         opts = parse_preprocess_options({
             'pre-grayscale': '1', 'pre-sharpen': '1',
             'pre-threshold': '1', 'pre-contrast': '1.8',
+            'pre-deskew': '1',
         })
         self.assertEqual(opts, {
-            "grayscale": True, "sharpen": True, "threshold": True, "contrast": 1.8,
+            "grayscale": True, "sharpen": True, "threshold": True, "contrast": 1.8, "deskew": True,
         })
 
         # Unchecked boxes are absent from the form, not sent as '0'.
         opts = parse_preprocess_options({'pre-contrast': '1.0'})
         self.assertFalse(opts["grayscale"])
         self.assertFalse(opts["threshold"])
+        self.assertFalse(opts["deskew"])
 
         # A hand-crafted request cannot ask for an absurd contrast factor.
         self.assertEqual(parse_preprocess_options({'pre-contrast': '999'})["contrast"], 2.5)
         self.assertEqual(parse_preprocess_options({'pre-contrast': '-5'})["contrast"], 0.5)
         self.assertEqual(parse_preprocess_options({'pre-contrast': 'abc'})["contrast"], 1.5)
+
+    def test_estimate_skew_angle(self):
+        from PIL import ImageDraw
+        # Create synthetic image with horizontal text bars
+        im = Image.new('L', (400, 300), color=255)
+        draw = ImageDraw.Draw(im)
+        for y in range(40, 260, 30):
+            draw.rectangle([50, y, 350, y + 10], fill=0)
+
+        # Straight image should yield 0 angle
+        angle_straight = estimate_skew_angle(im)
+        self.assertEqual(angle_straight, 0.0)
+
+        # Skewed by 4 degrees counter-clockwise
+        skewed = im.rotate(4.0, fillcolor=255, expand=False)
+        corr_angle = estimate_skew_angle(skewed)
+        self.assertAlmostEqual(corr_angle, -4.0, delta=1.0)
+
+    def test_detect_and_correct_orientation(self):
+        test_img = Image.new('RGB', (100, 100), color='white')
+        # Mock pytesseract.image_to_osd returning 90 degrees rotation
+        with patch('pytesseract.image_to_osd', return_value={'rotate': 90, 'orientation_conf': 15.0}):
+            rotated_img, angle = detect_and_correct_orientation(test_img)
+            self.assertEqual(angle, 90)
+            self.assertIsNotNone(rotated_img)
+
+        # When OSD fails, original image is returned with angle 0
+        with patch('pytesseract.image_to_osd', side_effect=Exception("OSD error")):
+            orig_img, angle = detect_and_correct_orientation(test_img)
+            self.assertEqual(angle, 0)
+            self.assertEqual(orig_img, test_img)
+
+    def test_extract_native_page_text(self):
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        mock_proc.stdout = "This is a digital text document page with enough words to be substantial."
+        with patch('subprocess.run', return_value=mock_proc):
+            text = extract_native_page_text('/dummy/path.pdf', 1)
+            self.assertIsNotNone(text)
+            self.assertIn("substantial", text)
+
+        # Test when page is scanned (empty text)
+        mock_proc.stdout = "   \n  "
+        with patch('subprocess.run', return_value=mock_proc):
+            text = extract_native_page_text('/dummy/path.pdf', 1)
+            self.assertIsNone(text)
+
+    def test_save_output_docx_paragraphs(self):
+        out = _temp_path('.docx')
+        try:
+            results = {0: "First paragraph\n\nSecond paragraph", 1: "Page two paragraph"}
+            save_output(results, "docx", out, "test")
+            self.assertTrue(os.path.exists(out))
+            from docx import Document as ReadDoc
+            doc = ReadDoc(out)
+            # Both paragraphs on page 0 + page 1 paragraph
+            texts = [p.text for p in doc.paragraphs if p.text.strip()]
+            self.assertIn("First paragraph", texts)
+            self.assertIn("Second paragraph", texts)
+            self.assertIn("Page two paragraph", texts)
+        finally:
+            if os.path.exists(out):
+                os.remove(out)
 
     def test_otsu_threshold_separates_two_populations(self):
         # Half the pixels black, half white: the cutoff must land between them.
@@ -365,6 +431,29 @@ class TestOCRApp(unittest.TestCase):
         self.assertFalse(installed)
         self.assertEqual(data["installed"], False)
         self.assertIn("Unknown dependency", data["message"])
+
+    def test_check_dependency_easyocr(self):
+        with patch.dict('sys.modules', {'easyocr': MagicMock(__version__='1.7.1')}):
+            installed, data = check_dependency('easyocr')
+            self.assertTrue(installed)
+            self.assertEqual(data["version"], "1.7.1")
+            self.assertIn("EasyOCR is installed", data["message"])
+
+    def test_check_dependency_pyocr(self):
+        mock_tool = MagicMock()
+        mock_tool.get_name.return_value = "Tesseract"
+        mock_pyocr = MagicMock()
+        mock_pyocr.get_available_tools.return_value = [mock_tool]
+        with patch.dict('sys.modules', {'pyocr': mock_pyocr}):
+            installed, data = check_dependency('pyocr')
+            self.assertTrue(installed)
+            self.assertIn("Tesseract", data["tools"])
+            self.assertIn("PyOCR is installed", data["message"])
+
+    def test_fix_common_ocr_errors_reflow(self):
+        text = "This is a sentence\nthat wraps across lines.\n\nThis is a new paragraph."
+        reflowed = fix_common_ocr_errors(text, reflow=True)
+        self.assertEqual(reflowed, "This is a sentence that wraps across lines.\n\nThis is a new paragraph.")
     
     def test_index_route(self):
         # Mock check_dependencies to return success

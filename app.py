@@ -405,6 +405,28 @@ def check_dependency(name: str) -> Tuple[bool, Dict[str, Any]]:
             except Exception:
                 return False, {"installed": False, "message": "PaddleOCR is not installed. Install with 'pip install -r requirements-paddleocr.txt'"}
 
+        elif name.lower() == 'easyocr':
+            try:
+                import easyocr
+                version = getattr(easyocr, '__version__', 'Unknown version')
+                return True, {"installed": True, "version": version, "message": "EasyOCR is installed"}
+            except Exception:
+                return False, {"installed": False, "message": "EasyOCR is not installed. Install with 'pip install -r requirements-easyocr.txt'"}
+
+        elif name.lower() == 'pyocr':
+            try:
+                import pyocr
+                tools = pyocr.get_available_tools()
+                tool_names = [t.get_name() for t in tools] if tools else []
+                installed = len(tools) > 0
+                return installed, {
+                    "installed": installed,
+                    "tools": tool_names,
+                    "message": f"PyOCR is installed with tools: {', '.join(tool_names)}" if installed else "PyOCR is installed but no underlying OCR tool found"
+                }
+            except Exception:
+                return False, {"installed": False, "message": "PyOCR is not installed. Install with 'pip install pyocr'"}
+
         else:
             return False, {"installed": False, "message": f"Unknown dependency: {name}"}
     
@@ -491,6 +513,7 @@ DEFAULT_PREPROCESS_OPTIONS: Dict[str, Any] = {
     "sharpen": True,
     "contrast": 1.5,
     "threshold": False,
+    "deskew": False,
 }
 
 
@@ -507,6 +530,7 @@ def parse_preprocess_options(form) -> Dict[str, Any]:
         # for an absurd enhancement factor.
         "contrast": min(max(contrast, 0.5), 2.5),
         "threshold": form.get('pre-threshold') == '1',
+        "deskew": form.get('pre-deskew') == '1',
     }
 
 
@@ -545,6 +569,86 @@ def otsu_threshold(image: Image.Image) -> int:
     return best_cutoff
 
 
+def detect_and_correct_orientation(image: Image.Image, min_confidence: float = 2.0) -> Tuple[Image.Image, int]:
+    """Detect text orientation using Tesseract OSD and rotate upright if needed.
+
+    Returns (corrected_image, angle_rotated).
+    If detection fails or confidence is low, returns (original_image, 0).
+    """
+    try:
+        osd = pytesseract.image_to_osd(image, output_type=pytesseract.Output.DICT)
+        rotate_angle = int(osd.get('rotate', 0))
+        conf = float(osd.get('orientation_conf', 0.0))
+        if rotate_angle in (90, 180, 270) and conf >= min_confidence:
+            logger.info(f"Auto-rotating page by {rotate_angle}° (confidence: {conf:.1f})")
+            rotated = image.rotate(360 - rotate_angle, expand=True)
+            return rotated, rotate_angle
+    except Exception as e:
+        logger.debug(f"Orientation detection skipped: {e}")
+    return image, 0
+
+
+def estimate_skew_angle(image: Image.Image, max_angle: float = 10.0, step: float = 1.0) -> float:
+    """Estimate skew angle in degrees using horizontal projection profile variance.
+
+    Operates on a downsampled grayscale thumbnail for fast execution (<15ms).
+    Returns the angle in degrees that aligns text horizontally.
+    """
+    try:
+        w, h = image.size
+        if h <= 0 or w <= 0:
+            return 0.0
+        thumb_h = 300
+        thumb_w = max(int(w * (thumb_h / h)), 50)
+        thumb = image.resize((thumb_w, thumb_h), Image.Resampling.BILINEAR)
+        if thumb.mode != 'L':
+            thumb = thumb.convert('L')
+
+        best_angle = 0.0
+        max_variance = -1.0
+        num_angles = int(max_angle / step)
+        angles = [a * step for a in range(-num_angles, num_angles + 1)]
+
+        for angle in angles:
+            rotated = thumb.rotate(angle, resample=Image.Resampling.NEAREST, fillcolor=255)
+            raw = rotated.tobytes()
+            row_counts = [sum(1 for b in raw[y * thumb_w : (y + 1) * thumb_w] if b < 128) for y in range(thumb_h)]
+            mean = sum(row_counts) / thumb_h
+            var = sum((c - mean) ** 2 for c in row_counts) / thumb_h
+            if var > max_variance:
+                max_variance = var
+                best_angle = angle
+
+        return best_angle
+    except Exception as e:
+        logger.debug(f"Skew estimation failed: {e}")
+        return 0.0
+
+
+def extract_native_page_text(pdf_path: str, page_num: int) -> Optional[str]:
+    """Extract embedded digital text from a PDF page via Poppler pdftotext.
+
+    Returns the cleaned text string if the page contains a substantial digital
+    text layer (>= 40 characters and >= 6 words), or None if the page is a
+    scanned/rasterized image requiring optical character recognition.
+    """
+    try:
+        proc = subprocess.run(
+            ['pdftotext', '-f', str(page_num), '-l', str(page_num), pdf_path, '-'],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        if proc.returncode == 0:
+            extracted = proc.stdout.strip()
+            if len(extracted) >= 40 and len(extracted.split()) >= 6:
+                return sanitize_text(extracted)
+    except Exception as e:
+        logger.debug(f"Native text extraction failed for page {page_num}: {e}")
+    return None
+
+
 def enhance_image(image: Image.Image, options: Optional[Dict[str, Any]] = None) -> Image.Image:
     """Enhance image quality for better OCR results.
 
@@ -556,6 +660,14 @@ def enhance_image(image: Image.Image, options: Optional[Dict[str, Any]] = None) 
     try:
         # Import here to avoid requiring these packages unless needed
         from PIL import ImageEnhance, ImageFilter
+
+        # Apply orientation correction and micro-deskew if requested
+        if settings.get("deskew"):
+            image, _ = detect_and_correct_orientation(image)
+            skew_angle = estimate_skew_angle(image)
+            if abs(skew_angle) >= 1.0:
+                logger.info(f"Deskewing page by {skew_angle:.1f}°")
+                image = image.rotate(skew_angle, resample=Image.Resampling.BILINEAR, fillcolor=255, expand=True)
 
         # Apply a slight sharpening filter
         if settings["sharpen"]:
@@ -582,7 +694,7 @@ def enhance_image(image: Image.Image, options: Optional[Dict[str, Any]] = None) 
         logger.warning(f"Image enhancement failed: {e}")
         return image  # Return original image if enhancement fails
 
-def process_image(i: int, image_path: str, ocr_engine: str, language: str, preprocess: bool = False, preprocess_options: Optional[Dict[str, Any]] = None) -> Tuple[int, str]:
+def process_image(i: int, image_path: str, ocr_engine: str, language: str, preprocess: bool = False, preprocess_options: Optional[Dict[str, Any]] = None, reflow: bool = False) -> Tuple[int, str]:
     """Run OCR on a single rendered page and return (page index, text)."""
     img_to_process = None
     preprocessed_path = None
@@ -746,7 +858,7 @@ def process_image(i: int, image_path: str, ocr_engine: str, language: str, prepr
         text = sanitize_text(text)
         
         # Attempt to detect and fix common OCR errors
-        text = fix_common_ocr_errors(text)
+        text = fix_common_ocr_errors(text, reflow=reflow)
         
         return i, text
     except FileNotFoundError as e:
@@ -884,7 +996,13 @@ def save_output(results: Dict[int, str], output_format: str, output_path: str, b
         document = Document()
         ordered = sorted(results.keys())
         for position, i in enumerate(ordered):
-            document.add_paragraph(results[i])
+            text = results[i]
+            paragraphs = [p for p in text.split('\n\n') if p.strip()]
+            if paragraphs:
+                for para in paragraphs:
+                    document.add_paragraph(para.strip())
+            else:
+                document.add_paragraph(text)
             if position < len(ordered) - 1:
                 document.add_page_break()
         document.save(output_path)
@@ -904,7 +1022,7 @@ def save_output(results: Dict[int, str], output_format: str, output_path: str, b
         raise ValueError(f"Unsupported output format: {output_format}")
 
 
-def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str = "tesseract", language: str = "eng", quality: str = "standard", preprocess: bool = False, orig_filename: Optional[str] = None, output_format: str = "docx", preprocess_options: Optional[Dict[str, Any]] = None) -> Tuple[bool, Optional[str], str]:
+def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str = "tesseract", language: str = "eng", quality: str = "standard", preprocess: bool = False, orig_filename: Optional[str] = None, output_format: str = "docx", preprocess_options: Optional[Dict[str, Any]] = None, reflow: bool = False, native_text: bool = True) -> Tuple[bool, Optional[str], str]:
     """Render a PDF page by page, OCR each page, and write the chosen format."""
     if output_format not in {"docx", "txt", "md", "html"}:
         return False, None, f"Unsupported output format: {output_format}"
@@ -939,7 +1057,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
         start_time = time.time()
         logger.info(
             f"Processing {total_pages} page(s) at {dpi} DPI, engine: {ocr_engine}, "
-            f"lang: {language}, output: {output_format}"
+            f"lang: {language}, output: {output_format}, native_text: {native_text}"
         )
 
         results: Dict[int, str] = {}
@@ -950,6 +1068,23 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                 raise ConversionCancelled()
 
             batch_end = min(batch_start + RENDER_BATCH_SIZE, total_pages)
+
+            # Check if any pages in this batch have native digital text streams
+            pages_needing_render = []
+            for i in range(batch_start, batch_end):
+                if native_text:
+                    digital_text = extract_native_page_text(pdf_path, i + 1)
+                    if digital_text:
+                        results[i] = fix_common_ocr_errors(digital_text, reflow=reflow)
+                        progress = 5 + int(((i + 1) / total_pages) * 90)
+                        TASKS.update(conversion_id, step="ocr", progress=progress)
+                        logger.info(f"Page {i + 1}/{total_pages} extracted via native digital stream")
+                        continue
+                pages_needing_render.append(i)
+
+            if not pages_needing_render:
+                continue
+
             images = convert_from_path(
                 pdf_path,
                 dpi=dpi,
@@ -962,6 +1097,10 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
 
             for offset, img in enumerate(images):
                 i = batch_start + offset
+                if i in results:
+                    img.close()
+                    continue
+
                 img_path = os.path.join(temp_dir, f'page_{i}.png')
                 try:
                     img.save(img_path, 'PNG')
@@ -974,7 +1113,7 @@ def process_pdf_with_progress(pdf_path: str, conversion_id: str, ocr_engine: str
                     continue
 
                 try:
-                    _, text = process_image(i, img_path, ocr_engine, language, preprocess, preprocess_options)
+                    _, text = process_image(i, img_path, ocr_engine, language, preprocess, preprocess_options, reflow=reflow)
                     results[i] = text
                 finally:
                     try:
@@ -1132,6 +1271,8 @@ def upload_file():
         quality = 'high' if request.form.get('ocr-quality') == 'high' else 'standard'
         preprocess = request.form.get('preprocess', '0') == '1'
         preprocess_options = parse_preprocess_options(request.form) if preprocess else None
+        reflow = request.form.get('reflow', '0') == '1'
+        native_text = request.form.get('native-text', '1') == '1'
 
         # Generate unique ID for this conversion
         conversion_id = str(uuid.uuid4())
@@ -1141,7 +1282,7 @@ def upload_file():
         logger.info(
             f"Processing request: file={log_safe(orig_filename)}, engine={log_safe(ocr_engine)}, "
             f"lang={log_safe(language)}, quality={quality}, preprocess={preprocess}, "
-            f"format={log_safe(output_format)}"
+            f"format={log_safe(output_format)}, reflow={reflow}, native_text={native_text}"
         )
 
         # Create a temporary filename to avoid collisions
@@ -1175,6 +1316,8 @@ def upload_file():
                 orig_filename,
                 output_format,
                 preprocess_options,
+                reflow=reflow,
+                native_text=native_text,
             )
             return redirect(url_for('status', task_id=conversion_id))
         except Exception as e:

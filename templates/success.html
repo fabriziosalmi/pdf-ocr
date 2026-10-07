@@ -1,56 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to DOCX OCR - Success</title>
+    <title>Conversion Complete &mdash; PDF to DOCX OCR</title>
     <script src="{{ url_for('static', filename='vendor/tailwindcss/tailwind.js') }}"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<body class="bg-white text-zinc-950 dark:bg-black dark:text-zinc-50 antialiased min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-black/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-2 group">
+                    <div class="w-7 h-7 rounded-md bg-zinc-950 text-white dark:bg-zinc-100 dark:text-black flex items-center justify-center font-mono font-bold text-xs tracking-wider shadow-sm transition-transform group-hover:scale-105">
+                        OCR
+                    </div>
+                    <span class="font-semibold text-sm tracking-tight text-zinc-900 dark:text-zinc-100">pdf-ocr</span>
+                </a>
+                <span class="text-zinc-300 dark:text-zinc-700">/</span>
+                <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800">Done</span>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme" class="p-1.5 text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                    <svg id="theme-toggle-dark-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                    </svg>
+                    <svg id="theme-toggle-light-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6">
+        <div class="max-w-md w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 shadow-sm p-6 sm:p-8 space-y-6">
+
+            <!-- Checkmark Header -->
+            <div class="text-center space-y-3">
+                <div class="w-12 h-12 rounded-full border border-zinc-200 dark:border-zinc-800 mx-auto flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 shadow-sm text-emerald-600 dark:text-emerald-400">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">Conversion Complete!</h1>
-                <p class="text-gray-600">Your PDF has been converted. Download it below.</p>
-            </div>
-            
-            <div class="bg-gray-50 rounded-lg p-4 mb-6 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
                 <div>
-                    <span class="block text-sm font-medium text-gray-900">{{ filename }}</span>
-                    <span class="block text-xs text-gray-500">Ready to download</span>
+                    <h1 class="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                        Conversion Complete
+                    </h1>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Your converted document is ready for download.
+                    </p>
                 </div>
             </div>
-            
-            <div class="space-y-4">
-                <a href="{{ url_for('download_file', task_id=task_id) }}" 
-                   class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+            <!-- File Details Card -->
+            <div class="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 flex items-center justify-between">
+                <div class="flex items-center space-x-3 overflow-hidden">
+                    <div class="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0 text-zinc-700 dark:text-zinc-300">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-xs font-mono font-medium text-zinc-900 dark:text-zinc-100 truncate" title="{{ filename }}">{{ filename }}</span>
+                        <span class="block text-[11px] text-zinc-400 dark:text-zinc-500">Processed successfully</span>
+                    </div>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium uppercase ml-2 flex-shrink-0">
+                    {{ filename.rsplit('.', 1)[-1] if '.' in filename else 'FILE' }}
+                </span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3 pt-2">
+                <a id="download-link" href="{{ url_for('download_file', task_id=task_id) }}"
+                   class="w-full h-11 inline-flex items-center justify-center px-4 rounded-lg text-sm font-medium text-white bg-zinc-950 hover:bg-zinc-800 active:scale-[0.99] dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-all shadow-sm">
+                    <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    Download
+                    Download File
                 </a>
-                
-                <a href="{{ url_for('new_conversion', task_id=task_id) }}" 
-                   class="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Convert Another File
+
+                <a href="{{ url_for('new_conversion', task_id=task_id) }}"
+                   class="w-full h-10 inline-flex items-center justify-center px-4 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-950 dark:hover:text-white transition-colors">
+                    Convert Another Document
                 </a>
             </div>
-            
-            <div class="mt-6 text-xs text-center text-gray-500">
-                <p>Files are temporarily stored and will be automatically deleted.</p>
+
+            <!-- Footer Note -->
+            <div class="text-[11px] text-center text-zinc-400 dark:text-zinc-500 pt-2 border-t border-zinc-100 dark:border-zinc-900">
+                Temporary storage &bull; Automatically expired upon new conversion
             </div>
+
         </div>
-    </div>
+    </main>
+
+    <script>
+        // Press Enter or Space to trigger download
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const link = document.getElementById('download-link');
+                if (link) link.click();
+            }
+        });
+
+        // Theme toggle
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || 
+            (!localStorage.getItem('color-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleLightIcon.classList.add('hidden');
+            themeToggleDarkIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.add('hidden');
+            themeToggleLightIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+    </script>
 </body>
 </html>

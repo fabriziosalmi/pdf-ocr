@@ -3,210 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing - PDF to DOCX OCR</title>
+    <title>Processing OCR — Status</title>
     <script src="{{ url_for('static', filename='vendor/tailwindcss/tailwind.js') }}"></script>
     <script>
-        // Configure Tailwind for dark mode
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        // Custom colors for dark mode if needed
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
                     }
                 }
             }
         }
     </script>
     <style>
-        /* Animation for spinner */
-        @keyframes spinner {
-            to {transform: rotate(360deg);}
+        /* Smooth progress transition */
+        .progress-bar-fill {
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .spinner {
-            animation: spinner 1s linear infinite;
+
+        /* Subtle indeterminate shimmer */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
         }
-        
-        /* Progress bar animation */
-        @keyframes progress {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-        
         .progress-indeterminate {
-            width: 100%;
             position: relative;
             overflow: hidden;
         }
-        
-        .progress-indeterminate:after {
+        .progress-indeterminate::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            height: 100%;
-            width: 30%;
-            background-color: rgba(99, 102, 241, 0.6);
-            animation: indeterminate 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes indeterminate {
-            0% { left: -30%; }
-            100% { left: 100%; }
-        }
-
-        /* Transition for dark mode */
-        body {
-            transition: background-color 0.3s ease, color 0.3s ease;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+            animation: shimmer 1.8s infinite;
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 h-screen flex items-center justify-center">
-    <div class="container mx-auto px-4">
-        <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-white relative">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <svg class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <h1 class="text-xl font-bold">Processing PDF</h1>
+<body class="bg-white text-zinc-950 dark:bg-black dark:text-zinc-50 antialiased min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-black/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-2 group">
+                    <div class="w-7 h-7 rounded-md bg-zinc-950 text-white dark:bg-zinc-100 dark:text-black flex items-center justify-center font-mono font-bold text-xs tracking-wider shadow-sm transition-transform group-hover:scale-105">
+                        OCR
                     </div>
-                    
-                    <!-- Dark mode toggle button -->
-                    <button id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode" class="text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white rounded-lg p-2">
-                        <!-- Sun icon (for dark mode - will show when dark mode is on) -->
-                        <svg id="theme-toggle-dark-icon" aria-hidden="true" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
-                        </svg>
-                        <!-- Moon icon (for light mode - will show when light mode is on) -->
-                        <svg id="theme-toggle-light-icon" aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-                        </svg>
-                    </button>
-                </div>
+                    <span class="font-semibold text-sm tracking-tight text-zinc-900 dark:text-zinc-100">pdf-ocr</span>
+                </a>
+                <span class="text-zinc-300 dark:text-zinc-700">/</span>
+                <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800">Processing</span>
             </div>
-            
-            <div class="p-6 dark:text-gray-200">
-                <div class="text-center mb-6">
-                    <div class="flex justify-center mb-4">
-                        <svg class="spinner h-12 w-12 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2" id="status-message">Processing document...</h2>
-                    <p class="text-sm text-gray-500 dark:text-gray-400" id="substatus-message">OCR processing can take some time for large documents</p>
-                </div>
-                
-                <!-- Processing stages icons -->
-                <div class="flex justify-between items-center mb-6">
-                    <div id="stage-convert" class="flex flex-col items-center opacity-40">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
-                            </svg>
-                        </div>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">Converting</span>
-                    </div>
-                    <div class="w-1/4 h-0.5 bg-gray-200 dark:bg-gray-700" id="line-1"></div>
-                    <div id="stage-ocr" class="flex flex-col items-center opacity-40">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </div>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">OCR Processing</span>
-                    </div>
-                    <div class="w-1/4 h-0.5 bg-gray-200 dark:bg-gray-700" id="line-2"></div>
-                    <div id="stage-assemble" class="flex flex-col items-center opacity-40">
-                        <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">Assembling</span>
-                    </div>
-                </div>
-                
-                <!-- Progress bar -->
-                <div class="mb-2 flex justify-between text-xs">
-                    <span id="progress-percentage" class="text-indigo-600 dark:text-indigo-400 font-medium">0%</span>
-                    <span id="time-remaining" class="text-gray-500 dark:text-gray-400"></span>
-                </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-6 overflow-hidden">
-                    <div id="progress-bar" class="progress-indeterminate bg-indigo-600 dark:bg-indigo-500 h-2.5 rounded-full"></div>
-                </div>
-                
-                <div id="error-container" class="hidden mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg border border-red-200 dark:border-red-800">
-                    <div class="flex">
-                        <svg class="h-5 w-5 mr-2 text-red-400 dark:text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div>
-                            <p class="font-medium">Processing Error</p>
-                            <p id="error-message" class="text-sm mt-1"></p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-4 text-xs text-gray-500 dark:text-gray-400 flex justify-center">
-                    <p>You'll be redirected automatically when processing is complete</p>
-                </div>
-                
-                <!-- Cancel / leave -->
-                <div class="mt-6 text-center space-y-2">
-                    <button type="button" id="cancel-button"
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <span id="cancel-button-text">Cancel conversion</span>
-                    </button>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        Stops after the page currently being read finishes.
-                    </p>
-                    <p>
-                        <a href="/" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm">Leave this page (the conversion keeps running)</a>
-                    </p>
-                </div>
+
+            <div class="flex items-center space-x-2">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme" class="p-1.5 text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                    <svg id="theme-toggle-dark-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                    </svg>
+                    <svg id="theme-toggle-light-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                </button>
             </div>
         </div>
-    </div>
-    
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6">
+        <div class="max-w-lg w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-950 shadow-sm p-6 sm:p-8 space-y-6">
+
+            <!-- Status Header & Spinner -->
+            <div class="text-center space-y-3">
+                <div class="w-12 h-12 rounded-full border border-zinc-200 dark:border-zinc-800 mx-auto flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 shadow-sm">
+                    <svg class="animate-spin h-6 w-6 text-zinc-950 dark:text-zinc-50" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                        <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 id="status-message" class="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                        Processing document...
+                    </h2>
+                    <p id="substatus-message" class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        Rendering pages and running optical character recognition
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3-Stage Stepper Visualizer -->
+            <div class="pt-2 pb-1">
+                <div class="flex items-center justify-between text-xs">
+                    <!-- Stage 1 -->
+                    <div id="stage-convert" class="flex flex-col items-center opacity-40 transition-opacity">
+                        <div class="w-7 h-7 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center mb-1 text-[11px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                            1
+                        </div>
+                        <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Rendering</span>
+                    </div>
+
+                    <div id="line-1" class="flex-1 h-0.5 mx-2 bg-zinc-200 dark:bg-zinc-800 transition-colors"></div>
+
+                    <!-- Stage 2 -->
+                    <div id="stage-ocr" class="flex flex-col items-center opacity-40 transition-opacity">
+                        <div class="w-7 h-7 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center mb-1 text-[11px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                            2
+                        </div>
+                        <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">OCR</span>
+                    </div>
+
+                    <div id="line-2" class="flex-1 h-0.5 mx-2 bg-zinc-200 dark:bg-zinc-800 transition-colors"></div>
+
+                    <!-- Stage 3 -->
+                    <div id="stage-assemble" class="flex flex-col items-center opacity-40 transition-opacity">
+                        <div class="w-7 h-7 rounded-full border border-zinc-300 dark:border-zinc-700 flex items-center justify-center mb-1 text-[11px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                            3
+                        </div>
+                        <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Assemble</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar & Metrics -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs font-mono">
+                    <span id="progress-percentage" class="font-semibold text-zinc-900 dark:text-zinc-100">0%</span>
+                    <span id="time-remaining" class="text-zinc-500 dark:text-zinc-400">Calculating...</span>
+                </div>
+                <div class="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 rounded-full h-2.5 overflow-hidden p-0.5">
+                    <div id="progress-bar" class="progress-bar-fill progress-indeterminate bg-zinc-950 dark:bg-zinc-50 h-full rounded-full w-0"></div>
+                </div>
+            </div>
+
+            <!-- Error Notification Container -->
+            <div id="error-container" class="hidden p-4 rounded-lg bg-red-50/70 border border-red-200 text-red-800 dark:bg-red-950/20 dark:border-red-900/60 dark:text-red-300 text-xs space-y-1">
+                <p class="font-semibold">Conversion Error</p>
+                <p id="error-message" class="leading-relaxed"></p>
+            </div>
+
+            <!-- Actions & Cancel -->
+            <div class="pt-2 border-t border-zinc-100 dark:border-zinc-900 text-center space-y-3">
+                <button type="button" id="cancel-button"
+                        class="w-full py-2.5 px-4 text-xs font-medium rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-900 hover:text-zinc-950 dark:hover:text-white transition-colors">
+                    <span id="cancel-button-text">Cancel conversion</span>
+                </button>
+                <div class="text-[11px] text-zinc-400 dark:text-zinc-500 space-y-1">
+                    <p>Cancellation stops after the current page finishes rendering.</p>
+                    <p><a href="{{ url_for('index') }}" class="hover:underline">Return to home (conversion continues in background)</a></p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
     <script>
-        // Task ID from server
         const taskId = "{{ task_id }}";
-        let checkInterval = 1000; // Start checking every second
+        let checkInterval = 1000;
         let elapsed = 0;
-        let maxTime = 600000; // 10 minutes max processing time
+        const maxTime = 600000; // 10 minutes max
         const cancelButton = document.getElementById('cancel-button');
         const cancelButtonText = document.getElementById('cancel-button-text');
         let networkRetries = 0;
-        const maxNetworkRetries = 12; // ~1 minute of transport failures before giving up
+        const maxNetworkRetries = 12;
         let startTime = Date.now();
         let lastProgress = 0;
         let estimatedTimeRemaining = null;
-        
-        // Elements
+
         const stageConvert = document.getElementById('stage-convert');
         const stageOcr = document.getElementById('stage-ocr');
         const stageAssemble = document.getElementById('stage-assemble');
         const line1 = document.getElementById('line-1');
         const line2 = document.getElementById('line-2');
         const progressPercentage = document.getElementById('progress-percentage');
+        const progressBar = document.getElementById('progress-bar');
         const timeRemaining = document.getElementById('time-remaining');
         const errorContainer = document.getElementById('error-container');
         const errorMessage = document.getElementById('error-message');
+        const statusMessage = document.getElementById('status-message');
+        const substatusMessage = document.getElementById('substatus-message');
 
-        // Dark mode toggle elements
+        function formatTimeRemaining(seconds) {
+            if (seconds < 60) {
+                return `${Math.round(seconds)}s remaining`;
+            } else if (seconds < 3600) {
+                return `${Math.round(seconds / 60)}m remaining`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.round((seconds % 3600) / 60);
+                return `${hours}h ${minutes}m remaining`;
+            }
+        }
+
+        function updateTimeRemaining(progress) {
+            if (progress <= 0 || progress >= 100) {
+                timeRemaining.textContent = '';
+                return;
+            }
+
+            const now = Date.now();
+            const timeElapsed = (now - startTime) / 1000;
+
+            if (progress > lastProgress) {
+                const timePerProgress = timeElapsed / progress;
+                const estimatedTotal = timePerProgress * 100;
+                estimatedTimeRemaining = estimatedTotal - timeElapsed;
+                lastProgress = progress;
+
+                if (estimatedTimeRemaining > 0) {
+                    timeRemaining.textContent = formatTimeRemaining(estimatedTimeRemaining);
+                }
+            } else if (estimatedTimeRemaining !== null) {
+                estimatedTimeRemaining = Math.max(0, estimatedTimeRemaining - (checkInterval / 1000));
+                timeRemaining.textContent = estimatedTimeRemaining > 0 ? formatTimeRemaining(estimatedTimeRemaining) : 'Finishing up...';
+            }
+        }
+
+        function updateStages(step, progress) {
+            [stageConvert, stageOcr, stageAssemble].forEach(el => el.classList.add('opacity-40'));
+            line1.className = 'flex-1 h-0.5 mx-2 bg-zinc-200 dark:bg-zinc-800 transition-colors';
+            line2.className = 'flex-1 h-0.5 mx-2 bg-zinc-200 dark:bg-zinc-800 transition-colors';
+
+            if (progress >= 100) {
+                [stageConvert, stageOcr, stageAssemble].forEach(el => el.classList.remove('opacity-40'));
+                line1.className = 'flex-1 h-0.5 mx-2 bg-zinc-950 dark:bg-zinc-100 transition-colors';
+                line2.className = 'flex-1 h-0.5 mx-2 bg-zinc-950 dark:bg-zinc-100 transition-colors';
+            } else if (step === 'converting') {
+                stageConvert.classList.remove('opacity-40');
+            } else if (step === 'ocr') {
+                stageConvert.classList.remove('opacity-40');
+                stageOcr.classList.remove('opacity-40');
+                line1.className = 'flex-1 h-0.5 mx-2 bg-zinc-950 dark:bg-zinc-100 transition-colors';
+            } else if (step === 'assembling') {
+                [stageConvert, stageOcr, stageAssemble].forEach(el => el.classList.remove('opacity-40'));
+                line1.className = 'flex-1 h-0.5 mx-2 bg-zinc-950 dark:bg-zinc-100 transition-colors';
+                line2.className = 'flex-1 h-0.5 mx-2 bg-zinc-950 dark:bg-zinc-100 transition-colors';
+            }
+        }
+
+        function checkStatus() {
+            fetch(`/api/task_status/${taskId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 404) throw new Error("Task not found");
+                        throw new Error(`Server returned ${response.status}`);
+                    }
+                    networkRetries = 0;
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.progress !== undefined) {
+                        const prog = Math.min(Math.max(data.progress, 0), 100);
+                        progressBar.style.width = `${prog}%`;
+                        progressPercentage.textContent = `${prog}%`;
+                        updateTimeRemaining(prog);
+                    }
+
+                    if (data.step) {
+                        updateStages(data.step, data.progress);
+                        if (data.step === 'converting') {
+                            statusMessage.textContent = 'Rendering PDF pages...';
+                            substatusMessage.textContent = 'Extracting high-resolution page buffers with Poppler';
+                        } else if (data.step === 'ocr') {
+                            statusMessage.textContent = 'Extracting text with OCR...';
+                            substatusMessage.textContent = 'Analyzing characters, layout structure, and typography';
+                        } else if (data.step === 'assembling') {
+                            statusMessage.textContent = 'Assembling final document...';
+                            substatusMessage.textContent = 'Writing formatted document and applying clean typography';
+                        }
+                    }
+
+                    if (data.status === 'completed') {
+                        progressBar.style.width = '100%';
+                        progressPercentage.textContent = '100%';
+                        statusMessage.textContent = 'Conversion complete!';
+                        substatusMessage.textContent = 'Redirecting to your download...';
+                        setTimeout(() => {
+                            window.location.href = data.redirect || `/success/${taskId}`;
+                        }, 500);
+                        return;
+                    }
+
+                    if (data.status === 'failed') {
+                        errorContainer.classList.remove('hidden');
+                        errorMessage.textContent = data.error || 'The OCR engine encountered an unexpected error.';
+                        statusMessage.textContent = 'Conversion failed';
+                        substatusMessage.textContent = 'Review the error details below';
+                        cancelButton.disabled = true;
+                        return;
+                    }
+
+                    if (data.status === 'cancelled') {
+                        statusMessage.textContent = 'Conversion cancelled';
+                        substatusMessage.textContent = 'Redirecting to home...';
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/';
+                        }, 1000);
+                        return;
+                    }
+
+                    elapsed += checkInterval;
+                    if (elapsed < maxTime) {
+                        setTimeout(checkStatus, checkInterval);
+                    } else {
+                        errorContainer.classList.remove('hidden');
+                        errorMessage.textContent = 'Conversion timed out after 10 minutes.';
+                    }
+                })
+                .catch(err => {
+                    networkRetries++;
+                    if (networkRetries < maxNetworkRetries) {
+                        setTimeout(checkStatus, checkInterval * 1.5);
+                    } else {
+                        errorContainer.classList.remove('hidden');
+                        errorMessage.textContent = 'Lost connection to conversion worker: ' + err.message;
+                    }
+                });
+        }
+
+        // Cancel button handler
+        cancelButton.addEventListener('click', function() {
+            this.disabled = true;
+            cancelButtonText.textContent = 'Cancelling...';
+
+            fetch(`/cancel/${taskId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.cancelled) {
+                        statusMessage.textContent = 'Cancelling conversion...';
+                        substatusMessage.textContent = 'Stopping after current page finishes';
+                    }
+                })
+                .catch(err => {
+                    cancelButtonText.textContent = 'Cancel failed';
+                });
+        });
+
+        // Start polling
+        setTimeout(checkStatus, 500);
+
+        // Theme toggle
         const themeToggleBtn = document.getElementById('theme-toggle');
         const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
         const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 
-        // Check for saved theme preference or use system preference
         if (localStorage.getItem('color-theme') === 'dark' || 
             (!localStorage.getItem('color-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -218,13 +363,9 @@
             themeToggleLightIcon.classList.remove('hidden');
         }
 
-        // Toggle theme when button clicked
         themeToggleBtn.addEventListener('click', function() {
-            // Toggle icons
             themeToggleDarkIcon.classList.toggle('hidden');
             themeToggleLightIcon.classList.toggle('hidden');
-            
-            // Toggle dark class on html element
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('color-theme', 'light');
@@ -233,292 +374,6 @@
                 localStorage.setItem('color-theme', 'dark');
             }
         });
-        
-        // Format time remaining
-        function formatTimeRemaining(seconds) {
-            if (seconds < 60) {
-                return `${Math.round(seconds)} seconds remaining`;
-            } else if (seconds < 3600) {
-                return `${Math.round(seconds / 60)} minutes remaining`;
-            } else {
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.round((seconds % 3600) / 60);
-                return `${hours}h ${minutes}m remaining`;
-            }
-        }
-        
-        // Estimate time remaining based on progress
-        function updateTimeRemaining(progress) {
-            if (progress <= 0 || progress >= 100) {
-                timeRemaining.textContent = '';
-                return;
-            }
-            
-            const now = Date.now();
-            const timeElapsed = (now - startTime) / 1000; // in seconds
-            
-            if (progress > lastProgress) {
-                // Only update estimate when progress increases
-                const progressDelta = progress - lastProgress;
-                const timePerProgress = timeElapsed / progress;
-                const estimatedTotal = timePerProgress * 100;
-                estimatedTimeRemaining = estimatedTotal - timeElapsed;
-                
-                lastProgress = progress;
-                
-                if (estimatedTimeRemaining > 0) {
-                    timeRemaining.textContent = formatTimeRemaining(estimatedTimeRemaining);
-                }
-            } else if (estimatedTimeRemaining !== null) {
-                // Countdown remaining time
-                estimatedTimeRemaining = Math.max(0, estimatedTimeRemaining - (checkInterval / 1000));
-                if (estimatedTimeRemaining > 0) {
-                    timeRemaining.textContent = formatTimeRemaining(estimatedTimeRemaining);
-                } else {
-                    timeRemaining.textContent = 'Finishing up...';
-                }
-            }
-        }
-        
-        // Update stage indicators
-        function updateStages(step, progress) {
-            // Reset all stages
-            [stageConvert, stageOcr, stageAssemble, line1, line2].forEach(el => {
-                el.classList.add('opacity-40');
-                if (el === line1 || el === line2) {
-                    el.classList.remove('bg-indigo-500', 'dark:bg-indigo-400');
-                    el.classList.add('bg-gray-200', 'dark:bg-gray-700');
-                }
-            });
-            
-            if (progress >= 100) {
-                // All complete
-                [stageConvert, stageOcr, stageAssemble, line1, line2].forEach(el => {
-                    el.classList.remove('opacity-40');
-                    if (el === line1 || el === line2) {
-                        el.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
-                        el.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-                    }
-                });
-                return;
-            }
-            
-            // Update based on step
-            if (step === 'converting' || progress < 10) {
-                stageConvert.classList.remove('opacity-40');
-            } else if (step === 'ocr' || (progress >= 10 && progress < 90)) {
-                stageConvert.classList.remove('opacity-40');
-                line1.classList.remove('opacity-40');
-                line1.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
-                line1.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-                stageOcr.classList.remove('opacity-40');
-            } else if (step === 'assembling' || progress >= 90) {
-                stageConvert.classList.remove('opacity-40');
-                line1.classList.remove('opacity-40');
-                line1.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
-                line1.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-                stageOcr.classList.remove('opacity-40');
-                line2.classList.remove('opacity-40');
-                line2.classList.add('bg-indigo-500', 'dark:bg-indigo-400');
-                line2.classList.remove('bg-gray-200', 'dark:bg-gray-700');
-                stageAssemble.classList.remove('opacity-40');
-            }
-        }
-        
-        function updateStatusUI(data) {
-            const statusMessage = document.getElementById('status-message');
-            const substatusMessage = document.getElementById('substatus-message');
-            const progressBar = document.getElementById('progress-bar');
-            
-            if (data.status === 'processing') {
-                // Update progress percentage
-                const progress = data.progress || 0;
-                progressPercentage.textContent = `${progress}%`;
-                
-                // Update stage indicators
-                updateStages(data.step || 'converting', progress);
-                
-                // Update time remaining
-                updateTimeRemaining(progress);
-                
-                // Update status messages based on step
-                if (data.step === 'converting') {
-                    statusMessage.textContent = 'Converting PDF to images...';
-                    substatusMessage.textContent = 'Preparing for OCR processing';
-                } else if (data.step === 'ocr') {
-                    statusMessage.textContent = 'Performing OCR...';
-                    substatusMessage.textContent = `Processing: ${progress}% complete`;
-                } else if (data.step === 'assembling') {
-                    statusMessage.textContent = 'Assembling document...';
-                    substatusMessage.textContent = 'Creating your DOCX file';
-                } else {
-                    statusMessage.textContent = 'Processing document...';
-                    substatusMessage.textContent = "OCR processing can take some time for large documents";
-                }
-                
-                if (progress > 0) {
-                    // If we have actual progress, update progress bar
-                    progressBar.classList.remove('progress-indeterminate');
-                    progressBar.style.width = `${progress}%`;
-                }
-            } else if (data.status === 'completed') {
-                statusMessage.textContent = 'Processing completed!';
-                substatusMessage.textContent = 'Redirecting to download page...';
-                progressBar.classList.remove('progress-indeterminate');
-                progressBar.style.width = '100%';
-                progressPercentage.textContent = '100%';
-                timeRemaining.textContent = '';
-                
-                // Update all stages to complete
-                updateStages('done', 100);
-                
-                // Redirect to results page
-                setTimeout(() => {
-                    window.location.href = data.redirect;
-                }, 1000);
-            } else if (data.status === 'cancelled') {
-                statusMessage.textContent = 'Conversion cancelled';
-                substatusMessage.textContent = 'Nothing was saved. Returning to the home page...';
-                progressBar.classList.remove('progress-indeterminate');
-                progressBar.style.width = '100%';
-                progressBar.style.backgroundColor = '#9CA3AF'; // Grey: stopped, not failed
-                progressPercentage.textContent = '';
-                timeRemaining.textContent = '';
-                cancelButton.disabled = true;
-
-                setTimeout(() => {
-                    window.location.href = data.redirect || '/';
-                }, 2000);
-            } else if (data.status === 'failed') {
-                statusMessage.textContent = 'Processing failed';
-                substatusMessage.textContent = 'An error occurred during processing';
-                progressBar.classList.remove('progress-indeterminate');
-                progressBar.style.width = '100%';
-                progressBar.style.backgroundColor = '#EF4444'; // Red color for error
-                progressPercentage.textContent = '';
-                timeRemaining.textContent = '';
-                
-                // Show error message
-                errorContainer.classList.remove('hidden');
-                errorMessage.textContent = data.error || 'Unknown error occurred';
-                
-                // Redirect back to the index page with error after a delay
-                setTimeout(() => {
-                    window.location.href = data.redirect || '/';
-                }, 5000);
-            }
-        }
-        
-        function checkStatus() {
-            fetch(`/api/task_status/${taskId}`)
-                .then(response => {
-                    // An unknown (or expired, or someone else's) task answers 404.
-                    // That is a final answer, not a transport error, so do not retry it.
-                    if (response.status === 404) {
-                        return { status: 'not_found' };
-                    }
-                    if (!response.ok) {
-                        throw new Error(`Server returned ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === 'not_found') {
-                        // If task not found, redirect to home
-                        window.location.href = '/';
-                        return;
-                    }
-
-                    networkRetries = 0;
-
-                    updateStatusUI(data);
-                    
-                    // Continue polling if not done
-                    if (data.status === 'processing') {
-                        elapsed += checkInterval;
-                        
-                        // Gradually slow down polling to reduce server load
-                        if (elapsed > 10000) {
-                            checkInterval = 2000; // Every 2 seconds after 10 seconds
-                        }
-                        if (elapsed > 30000) {
-                            checkInterval = 3000; // Every 3 seconds after 30 seconds
-                        }
-                        if (elapsed > 60000) {
-                            checkInterval = 5000; // Every 5 seconds after a minute
-                        }
-                        
-                        // Check if we've been waiting too long
-                        if (elapsed > maxTime) {
-                            // Timeout - offer manual refresh
-                            const statusMessage = document.getElementById('status-message');
-                            const substatusMessage = document.getElementById('substatus-message');
-                            statusMessage.textContent = 'Processing taking longer than expected';
-                            substatusMessage.innerHTML = '<a href="/status/' + taskId + '" class="text-indigo-600 dark:text-indigo-400 hover:underline">Refresh page</a> to check progress';
-                            return;
-                        }
-                        
-                        setTimeout(checkStatus, checkInterval);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking task status:', error);
-                    networkRetries += 1;
-
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 rounded text-sm';
-                    document.querySelector('.p-6').appendChild(errorDiv);
-
-                    // Give up rather than polling a dead server forever.
-                    if (networkRetries > maxNetworkRetries) {
-                        errorDiv.textContent = `Connection error: ${error.message}. Giving up — reload the page to retry.`;
-                        return;
-                    }
-
-                    errorDiv.textContent = `Connection error: ${error.message}. Retrying...`;
-                    setTimeout(() => {
-                        errorDiv.remove();
-                        checkStatus();
-                    }, 5000);
-                });
-        }
-        
-        // --- Cancellation -------------------------------------------------
-        // The request only sets a flag; the worker notices it at the next page
-        // boundary. Say that plainly rather than pretending the job stops dead.
-        cancelButton.addEventListener('click', function () {
-            if (cancelButton.disabled) return;
-            cancelButton.disabled = true;
-            cancelButtonText.textContent = 'Cancelling...';
-
-            fetch(`/cancel/${taskId}`, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json' },
-            })
-                .then(response => response.json().catch(() => ({})).then(data => ({
-                    ok: response.ok, data,
-                })))
-                .then(({ ok, data }) => {
-                    if (ok && data.cancelled) {
-                        document.getElementById('substatus-message').textContent =
-                            'Cancelling — finishing the page currently being read...';
-                        return;
-                    }
-                    // Either the task already finished (the next poll will move
-                    // the page on) or the request was rejected. Re-enable the
-                    // button in both cases rather than stranding it disabled.
-                    cancelButton.disabled = false;
-                    cancelButtonText.textContent = 'Cancel conversion';
-                })
-                .catch(() => {
-                    // Let the user try again rather than stranding the button.
-                    cancelButton.disabled = false;
-                    cancelButtonText.textContent = 'Cancel conversion';
-                });
-        });
-
-        // Start checking status
-        checkStatus();
     </script>
 </body>
 </html>
