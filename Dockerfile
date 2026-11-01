@@ -1,7 +1,7 @@
 # Kept in step with the CI test matrix in .github/workflows/ci.yml, which
 # currently covers Python 3.11 to 3.14. Never set this higher than the highest
 # version that matrix tests, or the image ships on an untested interpreter.
-FROM python:3.14-slim
+FROM python:3.15-slim
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
