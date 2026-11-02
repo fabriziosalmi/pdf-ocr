@@ -15,7 +15,7 @@ click==8.5.0
 blinker==1.9.0
 
 # PDF / OCR / output
-Pillow==12.3.0             # image handling
+Pillow==13.0.0             # image handling
 pytesseract==0.3.13        # Tesseract wrapper
 pdf2image==1.17.0          # PDF -> image, shells out to Poppler
 python-docx==1.2.0         # DOCX creation
