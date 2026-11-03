@@ -24,8 +24,12 @@ on:
 permissions:
   contents: read
 
+# One group per ref. A single shared "pages" group made every pull request and
+# main queue behind each other, and GitHub keeps only one pending run per group,
+# so Docs runs on Dependabot PRs were cancelled before they ran. Main still has
+# its own group, so deploys stay serialized and are never cancelled mid-flight.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
