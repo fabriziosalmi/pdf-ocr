@@ -11,7 +11,7 @@ Werkzeug==3.1.9            # 2.3.7 had a DoS advisory; do not float back below 3
 Jinja2==3.1.6
 itsdangerous==2.2.0        # signs the session cookie
 MarkupSafe==3.0.4
-click==8.5.0
+click==8.5.1
 blinker==1.9.0
 
 # PDF / OCR / output
