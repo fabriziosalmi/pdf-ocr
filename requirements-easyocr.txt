@@ -10,4 +10,4 @@ easyocr>=1.7.2,<2.0
 # first from https://pytorch.org/get-started/locally/
 torch>=2.15.0
 torchvision>=0.29.2
-opencv-python-headless>=5.0.0.93   # headless: no GUI libs needed on a server
+opencv-python-headless>=5.1.0.95   # headless: no GUI libs needed on a server
